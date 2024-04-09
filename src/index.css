@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: #ffffff;
+        --text: #000000;
+        --subtitle: #666666;
+        --card: #cccccc;
+        --border: #aaaaaa;
+        --primary: blue;
+        --secondary: purple;
+
+        --focus-border: #99999999;
+        --separator-border: #66666666;
+    }
+
+    :root[class~="dark"] {
+        --background: #000000;
+        --text: #ffffff;
+        --subtitle: #999999;
+        --card: #333333;
+        --border: #666666;
+        --primary: blue;
+        --secondary: purple;
+    }
+}
+
+body {
+    background-color: var(--background);
+}
