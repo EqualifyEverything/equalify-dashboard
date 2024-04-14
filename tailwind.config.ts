@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       fontFamily: {
@@ -23,10 +20,10 @@ export default {
         successBackground: '#00ff0011',
         successBorder: '#00ff00',
         warningBackground: '#ffff0011',
-        warningBorder: '#ffff00'
+        warningBorder: '#ffff00',
       },
     },
   },
   plugins: [require('@tailwindcss/typography')],
   darkMode: 'class',
-}
+};
