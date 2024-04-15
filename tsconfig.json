@@ -2,13 +2,10 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -18,18 +15,25 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "#src/*": [
-        "./src/*"
-      ]
+      "~/*": ["./src/*"]
     },
+
     /* Linting */
+    "types": ["cypress", "@testing-library/cypress", "vitest"],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src"
+    "eslint/.eslintrc.mjs",
+    "cypress.config.ts",
+    "vite.config.ts",
+    ".prettierrc.mjs",
+    "postcss.config.js",
+    "tailwind.config.ts",
+    "src",
+    "cypress"
   ],
   "references": [
     {
