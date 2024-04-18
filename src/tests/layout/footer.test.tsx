@@ -1,7 +1,7 @@
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { describe, expect, it } from 'vitest';
 
-import Footer from '~/components/layout/footer';
+import { Footer } from '~/components/layout';
 import { render, screen } from '../customRender';
 
 expect.extend(toHaveNoViolations);

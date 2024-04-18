@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 
-import RootLayout from '.';
+import { RootLayout } from '.';
 
 const NotFound = () => (
   <RootLayout>
-    <section className="flex flex-col gap-20 md:flex-row h-full w-full items-center justify-center text-black">
+    <section className="flex h-full w-full flex-col items-center justify-center gap-20 text-black md:flex-row">
       <Link to="/">
         <img
           src="/equalify.svg"
@@ -15,7 +15,7 @@ const NotFound = () => (
         />
       </Link>
       <div className="flex flex-col gap-5 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold capitalize text-[#186121]">
+        <h1 className="text-4xl font-bold capitalize text-[#186121] md:text-5xl">
           404 Error
         </h1>
         <h2 className="text-lg font-medium uppercase lg:text-2xl">
@@ -25,7 +25,11 @@ const NotFound = () => (
           Sorry, we couldn't find the page you're looking for. Please check the
           URL or go back to the homepage.
         </p>
-        <Link to="/" aria-label="Go back to the homepage" className='text-white bg-[#186121] px-6 py-2 rounded-md'>
+        <Link
+          to="/"
+          aria-label="Go back to the homepage"
+          className="rounded-md bg-[#186121] px-6 py-2 text-white"
+        >
           Go to Homepage
         </Link>
       </div>
