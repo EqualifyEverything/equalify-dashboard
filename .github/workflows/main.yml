@@ -1,0 +1,24 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - main
+      - staging
+jobs:
+  Deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+      - name: Create Vite build, sync to S3, & invalidate Cloudfront
+        run: |
+          npm install
+          npx vite build --mode ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          aws s3 sync --delete ./dist ${{ github.ref == 'refs/heads/main' && 's3://equalify-web' || 's3://equalify-web-staging' }}
+          aws cloudfront create-invalidation --distribution-id ${{ github.ref == 'refs/heads/main' && 'E2NB4ZLGSC0FOP' || 'E1EWHV45TCAC77' }} --paths "/*" > /dev/null

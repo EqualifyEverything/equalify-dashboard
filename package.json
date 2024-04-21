@@ -5,8 +5,8 @@
   "scripts": {
     "start:prod": "vite --mode production",
     "start:staging": "vite --mode staging",
-    "build:prod": "vite build --mode production && aws s3 --profile equalify sync --delete ./dist s3://equalify-web && aws --profile equalify cloudfront create-invalidation --distribution-id E2M5IWN34XMC60 --paths \"/*\" > /dev/null",
-    "build:staging": "vite build --mode staging && aws s3 --profile equalify sync --delete ./dist s3://equalify-web-staging && aws --profile equalify cloudfront create-invalidation --distribution-id E2M5IWN34XMC60 --paths \"/*\" > /dev/null",
+    "build:prod": "vite build --mode production && aws s3 --profile equalify sync --delete ./dist s3://equalify-web && aws --profile equalify cloudfront create-invalidation --distribution-id E2NB4ZLGSC0FOP --paths \"/*\" > /dev/null",
+    "build:staging": "vite build --mode staging && aws s3 --profile equalify sync --delete ./dist s3://equalify-web-staging && aws --profile equalify cloudfront create-invalidation --distribution-id E1EWHV45TCAC77 --paths \"/*\" > /dev/null",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "cy:run:e2e": "cypress run --e2e",
