@@ -4,7 +4,7 @@ import { useAuth } from '~/hooks/useAuth';
 
 const Public: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
+  return isAuthenticated ? <Navigate to="/reports" replace /> : <>{children}</>;
 };
 
 export default Public;
