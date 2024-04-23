@@ -16,19 +16,22 @@ const Account = () => {
   };
   return (
     <>
-      <header className="flex items-center justify-between">
-        <h1 id="account-heading" className="text-2xl md:text-3xl">
+      <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
+        <h1 id="account-heading" className="text-2xl font-bold md:text-3xl">
           Your Account
         </h1>
-        <Button onClick={signOut} className="gap-2 bg-[#005031]">
+        <Button
+          onClick={signOut}
+          className="w-fit gap-2 place-self-end bg-[#005031]"
+        >
           Log Out
           <PinRightIcon aria-hidden />
         </Button>
-      </header>
+      </div>
 
       <section
         aria-labelledby="general-info-heading"
-        className="mt-6 space-y-6 rounded-lg bg-white p-6 shadow"
+        className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
       >
         <h2 id="general-info-heading" className="text-lg">
           General Information
@@ -39,7 +42,7 @@ const Account = () => {
 
       <section
         aria-labelledby="danger-zone-heading"
-        className="mt-6 space-y-6 rounded-lg bg-white p-6 shadow"
+        className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
       >
         <h2 id="danger-zone-heading" className="text-lg text-[#cf000f]">
           Danger Zone
