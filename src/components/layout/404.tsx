@@ -5,7 +5,7 @@ import { RootLayout } from '.';
 const NotFound = () => (
   <RootLayout>
     <section className="flex h-full w-full flex-col items-center justify-center gap-20 text-black md:flex-row">
-      <Link to="/">
+      <Link to="/reports" replace>
         <img
           src="/equalify.svg"
           className="h-auto w-60 md:w-96"
@@ -26,7 +26,8 @@ const NotFound = () => (
           URL or go back to the homepage.
         </p>
         <Link
-          to="/"
+          to="/reports"
+          replace
           aria-label="Go back to the homepage"
           className="rounded-md bg-[#186121] px-6 py-2 text-white"
         >
