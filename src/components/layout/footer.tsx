@@ -6,7 +6,7 @@ const Footer = () => {
       <MaxWidthWrapper>
         <div className="flex flex-col items-center justify-center gap-3 text-sm text-slate-500 md:h-16 md:gap-0 md:text-base">
           <span className="text-center">
-            Equalify Web App - Version 0.1.0 <br className="block sm:hidden" />
+            Equalify Web App - Version 0.3.0 <br className="block sm:hidden" />
             (Development Preview)
           </span>
 
