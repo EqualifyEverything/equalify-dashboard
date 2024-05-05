@@ -12,7 +12,19 @@ import '~/amplify.config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { NotFound } from '~/components/layout';
-import { Account, Login, ReportDetails, Reports, Root, Signup } from '~/routes';
+import {
+  Account,
+  CreateReport,
+  EditReport,
+  Login,
+  MessageDetails,
+  PageDetails,
+  ReportDetails,
+  Reports,
+  Root,
+  Signup,
+  TagDetails,
+} from '~/routes';
 
 const queryClient = new QueryClient();
 
@@ -27,32 +39,37 @@ const router = createBrowserRouter([
         element: <Navigate to="/reports" replace />,
       },
       {
-        path: 'account',
-        element: <Account />,
-      },
-      {
         path: 'reports',
         element: <Reports />,
       },
       {
         path: 'reports/create-report',
-        element: <div>Create Report</div>,
+        element: <CreateReport />,
       },
       {
         path: 'reports/:reportId',
         element: <ReportDetails />,
+        errorElement: <NotFound />,
+      },
+      {
+        path: 'reports/:reportId/edit',
+        element: <EditReport />,
       },
       {
         path: 'reports/:reportId/messages/:messageId',
-        element: <div>Message Detail</div>,
+        element: <MessageDetails />,
       },
       {
         path: 'reports/:reportId/tags/:tagId',
-        element: <div>Tag Detail</div>,
+        element: <TagDetails />,
       },
       {
         path: 'reports/:reportId/pages/:pageId',
-        element: <div>Page Detail</div>,
+        element: <PageDetails />,
+      },
+      {
+        path: 'account',
+        element: <Account />,
       },
     ],
   },
