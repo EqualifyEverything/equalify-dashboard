@@ -28,6 +28,7 @@
     "@tanstack/react-table": "^8.16.0",
     "aws-amplify": "^6.0.8",
     "class-variance-authority": "^0.7.0",
+    "cmdk": "^1.0.0",
     "framer-motion": "^11.0.3",
     "input-otp": "^1.2.4",
     "posthog-js": "^1.96.1",
