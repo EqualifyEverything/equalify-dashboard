@@ -7,6 +7,7 @@ export const mockReportDetails = {
       activeCount: 5,
       equalifiedCount: 2,
       totalCount: 7,
+      tags: ['1', '2'].filter(() => Math.random() > 0.5),
     })),
     {
       reportId: '1',
@@ -15,6 +16,7 @@ export const mockReportDetails = {
       activeCount: 20,
       equalifiedCount: 5,
       totalCount: 25,
+      tags: ['1'],
     },
     {
       reportId: '2',
@@ -23,6 +25,7 @@ export const mockReportDetails = {
       activeCount: 15,
       equalifiedCount: 2,
       totalCount: 17,
+      tags: ['2']
     },
     {
       reportId: '2',
@@ -31,6 +34,7 @@ export const mockReportDetails = {
       activeCount: 10,
       equalifiedCount: 1,
       totalCount: 11,
+      tags: ['2', '3']
     },
     {
       reportId: '3',
@@ -39,6 +43,7 @@ export const mockReportDetails = {
       activeCount: 5,
       equalifiedCount: 0,
       totalCount: 5,
+      tags: ['3']
     },
     {
       reportId: '3',
@@ -47,6 +52,7 @@ export const mockReportDetails = {
       activeCount: 7,
       equalifiedCount: 2,
       totalCount: 9,
+      tags: ['3', '4']
     },
     {
       reportId: '4',
@@ -55,6 +61,7 @@ export const mockReportDetails = {
       activeCount: 12,
       equalifiedCount: 4,
       totalCount: 16,
+      tags: ['4']
     },
     {
       reportId: '4',
@@ -63,6 +70,7 @@ export const mockReportDetails = {
       activeCount: 9,
       equalifiedCount: 1,
       totalCount: 10,
+      tags: ['4', '5']
     },
     {
       reportId: '5',
@@ -71,6 +79,7 @@ export const mockReportDetails = {
       activeCount: 14,
       equalifiedCount: 6,
       totalCount: 20,
+      tags: ['5']
     },
     {
       reportId: '5',
@@ -79,6 +88,7 @@ export const mockReportDetails = {
       activeCount: 18,
       equalifiedCount: 7,
       totalCount: 25,
+      tags: ['5', '6']
     },
     {
       reportId: '6',
@@ -87,6 +97,7 @@ export const mockReportDetails = {
       activeCount: 7,
       equalifiedCount: 3,
       totalCount: 10,
+      tags: ['6']
     },
     {
       reportId: '6',
@@ -95,6 +106,7 @@ export const mockReportDetails = {
       activeCount: 10,
       equalifiedCount: 5,
       totalCount: 15,
+      tags: ['6', '7']
     },
   ],
   pages: [
