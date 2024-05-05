@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { Button } from '~/components/buttons';
 import { useReports } from '~/graphql/hooks/useReports';
 import LoadingReport from './loading-report';
 
