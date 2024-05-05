@@ -26,6 +26,8 @@ import {
 const SignupSchema = z
   .object({
     email: z.string().email({ message: 'Please enter a valid email address.' }),
+    firstName: z.string(),
+    lastName: z.string(),
     password: z
       .string()
       .min(6, { message: 'Password must be at least 6 characters.' }),
@@ -62,6 +64,8 @@ const SignupForm = () => {
       await signUp({
         password: values.password,
         email: values.email,
+        firstName: values.firstName,
+        lastName: values.lastName,
       });
     } catch (error) {
       console.error('Sign up error on Submit:', error);
@@ -105,6 +109,45 @@ const SignupForm = () => {
                     placeholder="E.g. johndoe@email.com"
                     className="h-12 bg-white"
                     id="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="email">First Name</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="E.g. John"
+                    className="h-12 bg-white"
+                    id="firstName"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="lastName">Last Name</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="E.g. Doe"
+                    className="h-12 bg-white"
+                    id="lastName"
                     {...field}
                   />
                 </FormControl>

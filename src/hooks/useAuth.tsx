@@ -13,6 +13,7 @@ import {
   signUp as authSignUp,
   autoSignIn,
   getCurrentUser,
+  fetchAuthSession,
 } from 'aws-amplify/auth';
 
 import { useStore } from '~/store';
@@ -20,6 +21,8 @@ import { useStore } from '~/store';
 interface SignUpParams {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
 }
 
 export const useAuth = () => {
@@ -56,9 +59,12 @@ export const useAuth = () => {
   const transformAndSetUser = useCallback(async () => {
     const authUser = await getCurrentUser();
     if (authUser) {
+      const attributes = (await fetchAuthSession({ forceRefresh: true })).tokens?.idToken?.payload;
       const transformedUser = {
         userId: authUser.userId,
         email: authUser.signInDetails?.loginId ?? '',
+        firstName: attributes.given_name ?? '',
+        lastName: attributes.family_name ?? ''
       };
       setUser(transformedUser);
     } else {
@@ -94,13 +100,19 @@ export const useAuth = () => {
   }, [transformAndSetUser, setIsAuthenticated, setLoading, handleError]);
 
   const signUp = useCallback(
-    async ({ password, email }: SignUpParams) => {
+    async ({ password, email, firstName, lastName }: SignUpParams) => {
       setLoading(true);
       try {
         const { isSignUpComplete, nextStep } = await authSignUp({
           username: email,
           password,
-          options: { userAttributes: { email }, autoSignIn: true },
+          options: {
+            userAttributes: {
+              email,
+              given_name: firstName,
+              family_name: lastName,
+            }, autoSignIn: true
+          },
         });
 
         if (!isSignUpComplete && nextStep.signUpStep === 'CONFIRM_SIGN_UP') {

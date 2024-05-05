@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import * as Auth from 'aws-amplify/auth'
+import * as API from "aws-amplify/api";
+const apiClient = API.generateClient();
 
 import { Button } from '~/components/buttons';
 import {
@@ -20,6 +23,8 @@ import {
   FormLabel,
   FormMessage,
 } from '.';
+import { useStore } from '~/store';
+import { useState } from 'react';
 
 const AccountSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -31,18 +36,40 @@ const AccountSchema = z.object({
 type AccountFormInputs = z.infer<typeof AccountSchema>;
 
 const AccountForm = () => {
+  const [loading, setLoading] = useState(false);
+  const setUser = useStore(state => state.setUser);
   const { user } = useAuth();
   const form = useForm<AccountFormInputs>({
     resolver: zodResolver(AccountSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      firstName: user?.firstName,
+      lastName: user?.lastName,
       email: user?.email ?? '',
       selectedAccount: '',
     },
   });
 
-  const onSubmit = async (values: AccountFormInputs) => {};
+  const onSubmit = async (values: AccountFormInputs) => {
+    setLoading(true);
+    const keyDict = { firstName: 'given_name', lastName: 'family_name', email: 'email' };
+    const newUser = {};
+    for (const [key, value] of Object.entries(values)?.filter(([key,]) => ['firstName', 'lastName', 'email'].includes(key))) {
+      const result = await Auth.updateUserAttributes({ userAttributes: { [keyDict?.[key]]: value } });
+      if (result) {
+        await apiClient.graphql({
+          query: `mutation($id:UUID!) {
+            updateUser(input:{id:$id, patch:{${key}: "${value}"}}) {
+              user {id}
+            }
+          }`,
+          variables: { id: user?.userId },
+        });
+        newUser[key] = value;
+      }
+    }
+    setUser({ ...user, ...newUser });
+    setLoading(false);
+  };
 
   return (
     <Form {...form}>
@@ -61,7 +88,6 @@ const AccountForm = () => {
                   type="text"
                   placeholder="E.g. John"
                   className="h-12 bg-white"
-                  disabled
                   aria-readonly
                   {...field}
                 />
@@ -81,7 +107,6 @@ const AccountForm = () => {
                   type="text"
                   placeholder="E.g. Doe"
                   className="h-12 bg-white"
-                  disabled
                   aria-readonly
                   {...field}
                 />
@@ -101,7 +126,6 @@ const AccountForm = () => {
                   type="email"
                   placeholder="E.g. johndoe@email.com"
                   className="h-12 bg-white"
-                  disabled
                   aria-readonly
                   {...field}
                 />
@@ -147,9 +171,9 @@ const AccountForm = () => {
         <Button
           type="submit"
           className="w-fit bg-[#1D781D] text-white"
-          disabled
+          disabled={loading}
         >
-          Update Account
+          {!loading ? 'Update Account' : 'Updating...'}
         </Button>
       </form>
     </Form>

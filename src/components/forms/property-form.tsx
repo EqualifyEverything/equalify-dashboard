@@ -15,7 +15,7 @@ import {
 
 const PropertySchema = z.object({
   propertyName: z.string().min(1, 'Please enter a Property name.'),
-  siteMapURL: z.string().url('Please enter a valid URL.'),
+  sitemapUrl: z.string().url('Please enter a valid URL.'),
 });
 
 type PropertyFormInputs = z.infer<typeof PropertySchema>;
@@ -55,7 +55,6 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   id="propertyName"
                   placeholder="E.g. Accessibility Property"
                   className="h-12 bg-white"
-                  disabled
                   aria-readonly
                   {...field}
                 />
@@ -66,17 +65,16 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         />
         <FormField
           control={form.control}
-          name="siteMapURL"
+          name="sitemapUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="siteMapURL">Sitemap URL</FormLabel>
+              <FormLabel htmlFor="sitemapUrl">Sitemap URL</FormLabel>
               <FormControl>
                 <Input
                   type="text"
-                  id="siteMapURL"
+                  id="sitemapUrl"
                   placeholder="E.g. https://example.com/sitemap.xml"
                   className="h-12 bg-white"
-                  disabled
                   aria-readonly
                   {...field}
                 />
