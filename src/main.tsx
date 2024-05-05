@@ -22,6 +22,7 @@ import {
   ReportDetails,
   Reports,
   Root,
+  Scans,
   Signup,
   TagDetails,
 } from '~/routes';
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: 'account',
         element: <Account />,
+      },
+      {
+        path: 'scans',
+        element: <Scans />,
       },
     ],
   },
