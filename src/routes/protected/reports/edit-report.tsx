@@ -11,7 +11,7 @@ const EditReport = () => {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteReport = async () => {
     setIsDeleteDialogOpen(false);
   };
 
@@ -77,7 +77,7 @@ const EditReport = () => {
           <DangerDialog
             isOpen={isDeleteDialogOpen}
             onClose={() => setIsDeleteDialogOpen(false)}
-            onConfirm={handleDeleteAccount}
+            onConfirm={handleDeleteReport}
             title="Confirm Report Deletion"
             description="Are you sure you want to delete your report? This action cannot be undone."
           />
