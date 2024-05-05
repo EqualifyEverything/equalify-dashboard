@@ -9,6 +9,7 @@ export { default as ReportDetails } from './protected/reports/report-details';
 export { default as MessageDetails } from './protected/reports/message-details';
 export { default as TagDetails } from './protected/reports/tag-details';
 export { default as PageDetails } from './protected/reports/page-details';
+export { default as Scans } from './protected/scans';
 
 export { default as Login } from './public/auth/login';
 export { default as Signup } from './public/auth/signup';
