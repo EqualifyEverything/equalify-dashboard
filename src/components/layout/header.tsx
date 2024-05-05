@@ -5,7 +5,7 @@ import { MaxWidthWrapper } from '.';
 const routes = [
   { name: 'Reports', path: '/reports' },
   { name: 'Scans', path: '/scans' },
-  { name: 'Settings', path: '/settings' },
+  { name: 'Properties', path: '/properties' },
   { name: 'My Account', path: '/account' },
 ];
 
