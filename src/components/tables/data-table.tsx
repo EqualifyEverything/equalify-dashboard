@@ -33,7 +33,7 @@ const DataTable = <TData, TValue,>({
   columns,
   data,
   type,
-}: DataTableProps<TData, TValue> & { type: 'messages' | 'tags' | 'pages' | 'nodes' }) => {
+}: DataTableProps<TData, TValue> & { type: 'messages' | 'tags' | 'pages' | 'nodes' | 'scans' }) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 5,
@@ -55,6 +55,7 @@ const DataTable = <TData, TValue,>({
     tags: 'Tags List',
     pages: 'Pages List',
     nodes: 'Nodes List',
+    scans: 'Scans List',
   };
 
   return (
