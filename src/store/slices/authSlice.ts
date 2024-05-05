@@ -1,8 +1,10 @@
 import { StateCreator } from 'zustand';
 
 interface AuthUser {
-  userId : string;
-  email : string;
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface AuthSlice {

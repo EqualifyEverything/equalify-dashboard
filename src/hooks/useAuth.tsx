@@ -13,6 +13,7 @@ import {
   signUp as authSignUp,
   autoSignIn,
   getCurrentUser,
+  fetchAuthSession,
 } from 'aws-amplify/auth';
 
 import { useStore } from '~/store';
@@ -56,9 +57,12 @@ export const useAuth = () => {
   const transformAndSetUser = useCallback(async () => {
     const authUser = await getCurrentUser();
     if (authUser) {
+      const attributes = (await fetchAuthSession({ forceRefresh: true })).tokens?.idToken?.payload;
       const transformedUser = {
         userId: authUser.userId,
         email: authUser.signInDetails?.loginId ?? '',
+        firstName: attributes.given_name ?? '',
+        lastName: attributes.family_name ?? ''
       };
       setUser(transformedUser);
     } else {

@@ -4,7 +4,7 @@ import * as Auth from 'aws-amplify/auth';
 const generateHeaders = async (apiKeyRequired: boolean) => {
   const session = await Auth.fetchAuthSession();
   const headers: Record<string, string> = {
-    Authorization: `Bearer ${session.tokens?.idToken?.toString()}`,
+    Authorization: `Bearer ${session.tokens?.accessToken?.toString()}`,
   };
 
   if (apiKeyRequired) {
@@ -24,7 +24,7 @@ Amplify.configure(
     },
     API: {
       GraphQL: {
-        endpoint: `${import.meta.env.VITE_GRAPHQL_URL}/v1/graphql`,
+        endpoint: `${import.meta.env.VITE_API_URL}/graphql`,
         defaultAuthMode: 'none',
       },
       REST: {
