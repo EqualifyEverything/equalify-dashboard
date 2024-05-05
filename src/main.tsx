@@ -14,11 +14,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NotFound } from '~/components/layout';
 import {
   Account,
+  AddProperty,
   CreateReport,
+  EditProperty,
   EditReport,
   Login,
   MessageDetails,
   PageDetails,
+  Properties,
   ReportDetails,
   Reports,
   Root,
@@ -75,6 +78,18 @@ const router = createBrowserRouter([
       {
         path: 'scans',
         element: <Scans />,
+      },
+      {
+        path: 'properties',
+        element: <Properties />,
+      },
+      {
+        path: 'properties/add-property',
+        element: <AddProperty />,
+      },
+      {
+        path: 'properties/:propertyId',
+        element: <EditProperty />,
       },
     ],
   },
