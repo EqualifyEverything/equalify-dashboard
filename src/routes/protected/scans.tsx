@@ -1,6 +1,7 @@
+import { ColumnDef } from '@tanstack/react-table';
+
 import { Button } from '~/components/buttons';
 import DataTable from '~/components/tables/data-table';
-import { ColumnDef } from '@tanstack/react-table';
 
 interface Scan {
   jobId: string;
@@ -69,8 +70,9 @@ const Scans = () => {
         <h2 id="queue-heading" className="text-lg">
           Queue
         </h2>
-
-        <DataTable columns={scansColumns} data={scansData} type="scans" />
+        <div className="w-full overflow-x-auto">
+          <DataTable columns={scansColumns} data={scansData} type="scans" />
+        </div>
       </section>
     </>
   );
