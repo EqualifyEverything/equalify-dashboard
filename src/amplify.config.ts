@@ -29,10 +29,10 @@ Amplify.configure(
       },
       REST: {
         public: {
-          endpoint: `${import.meta.env.VITE_API_URL}/public`,
+          endpoint: `${import.meta.env.VITE_API_URL}`,
         },
         auth: {
-          endpoint: `${import.meta.env.VITE_API_URL}/auth`,
+          endpoint: `${import.meta.env.VITE_API_URL}`,
         },
       },
     },

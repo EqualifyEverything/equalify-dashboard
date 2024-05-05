@@ -21,6 +21,8 @@ import { useStore } from '~/store';
 interface SignUpParams {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
 }
 
 export const useAuth = () => {
@@ -98,13 +100,19 @@ export const useAuth = () => {
   }, [transformAndSetUser, setIsAuthenticated, setLoading, handleError]);
 
   const signUp = useCallback(
-    async ({ password, email }: SignUpParams) => {
+    async ({ password, email, firstName, lastName }: SignUpParams) => {
       setLoading(true);
       try {
         const { isSignUpComplete, nextStep } = await authSignUp({
           username: email,
           password,
-          options: { userAttributes: { email }, autoSignIn: true },
+          options: {
+            userAttributes: {
+              email,
+              given_name: firstName,
+              family_name: lastName,
+            }, autoSignIn: true
+          },
         });
 
         if (!isSignUpComplete && nextStep.signUpStep === 'CONFIRM_SIGN_UP') {

@@ -4,23 +4,49 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
-import {PropertyForm} from '~/components/forms'; 
-import { usePropertyDetails } from '~/graphql/hooks/useProperties'; 
+import { PropertyForm } from '~/components/forms';
+import { usePropertyDetails } from '~/graphql/hooks/useProperties';
+import * as API from "aws-amplify/api";
 
 const EditProperty = () => {
   const navigate = useNavigate();
-  const { propertyId } = useParams<{ propertyId: string }>(); 
+  const [loading, setLoading] = useState(false);
+  const { propertyId } = useParams<{ propertyId: string }>();
   const { data: propertyDetails, error, isLoading } = usePropertyDetails(propertyId || '');
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDeleteProperty = async () => {
     setIsDeleteDialogOpen(false);
+    setLoading(true);
     console.log(`Deleting property: ${propertyId}`);
+    await API.del({
+      apiName: 'auth', path: '/delete/properties', options: {
+        queryParams: {
+          propertyId
+        }
+      }
+    }).response
+    setLoading(false);
+    navigate('/properties')
   };
 
-  const handleSubmit = async (values: { propertyName: string; siteMapURL: string }) => {
-    console.log('Updating property:', values);
+  const handleSubmit = async (values: { propertyName: string; sitemapUrl: string }) => {
+    console.log('Updating property:', values, propertyId);
+    setLoading(true);
+    const response = await (await API.put({
+      apiName: 'auth', path: '/update/properties', options: {
+        body: {
+          propertyId,
+          propertyName: values.propertyName,
+          sitemapUrl: values.sitemapUrl,
+        }
+      }
+    }).response).body.json();
+    setLoading(false);
+    if (response.status === 'success') {
+
+    }
   };
 
   if (isLoading) return <p>Loading property details...</p>;
@@ -38,7 +64,7 @@ const EditProperty = () => {
       >
         <PropertyForm
           onSubmit={handleSubmit}
-          defaultValues={{ propertyName: propertyDetails?.name || '', siteMapURL: propertyDetails?.sitemapUrl || '' }}
+          defaultValues={{ propertyName: propertyDetails?.name || '', sitemapUrl: propertyDetails?.sitemapUrl || '' }}
           formId="edit-property-form"
         />
 
@@ -47,8 +73,9 @@ const EditProperty = () => {
             type="submit"
             form="edit-property-form"
             className="w-fit bg-[#1D781D] text-white"
+            disabled={loading}
           >
-            Update Property
+            {!loading ? 'Update Property' : 'Updating...'}
           </Button>
           <Button
             variant={'outline'}

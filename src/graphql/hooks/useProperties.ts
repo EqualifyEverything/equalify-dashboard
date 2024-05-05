@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-
-import { mockProperties } from '../mocks/mock-properties';
+import * as API from "aws-amplify/api";
 
 interface Property {
   id: string;
@@ -10,22 +9,20 @@ interface Property {
 }
 
 const fetchProperties = async (): Promise<Property[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return mockProperties;
+  const properties = await (await API.get({ apiName: 'auth', path: '/get/properties' }).response).body.json();
+  return properties.result;
 };
 
 const fetchPropertyById = async (id: string): Promise<Property | undefined> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return mockProperties.find((property) => property.id === id);
+  const properties = await (await API.get({ apiName: 'auth', path: `/get/properties?propertyIds=${id}` }).response).body.json();
+  return properties?.result?.[0];
 };
 
 export const useProperties = () =>
   useQuery<Property[]>({
     queryKey: ['properties'],
     queryFn: fetchProperties,
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
 
@@ -45,8 +42,5 @@ export const usePropertyDetails = (propertyId: string) => {
     },
     initialDataUpdatedAt: (): number =>
       queryClient.getQueryState(['properties'])?.dataUpdatedAt ?? 0,
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
