@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { Input } from '~/components/inputs';
 import {
-  Form,
+  Form as HookFormProvider,
   FormControl,
   FormDescription,
   FormField,
@@ -12,34 +12,47 @@ import {
   FormLabel,
   FormMessage,
 } from '.';
+import { useSubmit } from 'react-router-dom';
 
 const PropertySchema = z.object({
   propertyName: z.string().min(1, 'Please enter a Property name.'),
   sitemapUrl: z.string().url('Please enter a valid URL.'),
+  propertyDiscovery: z.enum(['manually_added', 'single_page_import']),
 });
 
 type PropertyFormInputs = z.infer<typeof PropertySchema>;
 
 interface PropertyFormProps {
-  onSubmit: (values: PropertyFormInputs) => void;
+  actionUrl: string;
   defaultValues: PropertyFormInputs;
   formId: 'add-property-form' | 'edit-property-form';
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const PropertyForm: React.FC<PropertyFormProps> = ({
-  onSubmit,
+  actionUrl,
   defaultValues,
   formId,
+  onChange,
 }) => {
+  const submit = useSubmit();
   const form = useForm<PropertyFormInputs>({
     resolver: zodResolver(PropertySchema),
     defaultValues,
   });
 
   return (
-    <Form {...form}>
+    <HookFormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        method="post"
+        action={actionUrl}
+        onSubmit={(event) => {
+          const target = event.currentTarget;
+          form.handleSubmit(()=> {
+            submit(target, {method: 'post'})
+
+          })(event)
+        }}
         id={formId}
         className="flex flex-col gap-4 md:flex-row"
       >
@@ -57,6 +70,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   className="h-12 bg-white"
                   aria-readonly
                   {...field}
+                  onChange={(event) => {
+                    field.onChange(event);
+                    onChange && onChange(event);
+                  }} 
                 />
               </FormControl>
               <FormMessage />
@@ -77,6 +94,10 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   className="h-12 bg-white"
                   aria-readonly
                   {...field}
+                  onChange={(event) => {
+                    field.onChange(event);
+                    onChange && onChange(event);
+                  }} 
                 />
               </FormControl>
               <FormDescription>
@@ -87,8 +108,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
             </FormItem>
           )}
         />
+        <Input type='hidden' value='manually_added' {...form.register('propertyDiscovery')} />
       </form>
-    </Form>
+    </HookFormProvider>
   );
 };
 
