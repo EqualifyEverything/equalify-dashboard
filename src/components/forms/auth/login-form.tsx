@@ -40,7 +40,9 @@ const LoginForm = () => {
     signIn,
     loading,
     error: signInError,
+    clearErrors,
     needsConfirmation,
+    cancelConfirmation,
     pendingUsername,
   } = useAuth();
 
@@ -62,6 +64,13 @@ const LoginForm = () => {
   useEffect(() => {
     if (signInError) errorAlertRef.current?.focus();
   }, [signInError]);
+
+  useEffect(() => {
+    return () => {
+      clearErrors();
+      cancelConfirmation();
+    };
+  }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
     return <OTPValidationForm email={pendingUsername} />;
