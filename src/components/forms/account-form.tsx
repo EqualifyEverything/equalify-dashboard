@@ -1,9 +1,8 @@
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
-import * as Auth from 'aws-amplify/auth'
-import * as API from "aws-amplify/api";
-const apiClient = API.generateClient();
 
 import { Button } from '~/components/buttons';
 import {
@@ -23,8 +22,6 @@ import {
   FormLabel,
   FormMessage,
 } from '.';
-import { useStore } from '~/store';
-import { useState } from 'react';
 
 const AccountSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -36,9 +33,7 @@ const AccountSchema = z.object({
 type AccountFormInputs = z.infer<typeof AccountSchema>;
 
 const AccountForm = () => {
-  const [loading, setLoading] = useState(false);
-  const setUser = useStore(state => state.setUser);
-  const { user } = useAuth();
+  const { user, updateUserAttributes, loading } = useAuth();
   const form = useForm<AccountFormInputs>({
     resolver: zodResolver(AccountSchema),
     defaultValues: {
@@ -49,32 +44,44 @@ const AccountForm = () => {
     },
   });
 
-  const onSubmit = async (values: AccountFormInputs) => {
-    setLoading(true);
-    const keyDict = { firstName: 'given_name', lastName: 'family_name', email: 'email' };
-    const newUser = {};
-    for (const [key, value] of Object.entries(values)?.filter(([key,]) => ['firstName', 'lastName', 'email'].includes(key))) {
-      const result = await Auth.updateUserAttributes({ userAttributes: { [keyDict?.[key]]: value } });
-      if (result) {
-        await apiClient.graphql({
-          query: `mutation($id:UUID!) {
-            updateUser(input:{id:$id, patch:{${key}: "${value}"}}) {
-              user {id}
-            }
-          }`,
-          variables: { id: user?.userId },
-        });
-        newUser[key] = value;
-      }
+  const [isFormChanged, setIsFormChanged] = useState(false);
+
+  const watchedFields = useWatch({ control: form.control });
+
+  useEffect(() => {
+    const isChanged =
+      (watchedFields.firstName?.trim() ?? '') !== (user?.firstName ?? '') ||
+      (watchedFields.lastName?.trim() ?? '') !== (user?.lastName ?? '');
+    setIsFormChanged(isChanged);
+  }, [watchedFields, user]);
+
+  const handleUpdateAccount = async (values: AccountFormInputs) => {
+    try {
+      await updateUserAttributes({
+        firstName: values.firstName,
+        lastName: values.lastName,
+      });
+      form.reset(values);
+      toast.success('Account updated successfully.');
+    } catch (error) {
+      toast.error('Failed to update account');
     }
-    setUser({ ...user, ...newUser });
-    setLoading(false);
+  };
+
+  const handleCancel = () => {
+    form.reset({
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.email ?? '',
+      selectedAccount: '',
+    });
+    setIsFormChanged(false);
   };
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleUpdateAccount)}
         className="grid grid-cols-1 gap-x-10 md:grid-cols-2"
       >
         <FormField
@@ -126,6 +133,7 @@ const AccountForm = () => {
                   type="email"
                   placeholder="E.g. johndoe@email.com"
                   className="h-12 bg-white"
+                  disabled
                   aria-readonly
                   {...field}
                 />
@@ -168,13 +176,38 @@ const AccountForm = () => {
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-fit bg-[#1D781D] text-white"
-          disabled={loading}
-        >
-          {!loading ? 'Update Account' : 'Updating...'}
-        </Button>
+        <div className="flex space-x-4">
+          <Button
+            type="submit"
+            className="w-fit bg-[#1D781D] text-white"
+            disabled={!isFormChanged}
+            aria-disabled={!isFormChanged}
+            aria-live="polite"
+          >
+            {loading ? (
+              <>
+                <span className="sr-only">Processing, please wait...</span>
+                <div
+                  role="status"
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
+                ></div>
+              </>
+            ) : (
+              'Update Account'
+            )}
+          </Button>
+
+          {isFormChanged && (
+            <Button
+              type="button"
+              variant={'outline'}
+              className="w-fit"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );

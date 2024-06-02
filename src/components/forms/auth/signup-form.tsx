@@ -25,9 +25,9 @@ import {
 
 const SignupSchema = z
   .object({
+    firstName: z.string().min(1, { message: 'First name is required.' }),
+    lastName: z.string().min(1, { message: 'Last name is required.' }),
     email: z.string().email({ message: 'Please enter a valid email address.' }),
-    firstName: z.string(),
-    lastName: z.string(),
     password: z
       .string()
       .min(6, { message: 'Password must be at least 6 characters.' }),
@@ -46,13 +46,17 @@ const SignupForm = () => {
     signUp,
     loading,
     error: signUpError,
+    clearErrors,
     needsConfirmation,
+    cancelConfirmation,
     pendingUsername,
   } = useAuth();
 
   const form = useForm<SignupFormInputs>({
     resolver: zodResolver(SignupSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -62,10 +66,10 @@ const SignupForm = () => {
   const onSubmit = async (values: SignupFormInputs) => {
     try {
       await signUp({
-        password: values.password,
-        email: values.email,
         firstName: values.firstName,
         lastName: values.lastName,
+        email: values.email,
+        password: values.password,
       });
     } catch (error) {
       console.error('Sign up error on Submit:', error);
@@ -78,6 +82,13 @@ const SignupForm = () => {
   useEffect(() => {
     if (signUpError) errorAlertRef.current?.focus();
   }, [signUpError]);
+
+  useEffect(() => {
+    return () => {
+      clearErrors();
+      cancelConfirmation();
+    };
+  }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
     return <OTPValidationForm email={pendingUsername} />;
@@ -97,6 +108,48 @@ const SignupForm = () => {
               ref={errorAlertRef}
             />
           )}
+          <div className="flex gap-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="email">First Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="E.g. John"
+                      className="h-12 bg-white"
+                      id="firstName"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="lastName">Last Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="E.g. Doe"
+                      className="h-12 bg-white"
+                      id="lastName"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="email"
@@ -116,45 +169,7 @@ const SignupForm = () => {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="email">First Name</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="E.g. John"
-                    className="h-12 bg-white"
-                    id="firstName"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="lastName">Last Name</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="E.g. Doe"
-                    className="h-12 bg-white"
-                    id="lastName"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="password"
