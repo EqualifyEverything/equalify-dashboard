@@ -1,8 +1,15 @@
 import React from 'react';
+import { QueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
 import { useReports } from '~/graphql/hooks/useReports';
+import { reportsQuery } from '~/queries/reports';
 import LoadingReport from './loading-report';
+
+export const reportsLoader = (queryClient: QueryClient) => async () => {
+  const initialReports = await queryClient.ensureQueryData(reportsQuery());
+  return { initialReports };
+};
 
 interface Report {
   id: string;
@@ -43,6 +50,21 @@ const ReportCard: React.FC<Report> = ({
 );
 
 const Reports = () => {
+  // TODO: Leverage useLoaderData to get initial reports data and useQuery to fetch reports
+  /*
+   const { initialReports } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof reportsLoader>>
+  >;
+  const {
+    data: reports,
+    isLoading,
+    error,
+  } = useQuery({
+    ...reportsQuery(),
+    initialData: initialreports,
+  });
+*/
+
   const { data: reports, isLoading, error } = useReports();
 
   if (error) return <p>Error loading reports</p>;
@@ -57,7 +79,7 @@ const Reports = () => {
           Reports
         </h1>
         <Link
-          to="/reports/create-report"
+          to="/reports/create"
           className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
         >
           Create Report

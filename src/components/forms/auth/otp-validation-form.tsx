@@ -133,7 +133,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
             className="h-12 w-full bg-[#1D781D] text-white"
             disabled={loading}
             aria-live="polite"
-            aria-label={loading ? 'Processing,please wait' : 'Confirm'}
+            aria-label={loading ? 'Processing,please wait' : 'Verify and Sign Up'}
           >
             {loading ? (
               <>
@@ -144,7 +144,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
                 ></div>
               </>
             ) : (
-              'Confirm'
+              'Verify and Sign Up'
             )}
           </Button>
         </div>

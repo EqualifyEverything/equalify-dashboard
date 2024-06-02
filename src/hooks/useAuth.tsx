@@ -11,9 +11,10 @@ import {
   signIn as authSignIn,
   signOut as authSignOut,
   signUp as authSignUp,
+  updateUserAttributes as authUpdateUserAttributes,
   autoSignIn,
+  fetchUserAttributes,
   getCurrentUser,
-  fetchAuthSession,
 } from 'aws-amplify/auth';
 
 import { useStore } from '~/store';
@@ -21,6 +22,11 @@ import { useStore } from '~/store';
 interface SignUpParams {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface UpdateUserParams {
   firstName: string;
   lastName: string;
 }
@@ -57,20 +63,30 @@ export const useAuth = () => {
   }));
 
   const transformAndSetUser = useCallback(async () => {
-    const authUser = await getCurrentUser();
-    if (authUser) {
-      const attributes = (await fetchAuthSession({ forceRefresh: true })).tokens?.idToken?.payload;
-      const transformedUser = {
-        userId: authUser.userId,
-        email: authUser.signInDetails?.loginId ?? '',
-        firstName: attributes.given_name ?? '',
-        lastName: attributes.family_name ?? ''
-      };
-      setUser(transformedUser);
-    } else {
+    setLoading(true);
+    try {
+      const authUser = await getCurrentUser();
+      if (authUser) {
+        const attributes = await fetchUserAttributes();
+        const transformedUser = {
+          userId: authUser.userId,
+          email: authUser.signInDetails?.loginId ?? '',
+          firstName: attributes.given_name ?? '',
+          lastName: attributes.family_name ?? '',
+        };
+        setUser(transformedUser);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
       setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
     }
-  }, [setUser]);
+  }, [setUser, setIsAuthenticated, setLoading]);
 
   const handleError = useCallback(
     (error: AuthError | unknown, message = '') => {
@@ -82,22 +98,14 @@ export const useAuth = () => {
     [setError, setLoading],
   );
 
-  useEffect(() => {
-    const checkCurrentUser = async () => {
-      setLoading(true);
-      try {
-        await transformAndSetUser();
-        setIsAuthenticated(true);
-      } catch {
-        setUser(null);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const clearErrors = useCallback(() => {
+    setError(null);
+  }, [setError]);
 
-    checkCurrentUser();
-  }, [transformAndSetUser, setIsAuthenticated, setLoading, handleError]);
+
+  useEffect(() => {
+    transformAndSetUser();
+  }, [transformAndSetUser]);
 
   const signUp = useCallback(
     async ({ password, email, firstName, lastName }: SignUpParams) => {
@@ -111,7 +119,8 @@ export const useAuth = () => {
               email,
               given_name: firstName,
               family_name: lastName,
-            }, autoSignIn: true
+            },
+            autoSignIn: true,
           },
         });
 
@@ -161,6 +170,12 @@ export const useAuth = () => {
     },
     [setLoading, transformAndSetUser, setIsAuthenticated, handleError],
   );
+
+  const cancelConfirmation = useCallback(() => {
+    setNeedsConfirmation(false);
+    setPendingUsername(null);
+    clearErrors();
+  }, [setNeedsConfirmation, setPendingUsername, clearErrors]);
 
   const resendSignUpCode = useCallback(
     async (username: string) => {
@@ -234,6 +249,26 @@ export const useAuth = () => {
     }
   }, [clearAuth, handleError, setLoading]);
 
+  const updateUserAttributes = useCallback(
+    async ({ firstName, lastName }: UpdateUserParams) => {
+      setLoading(true);
+      try {
+        await authUpdateUserAttributes({
+          userAttributes: {
+            given_name: firstName,
+            family_name: lastName,
+          },
+        });
+        await transformAndSetUser();
+      } catch (error) {
+        handleError(error, 'Error updating user attributes:');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setLoading, transformAndSetUser, handleError],
+  );
+
   const deleteUser = useCallback(async () => {
     setLoading(true);
     try {
@@ -249,9 +284,12 @@ export const useAuth = () => {
   return {
     signUp,
     confirmSignUp,
+    cancelConfirmation,
     resendSignUpCode,
     signIn,
     signOut,
+    clearErrors,
+    updateUserAttributes,
     deleteUser,
     user,
     isAuthenticated,
