@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
 import { PropertyForm } from '~/components/forms';
+import { SEO } from '~/components/layout';
 import { addProperty } from '~/services';
 
 /**
@@ -66,6 +67,11 @@ const AddProperty = () => {
 
   return (
     <>
+      <SEO
+        title="Add Property - Equalify"
+        description="Add a new property to Equalify to start monitoring and improving its accessibility."
+        url="https://www.equalify.dev/properties/add"
+      />
       <h1 id="add-property-heading" className="text-2xl font-bold md:text-3xl">
         Add New Property
       </h1>

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
 import { ReportForm } from '~/components/forms';
+import { SEO } from '~/components/layout';
 import { addReport } from '~/services';
 import { useStore } from '~/store';
 import { assertNonNull } from '~/utils/safety';
@@ -47,8 +48,10 @@ const CreateReport = () => {
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const form = event.currentTarget.closest('form');
-    const reportName = form?.elements.namedItem('reportName') as HTMLInputElement;
-    
+    const reportName = form?.elements.namedItem(
+      'reportName',
+    ) as HTMLInputElement;
+
     if (reportName) {
       const isFormValid = reportName.value.trim() !== '';
       setIsFormValid(isFormValid);
@@ -57,6 +60,11 @@ const CreateReport = () => {
 
   return (
     <>
+      <SEO
+        title="Create Report - Equalify"
+        description="Create a new accessibility report on Equalify to start analyzing and improving your website's accessibility."
+        url="https://www.equalify.dev/reports/create"
+      />
       <h1 id="create-report-heading" className="text-2xl font-bold md:text-3xl">
         Create a New Report
       </h1>

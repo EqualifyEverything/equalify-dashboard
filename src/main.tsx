@@ -11,6 +11,7 @@ import '~/amplify.config';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { HelmetProvider } from 'react-helmet-async';
 
 import { NotFound } from '~/components/layout';
 import {
@@ -96,7 +97,9 @@ const root = createRoot(domNode);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
+    <HelmetProvider>
       <RouterProvider router={router} />
+    </HelmetProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>,

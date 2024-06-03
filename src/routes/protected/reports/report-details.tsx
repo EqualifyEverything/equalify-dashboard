@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Link, useParams } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
+import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { useReportDetails } from '~/graphql/hooks/useReportDetails';
 import { Message, Page, Tag } from '~/graphql/types';
@@ -74,6 +75,11 @@ const ReportDetails = () => {
 
   return (
     <div className="space-y-4">
+      <SEO
+        title={`${name} - Report Details - Equalify`}
+        description={`View the details of the ${name} report, including messages, pages, and tags, on Equalify.`}
+        url={`https://www.equalify.dev/reports/${reportId}`}
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1
           id="report-details-heading"

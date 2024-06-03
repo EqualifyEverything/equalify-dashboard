@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
+import { SEO } from '~/components/layout';
 import { useReports } from '~/graphql/hooks/useReports';
 import { reportsQuery } from '~/queries/reports';
 import LoadingReport from './loading-report';
@@ -71,6 +72,11 @@ const Reports = () => {
 
   return (
     <>
+      <SEO
+        title="Reports - Equalify"
+        description="View and manage your accessibility reports on Equalify."
+        url="https://www.equalify.dev/reports"
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1
           className="text-2xl font-bold md:text-3xl"
