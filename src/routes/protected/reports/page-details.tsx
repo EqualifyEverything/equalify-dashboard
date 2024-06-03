@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Link, useParams } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
+import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { usePageDetails } from '~/graphql/hooks/usePageDetails';
 import { Occurrence } from '~/graphql/types';
@@ -12,7 +13,7 @@ const PageDetails = () => {
   if (error) return <div role="alert">Error loading page details.</div>;
 
   console.log('data', data);
-  
+
   const timelineData = [
     { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
     { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
@@ -40,6 +41,11 @@ const PageDetails = () => {
 
   return (
     <div className="space-y-4">
+      <SEO
+        title={`${data?.url} - Page Details - Equalify`}
+        description={`View the details of the ${data?.url} page, including associated messages and occurrences, on Equalify.`}
+        url={`https://www.equalify.dev/reports/${reportId}/pages/${pageId}`}
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <div>
           <Link to={`/reports/${reportId}`} className="hover:underline">

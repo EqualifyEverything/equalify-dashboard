@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
 import { ReportForm } from '~/components/forms';
+import { SEO } from '~/components/layout';
 import { reportQuery } from '~/queries/reports';
 import { deleteReport, updateReport } from '~/services';
 import { assertNonNull } from '~/utils/safety';
@@ -129,6 +130,11 @@ const EditReport = () => {
 
   return (
     <>
+      <SEO
+        title={`Edit ${report?.name || 'Report'} - Equalify`}
+        description={`Edit the details of ${report?.name || 'this report'} on Equalify.`}
+        url={`https://www.equalify.dev/reports/${reportId}/edit`}
+      />
       <h1 id="edit-report-heading" className="text-2xl font-bold md:text-3xl">
         Edit {report?.name || 'Report'}
       </h1>

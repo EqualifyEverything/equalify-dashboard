@@ -1,6 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '~/components/buttons';
+import { SEO } from '~/components/layout';
 import DataTable from '~/components/tables/data-table';
 
 interface Scan {
@@ -50,6 +51,11 @@ const scansColumns: ColumnDef<Scan>[] = [
 const Scans = () => {
   return (
     <>
+      <SEO
+        title="Scans - Equalify"
+        description="View and manage your scans on Equalify."
+        url="https://www.equalify.dev/scans"
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1 id="scans-heading" className="text-2xl font-bold md:text-3xl">
           Scans

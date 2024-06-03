@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Link, useParams } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
+import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { useTagDetails } from '~/graphql/hooks/useTagDetails';
 import { Message } from '~/graphql/types';
@@ -38,6 +39,11 @@ const TagDetails = () => {
   ];
   return (
     <div className="space-y-4">
+      <SEO
+        title={`${data?.tagName} - Tag Details - Equalify`}
+        description={`View the details of the ${data?.tagName} tag, including associated messages, on Equalify.`}
+        url={`https://www.equalify.dev/reports/${reportId}/tags/${tagId}`}
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <div>
           <Link to={`/reports/${reportId}`} className="hover:underline">

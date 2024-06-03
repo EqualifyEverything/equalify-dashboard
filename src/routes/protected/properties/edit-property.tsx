@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
+import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
 import { deleteProperty, updateProperty } from '~/services/properties';
 import { assertNonNull } from '~/utils/safety';
@@ -129,6 +130,11 @@ const EditProperty = () => {
 
   return (
     <>
+      <SEO
+        title={`Edit ${property?.name || 'Property'} - Equalify`}
+        description={`Edit the details of ${property?.name || 'this property'} on Equalify.`}
+        url={`https://www.equalify.dev/properties/${propertyId}/edit`}
+      />
       <h1 id="edit-property-heading" className="text-2xl font-bold md:text-3xl">
         Edit {property?.name || 'Property'}
       </h1>

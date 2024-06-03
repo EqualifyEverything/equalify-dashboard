@@ -4,6 +4,7 @@ import { ExclamationTriangleIcon, PinRightIcon } from '@radix-ui/react-icons';
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
 import { AccountForm } from '~/components/forms';
+import { SEO } from '~/components/layout';
 import { useAuth } from '~/hooks/useAuth';
 
 const Account = () => {
@@ -16,6 +17,11 @@ const Account = () => {
   };
   return (
     <>
+      <SEO
+        title="Account - Equalify"
+        description="Manage your Equalify account settings and personal information."
+        url="https://www.equalify.dev/account"
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1 id="account-heading" className="text-2xl font-bold md:text-3xl">
           Your Account

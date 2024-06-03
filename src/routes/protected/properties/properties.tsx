@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { Link, useLoaderData } from 'react-router-dom';
 
+import { SEO } from '~/components/layout';
 import { propertiesQuery } from '~/queries/properties';
 import { LoadingProperties } from './loading';
 
@@ -71,6 +72,11 @@ const Properties = () => {
 
   return (
     <>
+      <SEO
+        title="Properties - Equalify"
+        description="Manage and monitor your properties on Equalify to improve their accessibility."
+        url="https://www.equalify.dev/properties"
+      />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1
           className="text-2xl font-bold md:text-3xl"
