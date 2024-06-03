@@ -35,6 +35,7 @@
     "posthog-js": "^1.96.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.51.3",
     "react-icons": "^4.11.0",
     "react-image-file-resizer": "^0.4.8",
