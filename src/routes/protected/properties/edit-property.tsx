@@ -23,6 +23,7 @@ import { propertyQuery } from '~/queries/properties';
 import { deleteProperty, updateProperty } from '~/services/properties';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
+import * as API from "aws-amplify/api";
 
 /**
  * Loader function to fetch property data
@@ -31,17 +32,17 @@ import { LoadingProperty } from './loading';
  */
 export const propertyLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.propertyId,
-      'Property ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.propertyId,
+        'Property ID is missing in the route parameters',
+      );
 
-    const initialProperty = await queryClient.ensureQueryData(
-      propertyQuery(params.propertyId),
-    );
-    return { initialProperty, propertyId: params.propertyId };
-  };
+      const initialProperty = await queryClient.ensureQueryData(
+        propertyQuery(params.propertyId),
+      );
+      return { initialProperty, propertyId: params.propertyId };
+    };
 
 /**
  * Handles updating a property.
@@ -50,37 +51,37 @@ export const propertyLoader =
  */
 export const updatePropertyAction =
   (queryClient: QueryClient) =>
-  async ({ request, params }: ActionFunctionArgs) => {
-    assertNonNull(params.propertyId, 'No property ID provided');
+    async ({ request, params }: ActionFunctionArgs) => {
+      assertNonNull(params.propertyId, 'No property ID provided');
 
-    try {
-      const formData = await request.formData();
-      const propertyName = formData.get('propertyName') as string;
-      const sitemapUrl = formData.get('sitemapUrl') as string;
+      try {
+        const formData = await request.formData();
+        const propertyName = formData.get('propertyName') as string;
+        const sitemapUrl = formData.get('sitemapUrl') as string;
 
-      const response = await updateProperty(
-        params.propertyId,
-        propertyName,
-        sitemapUrl,
-      );
+        const response = await updateProperty(
+          params.propertyId,
+          propertyName,
+          sitemapUrl,
+        );
 
-      await queryClient.invalidateQueries({
-        queryKey: ['property', params.propertyId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ['properties'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['property', params.propertyId],
+        });
+        await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
-      if (response.status === 'success') {
-        toast.success('Property updated successfully!');
-        return redirect(`/properties`);
-      } else {
-        toast.error('Failed to update property.');
-        throw new Response('Failed to update property', { status: 500 });
+        if (response.status === 'success') {
+          toast.success('Property updated successfully!');
+          return redirect(`/properties`);
+        } else {
+          toast.error('Failed to update property.');
+          throw new Response('Failed to update property', { status: 500 });
+        }
+      } catch (error) {
+        toast.error('An error occurred while updating the property.');
+        throw error;
       }
-    } catch (error) {
-      toast.error('An error occurred while updating the property.');
-      throw error;
-    }
-  };
+    };
 
 const EditProperty = () => {
   const navigate = useNavigate();
@@ -128,6 +129,11 @@ const EditProperty = () => {
     deleteMutate();
   };
 
+  const sendToScan = async () => {
+    await API.post({ apiName: 'auth', path: '/add/scans', options: { body: { propertyIds: [propertyId] } } }).response;
+    window.alert(`Success!`);
+  }
+
   return (
     <>
       <SEO
@@ -151,7 +157,7 @@ const EditProperty = () => {
             actionUrl={`/properties/${propertyId}/edit`}
             defaultValues={{
               propertyName: property?.name || '',
-              sitemapUrl: property?.sitemapUrl || '',
+              sitemapUrl: property?.urls?.nodes?.[0]?.url || '',
               propertyDiscovery: 'manually_added',
             }}
             formId="edit-property-form"
@@ -176,6 +182,13 @@ const EditProperty = () => {
             aria-live="polite"
           >
             Update Property
+          </Button>
+
+          <Button
+            className="w-fit"
+            onClick={sendToScan}
+          >
+            Send to Scan
           </Button>
         </div>
       </section>

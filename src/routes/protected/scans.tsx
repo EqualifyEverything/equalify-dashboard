@@ -1,8 +1,10 @@
+import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '~/components/buttons';
 import { SEO } from '~/components/layout';
 import DataTable from '~/components/tables/data-table';
+import * as API from "aws-amplify/api";
 
 interface Scan {
   jobId: string;
@@ -49,6 +51,10 @@ const scansColumns: ColumnDef<Scan>[] = [
 ];
 
 const Scans = () => {
+  const { data: scans } = useQuery({
+    queryKey: ['scans'],
+    queryFn: async () => await (await API.get({ apiName: 'auth', path: '/get/scans' }).response).body.json()
+  });
   return (
     <>
       <SEO
@@ -77,6 +83,7 @@ const Scans = () => {
           Queue
         </h2>
         <div className="w-full overflow-x-auto">
+          {scans && JSON.stringify(scans)}
           <DataTable columns={scansColumns} data={scansData} type="scans" />
         </div>
       </section>
