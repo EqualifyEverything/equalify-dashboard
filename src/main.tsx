@@ -34,6 +34,7 @@ import {
 import { propertyLoader, updatePropertyAction } from '~/routes/protected/properties/edit-property';
 import { propertiesLoader } from '~/routes/protected/properties/properties';
 import { addPropertyAction } from '~/routes/protected/properties/add-property';
+import { createReportAction } from './routes/protected/reports/create-report';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,7 +55,11 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/reports" replace /> },
       { path: 'reports', element: <Reports /> },
-      { path: 'reports/create', element: <CreateReport /> },
+      {
+        path: 'reports/create',
+        element: <CreateReport />,
+        action: createReportAction(queryClient),
+      },
       {
         path: 'reports/:reportId',
         element: <ReportDetails />,
@@ -97,9 +102,9 @@ const root = createRoot(domNode);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
-      <RouterProvider router={router} />
-    </HelmetProvider>
+      <HelmetProvider>
+        <RouterProvider router={router} />
+      </HelmetProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>,

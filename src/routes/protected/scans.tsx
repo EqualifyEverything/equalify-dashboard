@@ -83,7 +83,6 @@ const Scans = () => {
           Queue
         </h2>
         <div className="w-full overflow-x-auto">
-          {scans && JSON.stringify(scans)}
           <DataTable columns={scansColumns} data={scansData} type="scans" />
         </div>
       </section>

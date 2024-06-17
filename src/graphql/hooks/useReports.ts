@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-
-import { mockReports } from '../mocks/mock-reports';
+import * as API from "aws-amplify/api";
 
 interface Report {
   id: string;
@@ -10,8 +9,8 @@ interface Report {
 }
 
 const fetchReports = async (): Promise<Report[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return mockReports;
+  const reports = await (await API.get({ apiName: 'auth', path: '/get/reports' }).response).body.json();
+  return reports.result;
 };
 
 export const useReports = () =>
