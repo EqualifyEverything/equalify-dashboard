@@ -13,8 +13,6 @@ interface Scan {
   property: string;
 }
 
-const scansData: Scan[] = [];
-
 const scansColumns: ColumnDef<Scan>[] = [
   {
     accessorKey: 'jobId',
@@ -53,8 +51,9 @@ const scansColumns: ColumnDef<Scan>[] = [
 const Scans = () => {
   const { data: scans } = useQuery({
     queryKey: ['scans'],
-    queryFn: async () => await (await API.get({ apiName: 'auth', path: '/get/scans' }).response).body.json()
+    queryFn: async () => await (await API.get({ apiName: 'auth', path: '/get/scans' }).response).body.json() as unknown as Scan[],
   });
+
   return (
     <>
       <SEO
@@ -83,7 +82,7 @@ const Scans = () => {
           Queue
         </h2>
         <div className="w-full overflow-x-auto">
-          <DataTable columns={scansColumns} data={scansData} type="scans" />
+          {scans && <DataTable columns={scansColumns} data={scans?.result ?? []} type="scans" />}
         </div>
       </section>
     </>

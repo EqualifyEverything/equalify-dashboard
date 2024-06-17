@@ -25,7 +25,7 @@ export const createReportAction =
         assertNonNull(reportName, 'reportName is required');
 
         const selectedFilters = useStore.getState().selectedFilters;
-        console.log('add report');
+
         const response = await addReport(reportName.toString(), selectedFilters);
         await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
