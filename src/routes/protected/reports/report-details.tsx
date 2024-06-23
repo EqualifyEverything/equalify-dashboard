@@ -1,19 +1,56 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { Link, useParams } from 'react-router-dom';
+import {
+  Link,
+  LoaderFunctionArgs,
+  useLoaderData,
+} from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { useReportDetails } from '~/graphql/hooks/useReportDetails';
 import { Message, Page, Tag } from '~/graphql/types';
+import { reportDetailsQuery } from '~/queries/reports';
+import { assertNonNull } from '~/utils/safety';
+
+/**
+ * Loader function to fetch reports details
+ * @param queryClient - The Query Client instance.
+ * @returns Loader function to be used with React Router.
+ */
+export const reportDetailsLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+
+    const initialReportDetail = await queryClient.ensureQueryData(
+      reportDetailsQuery(params.reportId),
+    );
+    return { initialReportDetail, reportId: params.reportId };
+  };
 
 const ReportDetails = () => {
-  const { reportId = '' } = useParams();
-  const { name, messagesData, pagesData, tagsData, error } = useReportDetails(
-    reportId || '',
-  );
+  const { initialReportDetail, reportId } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof reportDetailsLoader>>
+  >;
+
+  const {
+    data: details,
+    isLoading,
+    error,
+  } = useQuery({
+    ...reportDetailsQuery(reportId!),
+    initialData: initialReportDetail,
+  });
 
   if (error) return <div role="alert">Error loading report details.</div>;
+
+
+  const { urls: pagesData, messages: messagesData, tags: tagsData, name } = details;
+
 
   const timelineData = [
     { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
@@ -25,14 +62,14 @@ const ReportDetails = () => {
 
   const messageColumns: ColumnDef<Message>[] = [
     {
-      accessorKey: 'title',
+      accessorKey: 'message',
       header: 'Message',
       cell: ({ row }) => (
         <Link
           to={`/reports/${reportId}/messages/${row.original.messageId}`}
           className="underline"
         >
-          {row.getValue('title')}
+          {row.getValue('message')}
         </Link>
       ),
     },
@@ -43,14 +80,14 @@ const ReportDetails = () => {
 
   const tagColumns: ColumnDef<Tag>[] = [
     {
-      accessorKey: 'name',
+      accessorKey: 'tag',
       header: 'Tag',
       cell: ({ row }) => (
         <Link
           to={`/reports/${reportId}/tags/${row.original.tagId}`}
           className="underline"
         >
-          {row.getValue('name')}
+          {row.getValue('tag')}
         </Link>
       ),
     },
