@@ -1,9 +1,8 @@
 import React from 'react';
-import { QueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { QueryClient, useQuery } from '@tanstack/react-query';
+import { Link, useLoaderData } from 'react-router-dom';
 
 import { SEO } from '~/components/layout';
-import { useReports } from '~/graphql/hooks/useReports';
 import { reportsQuery } from '~/queries/reports';
 import LoadingReport from './loading-report';
 
@@ -51,9 +50,7 @@ const ReportCard: React.FC<Report> = ({
 );
 
 const Reports = () => {
-  // TODO: Leverage useLoaderData to get initial reports data and useQuery to fetch reports
-  /*
-   const { initialReports } = useLoaderData() as Awaited<
+  const { initialReports } = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof reportsLoader>>
   >;
   const {
@@ -62,11 +59,8 @@ const Reports = () => {
     error,
   } = useQuery({
     ...reportsQuery(),
-    initialData: initialreports,
+    initialData: initialReports,
   });
-*/
-
-  const { data: reports, isLoading, error } = useReports();
 
   if (error) return <p>Error loading reports</p>;
 

@@ -31,10 +31,16 @@ import {
   Signup,
   TagDetails,
 } from '~/routes';
-import { propertyLoader, updatePropertyAction } from '~/routes/protected/properties/edit-property';
-import { propertiesLoader } from '~/routes/protected/properties/properties';
 import { addPropertyAction } from '~/routes/protected/properties/add-property';
+import {
+  propertyLoader,
+  updatePropertyAction,
+} from '~/routes/protected/properties/edit-property';
+import { propertiesLoader } from '~/routes/protected/properties/properties';
 import { createReportAction } from './routes/protected/reports/create-report';
+import { reportDetailsLoader } from './routes/protected/reports/report-details';
+import { reportsLoader } from './routes/protected/reports/reports';
+import { scansLoader } from './routes/protected/scans';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,8 +51,6 @@ const queryClient = new QueryClient({
   },
 });
 
-//TODO: Connect Report loaders and actions 
-
 const router = createBrowserRouter([
   {
     path: '/',
@@ -54,7 +58,11 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       { index: true, element: <Navigate to="/reports" replace /> },
-      { path: 'reports', element: <Reports /> },
+      {
+        path: 'reports',
+        element: <Reports />,
+        loader: reportsLoader(queryClient),
+      },
       {
         path: 'reports/create',
         element: <CreateReport />,
@@ -63,7 +71,7 @@ const router = createBrowserRouter([
       {
         path: 'reports/:reportId',
         element: <ReportDetails />,
-        errorElement: <NotFound />,
+        loader: reportDetailsLoader(queryClient),
       },
       { path: 'reports/:reportId/edit', element: <EditReport /> },
       {
@@ -73,7 +81,7 @@ const router = createBrowserRouter([
       { path: 'reports/:reportId/tags/:tagId', element: <TagDetails /> },
       { path: 'reports/:reportId/pages/:pageId', element: <PageDetails /> },
       { path: 'account', element: <Account /> },
-      { path: 'scans', element: <Scans /> },
+      { path: 'scans', element: <Scans />, loader: scansLoader(queryClient) },
       {
         path: 'properties',
         element: <Properties />,

@@ -28,7 +28,7 @@ interface Property {
   id: string;
   name: string;
   lastProcessed: string;
-  sitemapUrl: string;
+  // sitemapUrl: string;
 }
 
 const PropertyCard: React.FC<Property> = ({ id, name, lastProcessed }) => (
