@@ -73,7 +73,7 @@ export const getReportDetails = async (reportId: string): Promise<any> => {
       apiName: API_NAME,
       path: `/get/results`,
       options: {
-        queryParams: { reportId },
+        queryParams: { reportIds: reportId },
       },
     }).response;
 

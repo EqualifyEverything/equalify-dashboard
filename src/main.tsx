@@ -71,7 +71,6 @@ const router = createBrowserRouter([
       {
         path: 'reports/:reportId',
         element: <ReportDetails />,
-        errorElement: <NotFound />,
         loader: reportDetailsLoader(queryClient),
       },
       { path: 'reports/:reportId/edit', element: <EditReport /> },
