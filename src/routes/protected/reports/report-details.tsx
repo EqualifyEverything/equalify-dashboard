@@ -20,17 +20,17 @@ import { assertNonNull } from '~/utils/safety';
  */
 export const reportDetailsLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
 
-    const initialReportDetail = await queryClient.ensureQueryData(
-      reportDetailsQuery(params.reportId),
-    );
-    return { initialReportDetail, reportId: params.reportId };
-  };
+      const initialReportDetail = await queryClient.ensureQueryData(
+        reportDetailsQuery(params.reportId),
+      );
+      return { initialReportDetail, reportId: params.reportId };
+    };
 
 const ReportDetails = () => {
   const { initialReportDetail, reportId } = useLoaderData() as Awaited<
@@ -49,7 +49,7 @@ const ReportDetails = () => {
   if (error) return <div role="alert">Error loading report details.</div>;
 
 
-  const { urls: pagesData, messages: messagesData, tags: tagsData, reportNames } = details;
+  const { urls: pagesData, messages: messagesData, tags: tagsData, reportName } = details;
 
 
   const timelineData = [
@@ -113,8 +113,8 @@ const ReportDetails = () => {
   return (
     <div className="space-y-4">
       <SEO
-        title={`${reportNames[0]} - Report Details - Equalify`}
-        description={`View the details of the ${reportNames[0]} report, including messages, pages, and tags, on Equalify.`}
+        title={`${reportName} - Report Details - Equalify`}
+        description={`View the details of the ${reportName} report, including messages, pages, and tags, on Equalify.`}
         url={`https://www.equalify.dev/reports/${reportId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
@@ -122,7 +122,7 @@ const ReportDetails = () => {
           id="report-details-heading"
           className="text-2xl font-bold md:text-3xl"
         >
-          {reportNames[0]}
+          {reportName}
         </h1>
         <Link
           to={`/reports/${reportId}/edit`}
