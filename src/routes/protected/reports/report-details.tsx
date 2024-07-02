@@ -49,7 +49,7 @@ const ReportDetails = () => {
   if (error) return <div role="alert">Error loading report details.</div>;
 
 
-  const { urls: pagesData, messages: messagesData, tags: tagsData, reportNames } = details;
+  const { urls: pagesData, messages: messagesData, tags: tagsData, reportName } = details;
 
 
   const timelineData = [
@@ -66,7 +66,7 @@ const ReportDetails = () => {
       header: 'Message',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/messages/${row.original.messageId}`}
+          to={`/reports/${reportId}/messages/${row.original.id}`}
           className="underline"
         >
           {row.getValue('message')}
@@ -84,14 +84,14 @@ const ReportDetails = () => {
       header: 'Tag',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/tags/${row.original.tagId}`}
+          to={`/reports/${reportId}/tags/${row.original.id}`}
           className="underline"
         >
           {row.getValue('tag')}
         </Link>
       ),
     },
-    { accessorKey: 'referenceCount', header: 'Occurrences' },
+    // { accessorKey: 'referenceCount', header: 'Occurrences' },
   ];
 
   const pageColumns: ColumnDef<Page>[] = [
@@ -100,21 +100,21 @@ const ReportDetails = () => {
       header: 'URL',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/pages/${row.original.pageId}`}
+          to={`/reports/${reportId}/pages/${row.original.id}`}
           className="underline"
         >
           {row.getValue('url')}
         </Link>
       ),
     },
-    { accessorKey: 'occurrencesActive', header: 'Active' },
+    // { accessorKey: 'occurrencesActive', header: 'Active' },
   ];
 
   return (
     <div className="space-y-4">
       <SEO
-        title={`${reportNames[0]} - Report Details - Equalify`}
-        description={`View the details of the ${reportNames[0]} report, including messages, pages, and tags, on Equalify.`}
+        title={`${reportName} - Report Details - Equalify`}
+        description={`View the details of the ${reportName} report, including messages, pages, and tags, on Equalify.`}
         url={`https://www.equalify.dev/reports/${reportId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
@@ -122,7 +122,7 @@ const ReportDetails = () => {
           id="report-details-heading"
           className="text-2xl font-bold md:text-3xl"
         >
-          {reportNames[0]}
+          {reportName}
         </h1>
         <Link
           to={`/reports/${reportId}/edit`}

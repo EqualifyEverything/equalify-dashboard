@@ -35,8 +35,11 @@ const ReportCard: React.FC<Report> = ({
         <p className="mt-1 text-sm text-gray-600">
           Active Issues: {activeIssues}
         </p>
-        <p className="truncate text-balance text-sm text-gray-500">
-          Most Common: {mostCommonIssue}
+        <p className="text-sm text-gray-500">
+          Most Common: 
+          <span className="block truncate">
+            {mostCommonIssue}
+          </span>
         </p>
       </div>
       <Link
