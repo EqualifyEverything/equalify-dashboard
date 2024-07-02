@@ -1,5 +1,5 @@
 export interface Message {
-  reportId: string;
+  id: string;
   messageId: number;
   title: string;
   activeCount: number;
@@ -13,14 +13,14 @@ export interface Occurrence {
 }
 
 export interface Page {
-  reportId: string;
+  id: string;
   pageId: number;
   url: string;
   occurrencesActive: number;
 }
 
 export interface Tag {
-  reportId: string;
+  id: string;
   tagId: number;
   name: string;
   referenceCount: number;
