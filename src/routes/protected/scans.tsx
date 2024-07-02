@@ -8,6 +8,8 @@ import { scansQuery } from '~/queries/scans';
 
 interface Scan {
   jobId: string;
+  createdAt: string;
+  results: string;
   url: {
     id: string;
     url: string;
@@ -16,6 +18,7 @@ interface Scan {
     id: string;
     name: string;
   };
+  processing: boolean;
 }
 
 const scansColumns: ColumnDef<Scan>[] = [
@@ -25,14 +28,34 @@ const scansColumns: ColumnDef<Scan>[] = [
     cell: ({ row }) => <span>{row.getValue('jobId')}</span>,
   },
   {
+    accessorKey: 'createdAt',
+    header: 'Date',
+    cell: ({ row }) => <span>{new Date(row.original.createdAt).toLocaleString()}</span>,
+  },
+  {
     accessorKey: 'url',
     header: 'URL',
-    cell: ({ row }) => <span>{row.original.url.url}</span>,
+    cell: ({ row }) => <a className='text-[blue] hover:opacity-50' target='_blank' href={row.original.url.url}>{row.original.url.url}</a>,
   },
   {
     accessorKey: 'property',
     header: 'Property',
     cell: ({ row }) => <span>{row.original.property.name}</span>,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => <span className='bg-[#666] text-[white] px-2 py-1 rounded-full'>{row.original.processing ? 'Processing' : 'Complete'}</span>,
+  },
+  {
+    accessorKey: 'report',
+    header: 'Report',
+    cell: ({ row }) => <button className='text-[blue] hover:opacity-50' onClick={() => {
+      const element = document.getElementById('downloadReportLink');
+      element.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(row.original.results)));
+      element.setAttribute("download", "results.json");
+      element.click();
+    }}>Download</button>,
   },
 ];
 
@@ -75,6 +98,7 @@ const Scans = () => {
           )}
         </div>
       </section>
+      <a id="downloadReportLink" style={{ display: 'none' }}></a>
     </>
   );
 };
