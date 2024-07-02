@@ -8,9 +8,14 @@ interface ApiResponse<T> {
 
 interface Scan {
   jobId: string;
-  page: string;
-  url: string;
-  property: string;
+  url: {
+    id: string;
+    url: string;
+  };
+  property: {
+    id: string;
+    name: string;
+  };
 }
 
 const API_NAME = 'auth';
