@@ -95,7 +95,7 @@ const EditReport = () => {
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { data: report, isLoading } = useQuery({
+  const { data: report } = useQuery({
     ...reportQuery(reportId!),
     initialData: initialReport,
   });

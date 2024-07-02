@@ -66,7 +66,7 @@ const ReportDetails = () => {
       header: 'Message',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/messages/${row.original.messageId}`}
+          to={`/reports/${reportId}/messages/${row.original.id}`}
           className="underline"
         >
           {row.getValue('message')}
@@ -84,14 +84,14 @@ const ReportDetails = () => {
       header: 'Tag',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/tags/${row.original.tagId}`}
+          to={`/reports/${reportId}/tags/${row.original.id}`}
           className="underline"
         >
           {row.getValue('tag')}
         </Link>
       ),
     },
-    { accessorKey: 'referenceCount', header: 'Occurrences' },
+    // { accessorKey: 'referenceCount', header: 'Occurrences' },
   ];
 
   const pageColumns: ColumnDef<Page>[] = [
@@ -100,14 +100,14 @@ const ReportDetails = () => {
       header: 'URL',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/pages/${row.original.pageId}`}
+          to={`/reports/${reportId}/pages/${row.original.id}`}
           className="underline"
         >
           {row.getValue('url')}
         </Link>
       ),
     },
-    { accessorKey: 'occurrencesActive', header: 'Active' },
+    // { accessorKey: 'occurrencesActive', header: 'Active' },
   ];
 
   return (

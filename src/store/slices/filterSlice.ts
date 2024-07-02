@@ -3,6 +3,7 @@ import { StateCreator } from 'zustand';
 export interface Filter {
   label: string;
   value: string;
+  type: string;
 }
 
 interface FilterSlice {

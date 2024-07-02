@@ -38,6 +38,10 @@ import {
 } from '~/routes/protected/properties/edit-property';
 import { propertiesLoader } from '~/routes/protected/properties/properties';
 import { createReportAction } from './routes/protected/reports/create-report';
+import {
+  reportLoader,
+  updateReportAction,
+} from './routes/protected/reports/edit-report';
 import { reportDetailsLoader } from './routes/protected/reports/report-details';
 import { reportsLoader } from './routes/protected/reports/reports';
 import { scansLoader } from './routes/protected/scans';
@@ -73,7 +77,12 @@ const router = createBrowserRouter([
         element: <ReportDetails />,
         loader: reportDetailsLoader(queryClient),
       },
-      { path: 'reports/:reportId/edit', element: <EditReport /> },
+      {
+        path: 'reports/:reportId/edit',
+        element: <EditReport />,
+        loader: reportLoader(queryClient),
+        action: updateReportAction(queryClient),
+      },
       {
         path: 'reports/:reportId/messages/:messageId',
         element: <MessageDetails />,
