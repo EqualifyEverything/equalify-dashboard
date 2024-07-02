@@ -8,9 +8,14 @@ import { scansQuery } from '~/queries/scans';
 
 interface Scan {
   jobId: string;
-  page: string;
-  url: string;
-  property: string;
+  url: {
+    id: string;
+    url: string;
+  };
+  property: {
+    id: string;
+    name: string;
+  };
 }
 
 const scansColumns: ColumnDef<Scan>[] = [
@@ -20,19 +25,14 @@ const scansColumns: ColumnDef<Scan>[] = [
     cell: ({ row }) => <span>{row.getValue('jobId')}</span>,
   },
   {
-    accessorKey: 'page',
-    header: 'Page',
-    cell: ({ row }) => <span>{row.getValue('page')}</span>,
-  },
-  {
     accessorKey: 'url',
     header: 'URL',
-    cell: ({ row }) => <span>{row.getValue('url')}</span>,
+    cell: ({ row }) => <span>{row.original.url.url}</span>,
   },
   {
     accessorKey: 'property',
     header: 'Property',
-    cell: ({ row }) => <span>{row.getValue('property')}</span>,
+    cell: ({ row }) => <span>{row.original.property.name}</span>,
   },
 ];
 
