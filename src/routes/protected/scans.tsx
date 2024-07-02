@@ -45,12 +45,12 @@ const scansColumns: ColumnDef<Scan>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => <span className='bg-[#666] text-[white] px-2 py-1 rounded-full'>{row.original.processing ? 'Processing' : 'Complete'}</span>,
+    cell: ({ row }) => <span className={`${row.original.processing ? 'bg-[brown]' : 'bg-[green]'} text-[white] px-2 py-1 rounded-full`}>{row.original.processing ? 'Processing' : 'Complete'}</span>,
   },
   {
     accessorKey: 'report',
     header: 'Report',
-    cell: ({ row }) => <button className='text-[blue] hover:opacity-50' onClick={() => {
+    cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-[blue] hover:opacity-50' onClick={() => {
       const element = document.getElementById('downloadReportLink');
       element.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(row.original.results)));
       element.setAttribute("download", "results.json");
@@ -71,6 +71,7 @@ const Scans = () => {
   const { data: scans, isLoading } = useQuery({
     ...scansQuery(),
     initialData: initialScans,
+    refetchInterval: 1000,
   });
 
   return (

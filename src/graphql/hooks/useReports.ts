@@ -17,7 +17,7 @@ export const useReports = () =>
   useQuery<Report[]>({
     queryKey: ['reports'],
     queryFn: fetchReports,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     gcTime: 10 * 60 * 1000,
     staleTime: 5 * 60 * 1000,
   });

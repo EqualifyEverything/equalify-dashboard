@@ -37,7 +37,7 @@ export const useTagDetails = (reportId: string, tagId: string) => {
   return useQuery<TagDetailsQueryData>({
     queryKey: ['report', reportId, 'tag', tagId],
     queryFn: () => fetchTagDetails(reportId, tagId),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     gcTime: 10 * 60 * 1000,
     staleTime: 5 * 60 * 1000,
   });
