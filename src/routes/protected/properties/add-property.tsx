@@ -15,35 +15,36 @@ import { addProperty } from '~/services';
  */
 export const addPropertyAction =
   (queryClient: QueryClient) =>
-  async ({ request }: ActionFunctionArgs) => {
-    try {
-      const formData = await request.formData();
-      const propertyName = formData.get('propertyName') as string;
-      const sitemapUrl = formData.get('sitemapUrl') as string;
-      const propertyDiscovery = formData.get('propertyDiscovery') as
-        | 'manually_added'
-        | 'single_page_import';
+    async ({ request }: ActionFunctionArgs) => {
+      try {
+        const formData = await request.formData();
+        const propertyName = formData.get('propertyName') as string;
+        const sitemapUrl = formData.get('sitemapUrl') as string;
+        const propertyDiscovery = formData.get('propertyDiscovery') as
+          | 'single'
+          | 'sitemap'
+          | 'discovery_process';
 
-      const response = await addProperty(
-        propertyName,
-        sitemapUrl,
-        propertyDiscovery,
-      );
+        const response = await addProperty(
+          propertyName,
+          sitemapUrl,
+          propertyDiscovery,
+        );
 
-      await queryClient.invalidateQueries({ queryKey: ['properties'] });
+        await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
-      if (response.status === 'success') {
-        toast.success('Property added successfully!');
-        return redirect(`/properties`);
-      } else {
-        toast.error('Failed to add property.');
-        throw new Response('Failed to add property', { status: 500 });
+        if (response.status === 'success') {
+          toast.success('Property added successfully!');
+          return redirect(`/properties`);
+        } else {
+          toast.error('Failed to add property.');
+          throw new Response('Failed to add property', { status: 500 });
+        }
+      } catch (error) {
+        toast.error('An error occurred while adding the property.');
+        throw error;
       }
-    } catch (error) {
-      toast.error('An error occurred while adding the property.');
-      throw error;
-    }
-  };
+    };
 
 const AddProperty = () => {
   const navigate = useNavigate();

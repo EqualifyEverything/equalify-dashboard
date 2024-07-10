@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Input } from '~/components/inputs';
+import { Input, Select } from '~/components/inputs';
 import {
   Form as HookFormProvider,
   FormControl,
@@ -17,7 +17,7 @@ import { useSubmit } from 'react-router-dom';
 const PropertySchema = z.object({
   propertyName: z.string().min(1, 'Please enter a Property name.'),
   sitemapUrl: z.string().url('Please enter a valid URL.'),
-  propertyDiscovery: z.enum(['manually_added', 'single_page_import']),
+  propertyDiscovery: z.enum(['single', 'sitemap', 'discovery_process']),
 });
 
 type PropertyFormInputs = z.infer<typeof PropertySchema>;
@@ -48,8 +48,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         action={actionUrl}
         onSubmit={(event) => {
           const target = event.currentTarget;
-          form.handleSubmit(()=> {
-            submit(target, {method: 'post'})
+          form.handleSubmit(() => {
+            submit(target, { method: 'post' })
 
           })(event)
         }}
@@ -73,7 +73,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   onChange={(event) => {
                     field.onChange(event);
                     onChange && onChange(event);
-                  }} 
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -90,25 +90,47 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <Input
                   type="text"
                   id="sitemapUrl"
-                  placeholder="E.g. https://example.com/sitemap.xml"
+                  placeholder="E.g. https://example.com/"
                   className="h-12 bg-white"
                   aria-readonly
                   {...field}
                   onChange={(event) => {
                     field.onChange(event);
                     onChange && onChange(event);
-                  }} 
+                  }}
                 />
               </FormControl>
-              <FormDescription>
-                Sitemaps must follow valid XML Sitemap schema.
-                Example:"https://equalify.app/sitemap.xml"
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Input type='hidden' value='manually_added' {...form.register('propertyDiscovery')} />
+        <FormField
+          control={form.control}
+          name="propertyDiscovery"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="propertyDiscovery">Property Discovery</FormLabel>
+              <FormControl>
+                <select
+                  id="propertyDiscovery"
+                  className="h-12 bg-white border-[1px] rounded-lg px-2"
+                  aria-readonly
+                  {...field}
+                  onChange={(event) => {
+                    field.onChange(event);
+                    onChange && onChange(event);
+                  }}>
+                  {[
+                    { label: 'Single', value: 'single' },
+                    { label: 'Sitemap', value: 'sitemap' },
+                    { label: 'Discovery Process', value: 'discovery_process' },
+                  ].map((obj, index) => <option key={index} value={obj.value}>{obj.label}</option>)}
+                </select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </form>
     </HookFormProvider>
   );
