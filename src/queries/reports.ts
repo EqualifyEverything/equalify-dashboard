@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getReports, getReportById, getReportDetails } from '~/services';
+import { getReports, getReportById, getReportDetails, getPageDetails } from '~/services';
 
 // Query for all reports
 export const reportsQuery = () =>
@@ -13,18 +13,18 @@ export const reportQuery = (propertyId: string) =>
   queryOptions({
     queryKey: ['report', propertyId],
     queryFn: async () => {
-        const report = await getReportById(propertyId);
-        if (!report) {
-          throw new Response('', {
-            status: 404,
-            statusText: 'Report Not Found',
-          });
-        }
-        return report;
-      },
+      const report = await getReportById(propertyId);
+      if (!report) {
+        throw new Response('', {
+          status: 404,
+          statusText: 'Report Not Found',
+        });
+      }
+      return report;
+    },
   });
 
-  // Query for report details
+// Query for report details
 export const reportDetailsQuery = (reportId: string) =>
   queryOptions({
     queryKey: ['reportDetails', reportId],
@@ -34,6 +34,22 @@ export const reportDetailsQuery = (reportId: string) =>
         throw new Response('', {
           status: 404,
           statusText: 'Report Details Not Found',
+        });
+      }
+      return details;
+    },
+  });
+
+// Query for report details
+export const pageDetailsQuery = (reportId: string, messageId: string) =>
+  queryOptions({
+    queryKey: ['pageDetails', reportId, messageId],
+    queryFn: async () => {
+      const details = await getPageDetails(reportId, messageId);
+      if (!details) {
+        throw new Response('', {
+          status: 404,
+          statusText: 'Page Details Not Found',
         });
       }
       return details;

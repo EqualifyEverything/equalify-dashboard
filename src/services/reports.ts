@@ -87,6 +87,56 @@ export const getReportDetails = async (reportId: string): Promise<any> => {
 };
 
 /**
+* Fetch report details
+* @param {string} reportId - The ID of the report to fetch details for
+* @returns {Promise<any>} The fetched report details
+* @throws Will throw an error if the fetch fails
+*/
+export const getPageDetails = async (reportId: string): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/all`,
+      options: {
+        queryParams: { reportId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching report details', error);
+    throw error;
+  }
+};
+
+/**
+* Fetch message details
+* @param {string} reportId - The ID of the report to fetch details for
+* @returns {Promise<any>} The fetched report details
+* @throws Will throw an error if the fetch fails
+*/
+export const getMessageDetails = async (reportId: string, messageId: string): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/messages`,
+      options: {
+        queryParams: { reportId, messageId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching message details', error);
+    throw error;
+  }
+};
+
+/**
  * Add a new report
  * @param {string} reportName - The name of the report
  * @param {any[]} filters - The filters for the report

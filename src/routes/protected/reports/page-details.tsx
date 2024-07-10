@@ -8,19 +8,9 @@ import { usePageDetails } from '~/graphql/hooks/usePageDetails';
 import { Occurrence } from '~/graphql/types';
 
 const PageDetails = () => {
-  const { pageId = '', reportId = '' } = useParams();
-  const { data, error } = usePageDetails(pageId, reportId);
+  const { reportId = '', messageId = '' } = useParams();
+  const { data, error } = usePageDetails(reportId, messageId);
   if (error) return <div role="alert">Error loading page details.</div>;
-
-  console.log('data', data);
-
-  const timelineData = [
-    { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
-    { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
-    { date: '2021/03', equalified: 20, active: 10, ignored: 5 },
-    { date: '2021/04', equalified: 25, active: 12, ignored: 6 },
-    { date: '2021/05', equalified: 30, active: 15, ignored: 7 },
-  ];
 
   const ocurranceColumns: ColumnDef<Occurrence>[] = [
     {
