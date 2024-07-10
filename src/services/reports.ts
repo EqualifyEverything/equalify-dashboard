@@ -71,7 +71,7 @@ export const getReportDetails = async (reportId: string): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,
-      path: `/get/results`,
+      path: `/get/results/all`,
       options: {
         queryParams: { reportId },
       },

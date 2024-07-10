@@ -40,7 +40,7 @@ const scansColumns: ColumnDef<Scan>[] = [
   {
     accessorKey: 'property',
     header: 'Property',
-    cell: ({ row }) => <span>{row.original.property.name}</span>,
+    cell: ({ row }) => <span>{row.original.property?.name}</span>,
   },
   {
     accessorKey: 'status',
