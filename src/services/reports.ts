@@ -87,18 +87,19 @@ export const getReportDetails = async (reportId: string): Promise<any> => {
 };
 
 /**
-* Fetch report details
+* Fetch page details
 * @param {string} reportId - The ID of the report to fetch details for
+* @param {string} urlId - The ID of the report to fetch details for
 * @returns {Promise<any>} The fetched report details
 * @throws Will throw an error if the fetch fails
 */
-export const getPageDetails = async (reportId: string): Promise<any> => {
+export const getPageDetails = async (reportId: string, urlId: string): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,
-      path: `/get/results/all`,
+      path: `/get/results/urls`,
       options: {
-        queryParams: { reportId },
+        queryParams: { reportId, urlId },
       },
     }).response;
 
@@ -106,7 +107,7 @@ export const getPageDetails = async (reportId: string): Promise<any> => {
     const details = await body.json();
     return details;
   } catch (error) {
-    console.error('Error fetching report details', error);
+    console.error('Error fetching page details', error);
     throw error;
   }
 };
@@ -114,6 +115,7 @@ export const getPageDetails = async (reportId: string): Promise<any> => {
 /**
 * Fetch message details
 * @param {string} reportId - The ID of the report to fetch details for
+* @param {string} messageId - The ID of the report to fetch details for
 * @returns {Promise<any>} The fetched report details
 * @throws Will throw an error if the fetch fails
 */
@@ -132,6 +134,32 @@ export const getMessageDetails = async (reportId: string, messageId: string): Pr
     return details;
   } catch (error) {
     console.error('Error fetching message details', error);
+    throw error;
+  }
+};
+
+/**
+* Fetch tag details
+* @param {string} reportId - The ID of the report to fetch details for
+* @param {string} tagId - The ID of the report to fetch details for
+* @returns {Promise<any>} The fetched report details
+* @throws Will throw an error if the fetch fails
+*/
+export const getTagDetails = async (reportId: string, tagId: string): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/tags`,
+      options: {
+        queryParams: { reportId, tagId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching tag details', error);
     throw error;
   }
 };

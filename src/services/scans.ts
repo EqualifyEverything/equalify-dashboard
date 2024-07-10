@@ -66,3 +66,30 @@ export const sendToScan = async (
     throw error;
   }
 };
+
+
+/**
+ * Send url to scan
+ * @param {string} urlId - The url ID to scan
+ * @returns {Promise<{ status: string }>} The status of the scan initiation
+ * @throws Will throw an error if the scan initiation fails
+ */
+export const sendUrlToScan = async (
+  urlId: string,
+): Promise<{ status: string }> => {
+  try {
+    const response = await post({
+      apiName: API_NAME,
+      path: '/add/scans',
+      options: {
+        body: { urlIds: [urlId] },
+      },
+    }).response;
+
+    const { statusCode } = response;
+    return { status: statusCode === 200 ? 'success' : 'error' };
+  } catch (error) {
+    console.error('Error sending to scan', error);
+    throw error;
+  }
+};
