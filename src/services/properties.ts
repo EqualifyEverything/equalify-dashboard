@@ -84,7 +84,7 @@ export const getPropertyById = async (
 /**
  * Add a new property
  * @param {string} propertyName - The name of the property
- * @param {string} sitemapUrl - The sitemap URL of the property
+ * @param {string} sitemapUrl - The URL of the property
  * @param {'single' | 'sitemap' |'discovery_process'} propertyDiscovery - The discovery method of the property
  * @returns {Promise<{ result: Property; status: string }>} The added property and status
  * @throws Will throw an error if the addition fails
@@ -120,7 +120,7 @@ export const addProperty = async (
  * Update a property
  * @param {string} propertyId - The ID of the property to update
  * @param {string} propertyName - The new name of the property
- * @param {string} sitemapUrl - The new sitemap URL of the property
+ * @param {string} sitemapUrl - The new URL of the property
  * @param {string} propertyDiscovery - The discovery of the property
  * @returns {Promise<{ result: Property; status: string }>} The updated property and status
  * @throws Will throw an error if the update fails

@@ -85,7 +85,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
           name="sitemapUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="sitemapUrl">Sitemap URL</FormLabel>
+              <FormLabel htmlFor="sitemapUrl">URL</FormLabel>
               <FormControl>
                 <Input
                   type="text"
