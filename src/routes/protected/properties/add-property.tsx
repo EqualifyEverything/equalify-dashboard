@@ -87,7 +87,7 @@ const AddProperty = () => {
           defaultValues={{
             propertyName: '',
             sitemapUrl: '',
-            propertyDiscovery: 'manually_added',
+            propertyDiscovery: 'single',
           }}
           formId="add-property-form"
           onChange={handleFormChange}

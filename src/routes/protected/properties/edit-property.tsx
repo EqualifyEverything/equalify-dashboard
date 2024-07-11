@@ -101,7 +101,11 @@ const EditProperty = () => {
   });
 
   const { mutate: deleteMutate } = useMutation({
-    mutationFn: () => deleteProperty(propertyId!),
+    mutationFn: () => {
+      const response = deleteProperty(propertyId!);
+      queryClient.refetchQueries({ queryKey: ['filters'] });
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] });
       toast.success('Property deleted successfully!');

@@ -49,7 +49,7 @@ const scansColumns: ColumnDef<Scan>[] = [
   },
   {
     accessorKey: 'report',
-    header: 'Report',
+    header: 'Raw Data',
     cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-[blue] hover:opacity-50' onClick={() => {
       const element = document.getElementById('downloadReportLink');
       element.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(row.original.results)));
