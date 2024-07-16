@@ -11,8 +11,12 @@ import '~/amplify.config';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PostHogProvider } from 'posthog-js/react';
 import { HelmetProvider } from 'react-helmet-async';
 
+import { initHotjar } from '~/analytics/hotjar';
+import { initPostHog } from '~/analytics/posthog';
+import { initSentry } from '~/analytics/sentry';
 import { NotFound } from '~/components/layout';
 import {
   Account,
@@ -54,6 +58,10 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+initSentry();
+initHotjar();
+initPostHog();
 
 const router = createBrowserRouter([
   {
@@ -118,11 +126,16 @@ const root = createRoot(domNode);
 
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <HelmetProvider>
-        <RouterProvider router={router} />
-      </HelmetProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <PostHogProvider
+      apiKey={'phc_WuMMQol0KMzQSfbxU5l7Zv4LZHCT5EDSO89SeM4QP4O'}
+      options={{ api_host: 'https://us.i.posthog.com' }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <HelmetProvider>
+          <RouterProvider router={router} />
+        </HelmetProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </PostHogProvider>
   </React.StrictMode>,
 );
