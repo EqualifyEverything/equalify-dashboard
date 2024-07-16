@@ -1,9 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-
-import { mockReportDetails } from '../mocks/mock-report-details';
-import { mockReports } from '../mocks/mock-reports';
-
 import { Message } from '../types';
+import { getTagDetails } from '~/services';
 
 interface TagDetailsQueryData {
   messages: Message[];
@@ -15,22 +12,14 @@ const fetchTagDetails = async (
   reportId: string,
   tagId: string,
 ): Promise<TagDetailsQueryData> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const reportName =
-    mockReports.find((report) => report.id === reportId)?.name || '';
-  const tagName =
-    mockReportDetails.tags.find(
-      (tag) => tag.tagId.toString() === tagId && tag.reportId === reportId,
-    )?.name || '';
-
-  const messages = mockReportDetails.messages
-    .filter(
-      (message) =>
-        message.reportId === reportId && message.tags.includes(tagId),
-    );
-
-  return { reportName, tagName, messages };
+  const details = await getTagDetails(reportId, tagId);
+  if (!details) {
+    throw new Response('', {
+      status: 404,
+      statusText: 'Message Details Not Found',
+    });
+  }
+  return details;
 };
 
 export const useTagDetails = (reportId: string, tagId: string) => {

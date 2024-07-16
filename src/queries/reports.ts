@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getReports, getReportById, getReportDetails } from '~/services';
+import { getReports, getReportById, getReportDetails, getPageDetails } from '~/services';
 
 // Query for all reports
 export const reportsQuery = () =>
@@ -13,29 +13,45 @@ export const reportQuery = (propertyId: string) =>
   queryOptions({
     queryKey: ['report', propertyId],
     queryFn: async () => {
-        const report = await getReportById(propertyId);
-        if (!report) {
-          throw new Response('', {
-            status: 404,
-            statusText: 'Report Not Found',
-          });
-        }
-        return report;
-      },
+      const report = await getReportById(propertyId);
+      if (!report) {
+        throw new Response('', {
+          status: 404,
+          statusText: 'Report Not Found',
+        });
+      }
+      return report;
+    },
   });
 
-  // Query for report details
-  export const reportDetailsQuery = (reportId: string, params: Record<string, string> = {}) =>
-    queryOptions({
-      queryKey: ['reportDetails', reportId, params],
-      queryFn: async () => {
-        const details = await getReportDetails(reportId, params);
-        if (!details) {
-          throw new Response('', {
-            status: 404,
-            statusText: 'Report Details Not Found',
-          });
-        }
-        return details;
-      },
-    });
+// Query for report details
+export const reportDetailsQuery = (reportId: string) =>
+  queryOptions({
+    queryKey: ['reportDetails', reportId],
+    queryFn: async () => {
+      const details = await getReportDetails(reportId);
+      if (!details) {
+        throw new Response('', {
+          status: 404,
+          statusText: 'Report Details Not Found',
+        });
+      }
+      return details;
+    },
+  });
+
+// Query for report details
+export const pageDetailsQuery = (reportId: string, messageId: string) =>
+  queryOptions({
+    queryKey: ['pageDetails', reportId, messageId],
+    queryFn: async () => {
+      const details = await getPageDetails(reportId, messageId);
+      if (!details) {
+        throw new Response('', {
+          status: 404,
+          statusText: 'Page Details Not Found',
+        });
+      }
+      return details;
+    },
+  });

@@ -1,10 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-
-import { mockPageDetails as rawMockPageDetails } from '../mocks/mock-page-details';
-import { mockReports } from '../mocks/mock-reports';
+import { getPageDetails } from '~/services';
 
 interface Occurrence {
-  messageId: number;
+  pageId: number;
   title: string;
   occurrenceId: number;
   codeSnippet: string;
@@ -22,14 +20,15 @@ interface PageDetailsData {
   };
 }
 
-const mockPageDetails: PageDetailsData = rawMockPageDetails as PageDetailsData;
-
 const fetchPageDetails = async (reportId: string, pageId: string) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const pageDetails = mockPageDetails[reportId]?.[pageId] || {};
-  const reportName =
-    mockReports.find((report) => report.id === reportId)?.name || '';
-  return { ...pageDetails, reportName };
+  const details = await getPageDetails(reportId, pageId);
+  if (!details) {
+    throw new Response('', {
+      status: 404,
+      statusText: 'Page Details Not Found',
+    });
+  }
+  return details;
 };
 
 export const usePageDetails = (reportId: string, pageId: string) => {

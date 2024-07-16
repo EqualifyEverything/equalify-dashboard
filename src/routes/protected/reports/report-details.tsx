@@ -49,16 +49,7 @@ const ReportDetails = () => {
   if (error) return <div role="alert">Error loading report details.</div>;
 
 
-  const { urls: pagesData, messages: messagesData, tags: tagsData, reportName } = details;
-
-
-  const timelineData = [
-    { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
-    { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
-    { date: '2021/03', equalified: 20, active: 10, ignored: 5 },
-    { date: '2021/04', equalified: 25, active: 12, ignored: 6 },
-    { date: '2021/05', equalified: 30, active: 15, ignored: 7 },
-  ];
+  const { urls: pagesData, messages: messagesData, tags: tagsData, reportName, chart } = details;
 
   const messageColumns: ColumnDef<Message>[] = [
     {
@@ -133,7 +124,7 @@ const ReportDetails = () => {
       </div>
 
       <div className="rounded-lg bg-white p-4 shadow md:p-8">
-        <Timeline data={timelineData} />
+        <Timeline data={chart} />
       </div>
 
       <div className="overflow-x-auto rounded-lg bg-white p-4 shadow">

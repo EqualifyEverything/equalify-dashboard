@@ -9,27 +9,19 @@ import { Message } from '~/graphql/types';
 
 const TagDetails = () => {
   const { tagId = '', reportId = '' } = useParams();
-  const { data, error } = useTagDetails(tagId, reportId);
+  const { data, error } = useTagDetails(reportId, tagId);
   if (error) return <div role="alert">Error loading tag details.</div>;
-
-  const timelineData = [
-    { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
-    { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
-    { date: '2021/03', equalified: 20, active: 10, ignored: 5 },
-    { date: '2021/04', equalified: 25, active: 12, ignored: 6 },
-    { date: '2021/05', equalified: 30, active: 15, ignored: 7 },
-  ];
 
   const messageColumns: ColumnDef<Message>[] = [
     {
-      accessorKey: 'title',
+      accessorKey: 'message',
       header: 'Message',
       cell: ({ row }) => (
         <Link
           to={`/reports/${reportId}/messages/${row.original.messageId}`}
           className="underline"
         >
-          {row.getValue('title')}
+          {row.getValue('message')}
         </Link>
       ),
     },
@@ -65,7 +57,7 @@ const TagDetails = () => {
       </div>
 
       <div className="rounded-lg bg-white p-4 shadow md:p-8">
-        <Timeline data={timelineData} />
+        <Timeline data={data?.chart} />
       </div>
 
       <div className="overflow-x-auto rounded-lg bg-white p-4 shadow">
