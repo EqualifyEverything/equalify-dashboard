@@ -31,20 +31,29 @@ import {
   Signup,
   TagDetails,
 } from '~/routes';
-import { propertyLoader, updatePropertyAction } from '~/routes/protected/properties/edit-property';
-import { propertiesLoader } from '~/routes/protected/properties/properties';
 import { addPropertyAction } from '~/routes/protected/properties/add-property';
+import {
+  propertyLoader,
+  updatePropertyAction,
+} from '~/routes/protected/properties/edit-property';
+import { propertiesLoader } from '~/routes/protected/properties/properties';
+import { createReportAction } from './routes/protected/reports/create-report';
+import {
+  reportLoader,
+  updateReportAction,
+} from './routes/protected/reports/edit-report';
+import { reportDetailsLoader } from './routes/protected/reports/report-details';
+import { reportsLoader } from './routes/protected/reports/reports';
+import { scansLoader } from './routes/protected/scans';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
     },
   },
 });
-
-//TODO: Connect Report loaders and actions 
 
 const router = createBrowserRouter([
   {
@@ -53,14 +62,27 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       { index: true, element: <Navigate to="/reports" replace /> },
-      { path: 'reports', element: <Reports /> },
-      { path: 'reports/create', element: <CreateReport /> },
+      {
+        path: 'reports',
+        element: <Reports />,
+        loader: reportsLoader(queryClient),
+      },
+      {
+        path: 'reports/create',
+        element: <CreateReport />,
+        action: createReportAction(queryClient),
+      },
       {
         path: 'reports/:reportId',
         element: <ReportDetails />,
-        errorElement: <NotFound />,
+        loader: reportDetailsLoader(queryClient),
       },
-      { path: 'reports/:reportId/edit', element: <EditReport /> },
+      {
+        path: 'reports/:reportId/edit',
+        element: <EditReport />,
+        loader: reportLoader(queryClient),
+        action: updateReportAction(queryClient),
+      },
       {
         path: 'reports/:reportId/messages/:messageId',
         element: <MessageDetails />,
@@ -68,7 +90,7 @@ const router = createBrowserRouter([
       { path: 'reports/:reportId/tags/:tagId', element: <TagDetails /> },
       { path: 'reports/:reportId/pages/:pageId', element: <PageDetails /> },
       { path: 'account', element: <Account /> },
-      { path: 'scans', element: <Scans /> },
+      { path: 'scans', element: <Scans />, loader: scansLoader(queryClient) },
       {
         path: 'properties',
         element: <Properties />,
@@ -97,9 +119,9 @@ const root = createRoot(domNode);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
-      <RouterProvider router={router} />
-    </HelmetProvider>
+      <HelmetProvider>
+        <RouterProvider router={router} />
+      </HelmetProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>,

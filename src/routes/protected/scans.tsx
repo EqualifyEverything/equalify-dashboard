@@ -1,17 +1,25 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
+import { useLoaderData } from 'react-router-dom';
 
-import { Button } from '~/components/buttons';
 import { SEO } from '~/components/layout';
 import DataTable from '~/components/tables/data-table';
+import { scansQuery } from '~/queries/scans';
 
 interface Scan {
   jobId: string;
-  page: string;
-  url: string;
-  property: string;
+  createdAt: string;
+  results: string;
+  url: {
+    id: string;
+    url: string;
+  };
+  property: {
+    id: string;
+    name: string;
+  };
+  processing: boolean;
 }
-
-const scansData: Scan[] = [];
 
 const scansColumns: ColumnDef<Scan>[] = [
   {
@@ -20,35 +28,52 @@ const scansColumns: ColumnDef<Scan>[] = [
     cell: ({ row }) => <span>{row.getValue('jobId')}</span>,
   },
   {
-    accessorKey: 'page',
-    header: 'Page',
-    cell: ({ row }) => <span>{row.getValue('page')}</span>,
+    accessorKey: 'createdAt',
+    header: 'Date',
+    cell: ({ row }) => <span>{new Date(row.original.createdAt).toLocaleString()}</span>,
   },
   {
     accessorKey: 'url',
     header: 'URL',
-    cell: ({ row }) => <span>{row.getValue('url')}</span>,
+    cell: ({ row }) => <a className='text-[blue] hover:opacity-50' target='_blank' href={row.original.url.url}>{row.original.url.url}</a>,
   },
   {
     accessorKey: 'property',
     header: 'Property',
-    cell: ({ row }) => <span>{row.getValue('property')}</span>,
+    cell: ({ row }) => <span>{row.original.property.name}</span>,
   },
   {
-    accessorKey: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => (
-      <Button
-        onClick={() => console.log('Processing job:', row.original.jobId)}
-        aria-label={`Process job ${row.original.jobId}`}
-      >
-        Process
-      </Button>
-    ),
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => <span className={`${row.original.processing ? 'bg-[brown]' : 'bg-[green]'} text-[white] px-2 py-1 rounded-full`}>{row.original.processing ? 'Processing' : 'Complete'}</span>,
+  },
+  {
+    accessorKey: 'report',
+    header: 'Report',
+    cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-[blue] hover:opacity-50' onClick={() => {
+      const element = document.getElementById('downloadReportLink');
+      element.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(row.original.results)));
+      element.setAttribute("download", "results.json");
+      element.click();
+    }}>Download</button>,
   },
 ];
 
+export const scansLoader = (queryClient: QueryClient) => async () => {
+  const initialScans = await queryClient.ensureQueryData(scansQuery());
+  return { initialScans };
+};
+
 const Scans = () => {
+  const { initialScans } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof scansLoader>>
+  >;
+  const { data: scans, isLoading } = useQuery({
+    ...scansQuery(),
+    initialData: initialScans,
+    refetchInterval: 1000,
+  });
+
   return (
     <>
       <SEO
@@ -56,18 +81,10 @@ const Scans = () => {
         description="View and manage your scans on Equalify."
         url="https://www.equalify.dev/scans"
       />
-      <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
-        <h1 id="scans-heading" className="text-2xl font-bold md:text-3xl">
-          Scans
-        </h1>
-        <Button
-          onClick={() => console.log('Process scans')}
-          className="w-fit gap-2 place-self-end bg-[#005031]"
-          aria-label="Process all scans"
-        >
-          Process All Scans
-        </Button>
-      </div>
+
+      <h1 id="scans-heading" className="text-2xl font-bold md:text-3xl">
+        Scans
+      </h1>
 
       <section
         aria-labelledby="queue-heading"
@@ -77,9 +94,12 @@ const Scans = () => {
           Queue
         </h2>
         <div className="w-full overflow-x-auto">
-          <DataTable columns={scansColumns} data={scansData} type="scans" />
+          {scans && (
+            <DataTable columns={scansColumns} data={scans ?? []} type="scans" />
+          )}
         </div>
       </section>
+      <a id="downloadReportLink" style={{ display: 'none' }}></a>
     </>
   );
 };

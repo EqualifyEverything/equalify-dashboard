@@ -20,6 +20,7 @@ import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
+import { sendToScan } from '~/services';
 import { deleteProperty, updateProperty } from '~/services/properties';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
@@ -115,7 +116,7 @@ const EditProperty = () => {
       setIsFormChanged(true);
     } else if (
       name === 'sitemapUrl' &&
-      value.trim() !== property?.sitemapUrl.trim()
+      value.trim() !== property?.urls.nodes[0].url.trim()
     ) {
       setIsFormChanged(true);
     } else {
@@ -128,6 +129,19 @@ const EditProperty = () => {
     deleteMutate();
   };
 
+  const handleSendToScan = async () => {
+    try {
+      const response = await sendToScan([propertyId!]);
+      if (response.status === 'success') {
+        toast.success('Property sent to scan successfully!');
+      } else {
+        toast.error('Failed to send property to scan.');
+      }
+    } catch (error) {
+      toast.error('An error occurred while sending the property to scan.');
+      console.error(error);
+    }
+  };
   return (
     <>
       <SEO
@@ -135,9 +149,22 @@ const EditProperty = () => {
         description={`Edit the details of ${property?.name || 'this property'} on Equalify.`}
         url={`https://www.equalify.dev/properties/${propertyId}/edit`}
       />
-      <h1 id="edit-property-heading" className="text-2xl font-bold md:text-3xl">
-        Edit {property?.name || 'Property'}
-      </h1>
+
+      <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
+        <h1
+          id="edit-property-heading"
+          className="text-2xl font-bold md:text-3xl"
+        >
+          Edit {property?.name || 'Property'}
+        </h1>
+
+        <Button
+          className="w-fit justify-end place-self-end bg-[#005031]"
+          onClick={handleSendToScan}
+        >
+          Send to Scan
+        </Button>
+      </div>
 
       <section
         aria-labelledby="edit-property-heading"
@@ -151,7 +178,7 @@ const EditProperty = () => {
             actionUrl={`/properties/${propertyId}/edit`}
             defaultValues={{
               propertyName: property?.name || '',
-              sitemapUrl: property?.sitemapUrl || '',
+              sitemapUrl: property?.urls.nodes[0].url || '',
               propertyDiscovery: 'manually_added',
             }}
             formId="edit-property-form"

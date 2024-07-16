@@ -6,10 +6,19 @@ interface ApiResponse<T> {
   total?: number;
 }
 
+type Node = {
+  url: string;
+};
+
+type Nodes = {
+  nodes: Node[];
+};
+
 interface Property {
   id: string;
   name: string;
-  sitemapUrl: string;
+  // sitemapUrl: string;
+  urls: Nodes;
   lastProcessed: string;
   archived: boolean;
   discovery: null | string;

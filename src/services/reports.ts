@@ -48,7 +48,7 @@ export const getReportById = async (reportId: string): Promise<Report> => {
       apiName: API_NAME,
       path: '/get/reports',
       options: {
-        queryParams: { reportIds: reportId },
+        queryParams: { reportId },
       },
     }).response;
 
@@ -57,6 +57,31 @@ export const getReportById = async (reportId: string): Promise<Report> => {
     return result[0];
   } catch (error) {
     console.error('Error fetching report by ID', error);
+    throw error;
+  }
+};
+/**
+ * Fetch report details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {Record<string, string>} params - Additional parameters for filtering the details
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getReportDetails = async (reportId: string, params: Record<string, string> = {}): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results`,
+      options: {
+        queryParams: { reportId, ...params },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching report details', error);
     throw error;
   }
 };

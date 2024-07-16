@@ -142,40 +142,7 @@ const AccountForm = () => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="selectedAccount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Active Account</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                aria-readonly
-                disabled
-              >
-                <FormControl>
-                  <SelectTrigger className="h-12" aria-label="Select account">
-                    <SelectValue placeholder="Select your active Account" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="equalify_account_1">
-                    equalify_account_1
-                  </SelectItem>
-                  <SelectItem value="equalify_account_2">
-                    equalify_account_2
-                  </SelectItem>
-                  <SelectItem value="equalify_account_3">
-                    equalify_account_3
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <div className='flex space-x-4' />
         <div className="flex space-x-4">
           <Button
             type="submit"

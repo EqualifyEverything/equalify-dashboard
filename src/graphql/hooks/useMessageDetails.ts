@@ -47,7 +47,7 @@ export const useMessageDetails = (reportId: string, messageId: string) => {
   return useQuery<MessageDetailsQueryData>({
     queryKey: ['report', reportId, 'message', messageId],
     queryFn: () => fetchMessageDetails(reportId, messageId),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     gcTime: 10 * 60 * 1000,
     staleTime: 5 * 60 * 1000,
   });

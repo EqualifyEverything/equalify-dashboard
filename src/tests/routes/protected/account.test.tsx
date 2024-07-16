@@ -55,9 +55,6 @@ describe('Account Page and Form', () => {
         const emailInput = await screen.findByRole('textbox', { name: /email/i });
         expect(emailInput).toHaveValue('johndoe@example.com');
         expect(emailInput).toBeDisabled();
-      
-        const activeAccountSelect = screen.getByText(/Select your active Account/i);
-        expect(activeAccountSelect).toBeInTheDocument();
       });
     
       it('update account button is present and disabled', () => {
