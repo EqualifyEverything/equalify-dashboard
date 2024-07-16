@@ -36,15 +36,14 @@ const ReportCard: React.FC<Report> = ({
           Active Issues: {activeIssues}
         </p>
         <p className="text-sm text-gray-500">
-          Most Common: 
-          <span className="block truncate">
-            {mostCommonIssue}
-          </span>
+          Most Common:
+          <span className="block truncate">{mostCommonIssue}</span>
         </p>
       </div>
       <Link
         to={`/reports/${id}`}
         className="inline-flex h-9 justify-center whitespace-nowrap rounded-md bg-[#663808] px-4 py-2 text-sm  text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2"
+        aria-label={`View Report: ${name}`}
       >
         View Report
       </Link>
@@ -65,7 +64,7 @@ const Reports = () => {
     initialData: initialReports,
   });
 
-  if (error) return <p>Error loading reports</p>;
+  if (error) return <p role="alert">Error loading reports</p>;
 
   return (
     <>
@@ -84,6 +83,7 @@ const Reports = () => {
         <Link
           to="/reports/create"
           className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+          aria-label="Create a new report"
         >
           Create Report
         </Link>

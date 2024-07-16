@@ -35,11 +35,11 @@ const DangerDialog: React.FC<DangerDialogProps> = ({
           {description}
         </DialogDescription>
         <DialogFooter className="gap-2">
-          <Button onClick={onConfirm} className="bg-[#cf000f]">
+          <Button autoFocus onClick={onConfirm} className="bg-[#cf000f]" aria-label="Confirm deletion">
             Confirm
           </Button>
           <DialogClose asChild>
-            <Button onClick={onClose} variant={'outline'}>
+            <Button onClick={onClose} variant={'outline'} aria-label="Cancel deletion">
               Cancel
             </Button>
           </DialogClose>

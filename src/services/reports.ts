@@ -60,20 +60,20 @@ export const getReportById = async (reportId: string): Promise<Report> => {
     throw error;
   }
 };
-
 /**
  * Fetch report details
  * @param {string} reportId - The ID of the report to fetch details for
+ * @param {Record<string, string>} params - Additional parameters for filtering the details
  * @returns {Promise<any>} The fetched report details
  * @throws Will throw an error if the fetch fails
  */
-export const getReportDetails = async (reportId: string): Promise<any> => {
+export const getReportDetails = async (reportId: string, params: Record<string, string> = {}): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,
       path: `/get/results/all`,
       options: {
-        queryParams: { reportId },
+        queryParams: { reportId, ...params },
       },
     }).response;
 

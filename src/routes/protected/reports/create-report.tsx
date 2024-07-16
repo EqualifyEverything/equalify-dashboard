@@ -17,30 +17,30 @@ import { assertNonNull } from '~/utils/safety';
  */
 export const createReportAction =
   (queryClient: QueryClient) =>
-    async ({ request }: ActionFunctionArgs) => {
-      try {
-        const formData = await request.formData();
-        const reportName = formData.get('reportName');
+  async ({ request }: ActionFunctionArgs) => {
+    try {
+      const formData = await request.formData();
+      const reportName = formData.get('reportName');
 
-        assertNonNull(reportName, 'reportName is required');
+      assertNonNull(reportName, 'reportName is required');
 
-        const selectedFilters = useStore.getState().selectedFilters;
+      const selectedFilters = useStore.getState().selectedFilters;
 
-        const response = await addReport(reportName.toString(), selectedFilters);
-        await queryClient.invalidateQueries({ queryKey: ['reports'] });
+      const response = await addReport(reportName.toString(), selectedFilters);
+      await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
-        if (response.status === 'success') {
-          toast.success('Report created successfully');
-          return redirect('/reports');
-        } else {
-          toast.error('Failed to create report');
-          throw new Error('Failed to create report');
-        }
-      } catch (error) {
-        toast.error('An error occurred while creating the report.');
-        throw error;
+      if (response.status === 'success') {
+        toast.success('Report created successfully');
+        return redirect('/reports');
+      } else {
+        toast.error('Failed to create report');
+        throw new Error('Failed to create report');
       }
-    };
+    } catch (error) {
+      toast.error('An error occurred while creating the report.');
+      throw error;
+    }
+  };
 
 const CreateReport = () => {
   const navigate = useNavigate();
@@ -86,6 +86,7 @@ const CreateReport = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate(-1)}
+            aria-label="Cancel creating report"
           >
             Cancel
           </Button>
@@ -96,6 +97,7 @@ const CreateReport = () => {
             disabled={!isFormValid}
             aria-disabled={!isFormValid}
             aria-live="polite"
+            aria-label="Create report"
           >
             Create Report
           </Button>

@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Link, useParams } from 'react-router-dom';
 
@@ -6,6 +7,7 @@ import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { useMessageDetails } from '~/graphql/hooks/useMessageDetails';
 import { Node } from '~/graphql/types';
+import { reportDetailsQuery } from '~/queries/reports';
 
 const MessageDetails = () => {
   const { reportId = '', messageId = '' } = useParams();

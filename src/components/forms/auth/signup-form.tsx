@@ -114,11 +114,10 @@ const SignupForm = () => {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="email">First Name</FormLabel>
+                  <FormLabel htmlFor="firstName">First Name</FormLabel>
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="E.g. John"
                       className="h-12 bg-white"
                       id="firstName"
                       {...field}
@@ -138,7 +137,6 @@ const SignupForm = () => {
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="E.g. Doe"
                       className="h-12 bg-white"
                       id="lastName"
                       {...field}
@@ -159,7 +157,6 @@ const SignupForm = () => {
                 <FormControl>
                   <Input
                     type="email"
-                    placeholder="E.g. johndoe@email.com"
                     className="h-12 bg-white"
                     id="email"
                     {...field}
@@ -180,7 +177,6 @@ const SignupForm = () => {
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Your password"
                       className="h-12 bg-white"
                       id="password"
                       {...field}
@@ -219,7 +215,6 @@ const SignupForm = () => {
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
                       className="h-12 bg-white"
                       id="confirm-password"
                       {...field}
