@@ -98,7 +98,6 @@ const LoginForm = () => {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="E.g. johndoe@email.com"
                   className="h-12 bg-white"
                   id="email"
                   {...field}
@@ -118,7 +117,6 @@ const LoginForm = () => {
                 <div className="relative">
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Your password"
                     className="h-12 bg-white"
                     id="password"
                     {...field}
