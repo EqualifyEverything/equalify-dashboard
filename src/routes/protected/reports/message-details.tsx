@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
+import { useMessageDetails } from '~/graphql/hooks/useMessageDetails';
 import { Node } from '~/graphql/types';
 import { reportDetailsQuery } from '~/queries/reports';
 
