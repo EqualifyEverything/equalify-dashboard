@@ -156,6 +156,7 @@ const EditReport = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate(-1)}
+            aria-label="Cancel editing report"
           >
             Cancel
           </Button>
@@ -166,6 +167,7 @@ const EditReport = () => {
             disabled={!isFormChanged}
             aria-disabled={!isFormChanged}
             aria-live="polite"
+            aria-label="Update report"
           >
             Update Report
           </Button>
@@ -185,6 +187,7 @@ const EditReport = () => {
           onClick={() => setIsDeleteDialogOpen(true)}
           className="gap-2 bg-[#cf000f]"
           aria-describedby="delete-report-description"
+          aria-label="Delete report"
         >
           Delete Report
           <ExclamationTriangleIcon aria-hidden />
