@@ -1,16 +1,17 @@
+import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Link, useParams } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { useMessageDetails } from '~/graphql/hooks/useMessageDetails';
 import { Node } from '~/graphql/types';
+import { reportDetailsQuery } from '~/queries/reports';
 
 const MessageDetails = () => {
   const { reportId = '', messageId = '' } = useParams();
 
-  const { data, error } = useMessageDetails(reportId, messageId);
+  const { data, error } = useQuery(reportDetailsQuery(reportId, { messageId }));
 
   if (error) return <div role="alert">Error loading message details.</div>;
 

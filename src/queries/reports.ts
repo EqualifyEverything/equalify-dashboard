@@ -25,17 +25,17 @@ export const reportQuery = (propertyId: string) =>
   });
 
   // Query for report details
-export const reportDetailsQuery = (reportId: string) =>
-  queryOptions({
-    queryKey: ['reportDetails', reportId],
-    queryFn: async () => {
-      const details = await getReportDetails(reportId);
-      if (!details) {
-        throw new Response('', {
-          status: 404,
-          statusText: 'Report Details Not Found',
-        });
-      }
-      return details;
-    },
-  });
+  export const reportDetailsQuery = (reportId: string, params: Record<string, string> = {}) =>
+    queryOptions({
+      queryKey: ['reportDetails', reportId, params],
+      queryFn: async () => {
+        const details = await getReportDetails(reportId, params);
+        if (!details) {
+          throw new Response('', {
+            status: 404,
+            statusText: 'Report Details Not Found',
+          });
+        }
+        return details;
+      },
+    });
