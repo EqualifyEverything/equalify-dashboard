@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { Input } from '~/components/inputs';
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -62,7 +63,6 @@ const ReportForm: React.FC<ReportFormProps> = ({
                 <Input
                   type="text"
                   id="reportName"
-                  placeholder="E.g. Accessibility Report"
                   className="h-12 bg-white"
                   aria-readonly
                   {...field}
@@ -72,7 +72,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
                   }}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage /> 
             </FormItem>
           )}
         />
