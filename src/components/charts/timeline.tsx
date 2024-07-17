@@ -29,7 +29,7 @@ const chartConfig: ChartConfig = {
 };
 
 const Timeline: React.FC<TimelineProps> = ({ data }) => {
-  const sortedData = [...data].sort(
+  const sortedData = [...(data ?? [])].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
   return (
