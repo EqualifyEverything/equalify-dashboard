@@ -3,7 +3,7 @@ import { QueryClient, useQuery } from '@tanstack/react-query';
 import { Link, useLoaderData } from 'react-router-dom';
 
 import { SEO } from '~/components/layout';
-import { propertiesQuery } from '~/queries/properties';
+import { propertiesQuery } from '~/queries';
 import { LoadingProperties } from './loading';
 
 export const propertiesLoader = (queryClient: QueryClient) => async () => {
@@ -28,7 +28,6 @@ interface Property {
   id: string;
   name: string;
   lastProcessed: string;
-  // sitemapUrl: string;
 }
 
 const PropertyCard: React.FC<Property> = ({ id, name, lastProcessed }) => (

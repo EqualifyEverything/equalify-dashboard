@@ -93,9 +93,7 @@ const AccountForm = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="E.g. John"
                   className="h-12 bg-white"
-                  aria-readonly
                   {...field}
                 />
               </FormControl>
@@ -112,9 +110,7 @@ const AccountForm = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="E.g. Doe"
                   className="h-12 bg-white"
-                  aria-readonly
                   {...field}
                 />
               </FormControl>
@@ -131,7 +127,6 @@ const AccountForm = () => {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="E.g. johndoe@email.com"
                   className="h-12 bg-white"
                   disabled
                   aria-readonly

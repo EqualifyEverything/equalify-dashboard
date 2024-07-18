@@ -91,7 +91,11 @@ const SignupForm = () => {
   }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
-    return <OTPValidationForm email={pendingUsername} />;
+    return (
+      <div role="alert" aria-live="assertive">
+        <OTPValidationForm email={pendingUsername} />;
+      </div>
+    );
   }
 
   return (

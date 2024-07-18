@@ -1,7 +1,6 @@
 import { LoginForm } from '~/components/forms';
-import { AuthLayout } from '~/components/layout';
-import SEO from '~/components/layout/seo';
-import { Public } from '../..';
+import { AuthLayout, SEO } from '~/components/layout';
+import Public from '../public';
 
 const Login = () => (
   <Public>
@@ -21,7 +20,6 @@ const Login = () => (
             </span>
           </h2>
         </div>
-
         <LoginForm />
       </section>
     </AuthLayout>

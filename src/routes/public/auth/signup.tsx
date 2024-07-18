@@ -1,6 +1,6 @@
 import { SignupForm } from '~/components/forms';
 import { AuthLayout, SEO } from '~/components/layout';
-import { Public } from '../..';
+import Public from '../public';
 
 const Signup = () => (
   <Public>
@@ -21,7 +21,6 @@ const Signup = () => (
             </span>
           </h2>
         </div>
-
         <SignupForm />
       </section>
     </AuthLayout>

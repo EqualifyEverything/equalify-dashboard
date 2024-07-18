@@ -1,15 +1,53 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { Link, useParams } from 'react-router-dom';
+import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { useTagDetails } from '~/graphql/hooks/useTagDetails';
-import { Message } from '~/graphql/types';
+import { tagDetailsQuery } from '~/queries';
+import { assertNonNull } from '~/utils/safety';
+
+interface Message {
+  id: string;
+  messageId: number;
+  title: string;
+  activeCount: number;
+}
+
+/**
+ * Loader function to fetch tag details
+ * @param queryClient - The Query Client instance.
+ * @returns Loader function to be used with React Router.
+ */
+export const tagDetailsLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+    assertNonNull(params.tagId, 'Tag ID is missing in the route parameters');
+
+    const initialTagDetails = await queryClient.ensureQueryData(
+      tagDetailsQuery(params.reportId, params.tagId),
+    );
+    return {
+      initialTagDetails,
+      reportId: params.reportId,
+      tagId: params.tagId,
+    };
+  };
 
 const TagDetails = () => {
-  const { tagId = '', reportId = '' } = useParams();
-  const { data, error } = useTagDetails(reportId, tagId);
+  const { initialTagDetails, reportId, tagId } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof tagDetailsLoader>>
+  >;
+  const { data, error } = useQuery({
+    ...tagDetailsQuery(reportId, tagId),
+    initialData: initialTagDetails,
+  });
+
   if (error) return <div role="alert">Error loading tag details.</div>;
 
   const messageColumns: ColumnDef<Message>[] = [

@@ -1,18 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-  useLoaderData,
-  useNavigate,
-} from 'react-router-dom';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect, useLoaderData, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
@@ -20,8 +9,7 @@ import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
-import { sendToScan } from '~/services';
-import { deleteProperty, updateProperty } from '~/services/properties';
+import { deleteProperty, updateProperty, sendToScan } from '~/services';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
 
@@ -94,6 +82,7 @@ const EditProperty = () => {
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { data: property, isLoading } = useQuery({
     ...propertyQuery(propertyId!),
@@ -201,6 +190,7 @@ const EditProperty = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate('/properties')}
+            aria-label='Cancel editing property'
           >
             Cancel
           </Button>
@@ -248,6 +238,7 @@ const EditProperty = () => {
             onConfirm={handleDeleteProperty}
             title="Confirm Property Deletion"
             description="Are you sure you want to delete your property? This action cannot be undone."
+            triggerButtonRef={deleteButtonRef}
           />
         )}
       </section>

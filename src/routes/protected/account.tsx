@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ExclamationTriangleIcon, PinRightIcon } from '@radix-ui/react-icons';
 
 import { Button } from '~/components/buttons';
@@ -10,6 +10,7 @@ import { useAuth } from '~/hooks/useAuth';
 const Account = () => {
   const { signOut, deleteUser } = useAuth();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const handleDeleteAccount = async () => {
     await deleteUser();
@@ -76,6 +77,7 @@ const Account = () => {
             onConfirm={handleDeleteAccount}
             title="Confirm Account Deletion"
             description="Are you sure you want to delete your account? This action cannot be undone."
+            triggerButtonRef={deleteButtonRef}
           />
         )}
       </section>

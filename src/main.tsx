@@ -1,5 +1,9 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PostHogProvider } from 'posthog-js/react';
 import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import {
   createBrowserRouter,
   Navigate,
@@ -9,14 +13,7 @@ import {
 import '~/globals.css';
 import '~/amplify.config';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { PostHogProvider } from 'posthog-js/react';
-import { HelmetProvider } from 'react-helmet-async';
-
-import { initHotjar } from '~/analytics/hotjar';
-import { initPostHog } from '~/analytics/posthog';
-import { initSentry } from '~/analytics/sentry';
+import { initAnalytics } from '~/analytics';
 import { NotFound } from '~/components/layout';
 import {
   Account,
@@ -37,20 +34,21 @@ import {
   Forgot,
   Reset,
 } from '~/routes';
-import { addPropertyAction } from '~/routes/protected/properties/add-property';
 import {
+  addPropertyAction,
+  createReportAction,
+  messageDetailsLoader,
+  pageDetailsLoader,
+  propertiesLoader,
   propertyLoader,
-  updatePropertyAction,
-} from '~/routes/protected/properties/edit-property';
-import { propertiesLoader } from '~/routes/protected/properties/properties';
-import { createReportAction } from './routes/protected/reports/create-report';
-import {
+  reportDetailsLoader,
   reportLoader,
+  reportsLoader,
+  scansLoader,
+  tagDetailsLoader,
+  updatePropertyAction,
   updateReportAction,
-} from './routes/protected/reports/edit-report';
-import { reportDetailsLoader } from './routes/protected/reports/report-details';
-import { reportsLoader } from './routes/protected/reports/reports';
-import { scansLoader } from './routes/protected/scans';
+} from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,9 +59,7 @@ const queryClient = new QueryClient({
   },
 });
 
-initSentry();
-initHotjar();
-initPostHog();
+initAnalytics();
 
 const router = createBrowserRouter([
   {
@@ -96,9 +92,18 @@ const router = createBrowserRouter([
       {
         path: 'reports/:reportId/messages/:messageId',
         element: <MessageDetails />,
+        loader: messageDetailsLoader(queryClient),
       },
-      { path: 'reports/:reportId/tags/:tagId', element: <TagDetails /> },
-      { path: 'reports/:reportId/pages/:pageId', element: <PageDetails /> },
+      {
+        path: 'reports/:reportId/tags/:tagId',
+        element: <TagDetails />,
+        loader: tagDetailsLoader(queryClient),
+      },
+      {
+        path: 'reports/:reportId/pages/:pageId',
+        element: <PageDetails />,
+        loader: pageDetailsLoader(queryClient),
+      },
       { path: 'account', element: <Account /> },
       { path: 'scans', element: <Scans />, loader: scansLoader(queryClient) },
       {

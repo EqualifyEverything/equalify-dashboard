@@ -65,7 +65,6 @@ const ReportForm: React.FC<ReportFormProps> = ({
                   type="text"
                   id="reportName"
                   className="h-12 bg-white"
-                  aria-readonly
                   {...field}
                   onChange={(event) => {
                     field.onChange(event);

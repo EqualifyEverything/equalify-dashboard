@@ -4,7 +4,7 @@ import { useLoaderData } from 'react-router-dom';
 
 import { SEO } from '~/components/layout';
 import DataTable from '~/components/tables/data-table';
-import { scansQuery } from '~/queries/scans';
+import { scansQuery } from '~/queries';
 
 interface Scan {
   jobId: string;
@@ -35,7 +35,7 @@ const scansColumns: ColumnDef<Scan>[] = [
   {
     accessorKey: 'url',
     header: 'URL',
-    cell: ({ row }) => <a className='text-[blue] hover:opacity-50' target='_blank' href={row.original.url.url}>{row.original.url.url}</a>,
+    cell: ({ row }) => <a className='text-blue-500 hover:opacity-50' target='_blank' href={row.original.url.url}>{row.original.url.url}</a>,
   },
   {
     accessorKey: 'property',
@@ -45,16 +45,18 @@ const scansColumns: ColumnDef<Scan>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => <span className={`${row.original.processing ? 'bg-[brown]' : 'bg-[green]'} text-[white] px-2 py-1 rounded-full`}>{row.original.processing ? 'Processing' : 'Complete'}</span>,
+    cell: ({ row }) => <span className={`${row.original.processing ? 'bg-[#663808]' : 'bg-[#005031]'} text-white px-2 py-1 rounded-full`}>{row.original.processing ? 'Processing' : 'Complete'}</span>,
   },
   {
     accessorKey: 'report',
     header: 'Raw Data',
-    cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-[blue] hover:opacity-50' onClick={() => {
+    cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-blue-500 hover:opacity-50' onClick={() => {
       const element = document.getElementById('downloadReportLink');
-      element.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(row.original.results)));
-      element.setAttribute("download", "results.json");
-      element.click();
+      if (element) {
+        element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(row.original.results)));
+        element.setAttribute('download', 'results.json');
+        element.click();
+      }
     }}>Download</button>,
   },
 ];
@@ -68,7 +70,7 @@ const Scans = () => {
   const { initialScans } = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof scansLoader>>
   >;
-  const { data: scans, isLoading } = useQuery({
+  const { data: scans } = useQuery({
     ...scansQuery(),
     initialData: initialScans,
     refetchInterval: 1000,

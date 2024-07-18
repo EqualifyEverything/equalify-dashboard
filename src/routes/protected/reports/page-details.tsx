@@ -1,17 +1,55 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { Link, useParams } from 'react-router-dom';
+import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { usePageDetails } from '~/graphql/hooks/usePageDetails';
-import { Occurrence } from '~/graphql/types';
+import { pageDetailsQuery } from '~/queries';
 import { sendUrlToScan } from '~/services';
+import { assertNonNull } from '~/utils/safety';
+
+interface Occurrence {
+  messageId: number;
+  title: string;
+  codeSnippet: string;
+  status: string;
+}
+
+/**
+ * Loader function to fetch page details
+ * @param queryClient - The Query Client instance.
+ * @returns Loader function to be used with React Router.
+ */
+export const pageDetailsLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+    assertNonNull(params.pageId, 'Page ID is missing in the route parameters');
+
+    const initialPageDetails = await queryClient.ensureQueryData(
+      pageDetailsQuery(params.reportId, params.pageId),
+    );
+    return {
+      initialPageDetails,
+      reportId: params.reportId,
+      pageId: params.pageId,
+    };
+  };
 
 const PageDetails = () => {
-  const { reportId = '', pageId = '' } = useParams();
-  const { data, error } = usePageDetails(reportId, pageId);
+  const { initialPageDetails, reportId, pageId } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof pageDetailsLoader>>
+  >;
+  const { data, error } = useQuery({
+    ...pageDetailsQuery(reportId, pageId),
+    initialData: initialPageDetails,
+  });
+
   if (error) return <div role="alert">Error loading page details.</div>;
 
   const handleSendToScan = async () => {
@@ -42,12 +80,9 @@ const PageDetails = () => {
       ),
     },
     {
-      accessorKey: 'codeSnippet', header: 'Code Snippet',
-      cell: ({ row }) => (
-        <code>
-          {row.getValue('codeSnippet')}
-        </code>
-      ),
+      accessorKey: 'codeSnippet',
+      header: 'Code Snippet',
+      cell: ({ row }) => <code>{row.getValue('codeSnippet')}</code>,
     },
     { accessorKey: 'status', header: 'Status' },
   ];
@@ -69,8 +104,19 @@ const PageDetails = () => {
               {data?.reportName}
             </h1>
           </Link>
-          <a target='_blank' href={data?.url} className="text-lg text-blue-500 hover:underline">{data?.url}</a>
-          <button onClick={handleSendToScan} className='ml-2 inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap rounded-md bg-[#0d6efd] px-2 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d6efd] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-1 gap-2 hover:opacity-50'>Send to Scan</button>
+          <a
+            target="_blank"
+            href={data?.url}
+            className="text-lg text-blue-500 hover:underline"
+          >
+            {data?.url}
+          </a>
+          <button
+            onClick={handleSendToScan}
+            className="ml-2 inline-flex h-9 items-center justify-end gap-2 place-self-end whitespace-nowrap rounded-md bg-[#0d6efd] px-2 py-3 text-base text-white shadow transition-colors hover:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d6efd] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-1"
+          >
+            Send to Scan
+          </button>
         </div>
         <Link
           to={`/reports/${reportId}/edit`}
