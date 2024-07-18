@@ -11,6 +11,7 @@ interface Report {
   name: string;
   activeIssues: number;
   mostCommonIssue: string;
+  filters: any[];
 }
 
 const API_NAME = 'auth';
