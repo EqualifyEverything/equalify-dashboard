@@ -174,6 +174,16 @@ const LoginForm = () => {
               <ArrowTopRightIcon className="group-hover:scale-110" />
             </Link>
           </p>
+          <p className="text-center text-sm text-[#4D4D4D]">
+            Forgot your password?{' '}
+            <Link
+              to="/forgot"
+              className="group inline-flex items-end gap-1 font-semibold text-[#1D781D] hover:underline"
+            >
+              Reset Now
+              <ArrowTopRightIcon className="group-hover:scale-110" />
+            </Link>
+          </p>
         </div>
       </form>
     </Form>

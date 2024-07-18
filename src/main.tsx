@@ -34,6 +34,8 @@ import {
   Scans,
   Signup,
   TagDetails,
+  Forgot,
+  Reset,
 } from '~/routes';
 import { addPropertyAction } from '~/routes/protected/properties/add-property';
 import {
@@ -119,6 +121,8 @@ const router = createBrowserRouter([
   },
   { path: '/login', element: <Login />, errorElement: <NotFound /> },
   { path: '/signup', element: <Signup />, errorElement: <NotFound /> },
+  { path: '/forgot', element: <Forgot />, errorElement: <NotFound /> },
+  { path: '/reset', element: <Reset />, errorElement: <NotFound /> },
 ]);
 
 const domNode = document.getElementById('root')!;

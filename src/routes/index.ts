@@ -17,3 +17,5 @@ export { default as EditProperty } from './protected/properties/edit-property';
 
 export { default as Login } from './public/auth/login';
 export { default as Signup } from './public/auth/signup';
+export { default as Forgot } from './public/auth/forgot';
+export { default as Reset } from './public/auth/reset';
