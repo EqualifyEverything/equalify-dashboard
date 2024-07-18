@@ -16,7 +16,7 @@ import { FilterOption, FiltersResponse } from '~/services/filters';
 import { useStore } from '~/store';
 import { Label } from '../label';
 
-const ReportFilter = () => {
+const ReportFilter = ({ defaultFilters, onChange }) => {
   const { data: filterData } = useQuery(filtersQuery());
   const [selectedFilter, setSelectedFilter] =
     useState<keyof FiltersResponse>('messages');
@@ -30,6 +30,12 @@ const ReportFilter = () => {
   const removeFilter = useStore((state) => state.removeFilter);
   const clearFilters = useStore((state) => state.clearFilters);
   const selectedFilters = useStore((state) => state.selectedFilters);
+
+  useEffect(() => {
+    for (const defaultFilter of defaultFilters) {
+      addFilter(defaultFilter);
+    }
+  }, [defaultFilters]);
 
   useEffect(() => {
     return () => {
@@ -57,6 +63,7 @@ const ReportFilter = () => {
         setShowDropdown(false);
         setFocusedIndex(-1);
       }
+      onChange();
     },
     [selectedFilter, selectedFilters, addFilter, filterData],
   );
@@ -97,9 +104,9 @@ const ReportFilter = () => {
     if (showDropdown && focusedIndex !== -1 && dropdownRef.current) {
       dropdownRef.current
         .querySelectorAll('[role="option"]')
-        [focusedIndex]?.scrollIntoView({
-          block: 'nearest',
-        });
+      [focusedIndex]?.scrollIntoView({
+        block: 'nearest',
+      });
     }
   }, [focusedIndex, showDropdown]);
 
@@ -190,6 +197,7 @@ const ReportFilter = () => {
           </div>
         ))}
       </div>
+      <input type='text' hidden name='filters' value={JSON.stringify(selectedFilters)} />
     </div>
   );
 };

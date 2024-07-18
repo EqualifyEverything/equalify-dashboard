@@ -17,6 +17,7 @@ import ReportFilter from './report-filter';
 
 const ReportSchema = z.object({
   reportName: z.string().min(1, 'Please enter a report name.'),
+  filters: z.any(),
 });
 
 type ReportFormInputs = z.infer<typeof ReportSchema>;
@@ -72,12 +73,14 @@ const ReportForm: React.FC<ReportFormProps> = ({
                   }}
                 />
               </FormControl>
-              <FormMessage /> 
+              <FormMessage />
             </FormItem>
           )}
         />
-
-        <ReportFilter />
+        <ReportFilter
+          defaultFilters={defaultValues?.filters}
+          onChange={() => onChange({ target: { name: 'filters' } })}
+        />
       </form>
     </HookFormProvider>
   );

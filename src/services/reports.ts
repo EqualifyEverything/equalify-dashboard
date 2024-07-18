@@ -207,18 +207,17 @@ export const updateReport = async (
   filters?: any[],
 ): Promise<{ result: Report; status: string }> => {
   try {
-    const updateBody: any = { reportId };
-    if (reportName) updateBody.reportName = reportName;
-    if (filters) updateBody.filters = filters;
-
     const response = await put({
       apiName: API_NAME,
       path: '/update/reports',
       options: {
-        body: updateBody,
+        body: {
+          reportId,
+          reportName,
+          reportFilters: filters,
+        },
       },
     }).response;
-
     const { body, statusCode } = response;
     const { result } = (await body.json()) as unknown as ApiResponse<Report>;
     return { result, status: statusCode === 200 ? 'success' : 'error' };
