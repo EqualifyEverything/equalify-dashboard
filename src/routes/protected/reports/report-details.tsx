@@ -1,17 +1,31 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  Link,
-  LoaderFunctionArgs,
-  useLoaderData,
-} from 'react-router-dom';
+import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { Message, Page, Tag } from '~/graphql/types';
-import { reportDetailsQuery } from '~/queries/reports';
+import { reportDetailsQuery } from '~/queries';
 import { assertNonNull } from '~/utils/safety';
+interface Message {
+  id: string;
+  messageId: number;
+  title: string;
+  activeCount: number;
+}
+
+interface Page {
+  id: string;
+  pageId: number;
+  url: string;
+  occurrencesActive: number;
+}
+interface Tag {
+  id: string;
+  tagId: number;
+  name: string;
+  referenceCount: number;
+}
 
 /**
  * Loader function to fetch reports details
@@ -20,36 +34,37 @@ import { assertNonNull } from '~/utils/safety';
  */
 export const reportDetailsLoader =
   (queryClient: QueryClient) =>
-    async ({ params }: LoaderFunctionArgs) => {
-      assertNonNull(
-        params.reportId,
-        'Report ID is missing in the route parameters',
-      );
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
 
-      const initialReportDetail = await queryClient.ensureQueryData(
-        reportDetailsQuery(params.reportId),
-      );
-      return { initialReportDetail, reportId: params.reportId };
-    };
+    const initialReportDetail = await queryClient.ensureQueryData(
+      reportDetailsQuery(params.reportId),
+    );
+    return { initialReportDetail, reportId: params.reportId };
+  };
 
 const ReportDetails = () => {
   const { initialReportDetail, reportId } = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof reportDetailsLoader>>
   >;
 
-  const {
-    data: details,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: details, error } = useQuery({
     ...reportDetailsQuery(reportId!),
     initialData: initialReportDetail,
   });
 
   if (error) return <div role="alert">Error loading report details.</div>;
 
-
-  const { urls: pagesData, messages: messagesData, tags: tagsData, reportName, chart } = details;
+  const {
+    urls: pagesData,
+    messages: messagesData,
+    tags: tagsData,
+    reportName,
+    chart,
+  } = details;
 
   const messageColumns: ColumnDef<Message>[] = [
     {

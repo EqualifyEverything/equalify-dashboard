@@ -27,13 +27,14 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  type: 'messages' | 'tags' | 'pages' | 'nodes' | 'scans';
 }
 
 const DataTable = <TData, TValue,>({
   columns,
   data,
   type,
-}: DataTableProps<TData, TValue> & { type: 'messages' | 'tags' | 'pages' | 'nodes' | 'scans' }) => {
+}: DataTableProps<TData, TValue>) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 5,

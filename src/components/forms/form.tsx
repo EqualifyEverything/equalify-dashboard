@@ -158,6 +158,8 @@ const FormMessage = forwardRef<
         <p
           ref={ref}
           id={formMessageId}
+          role='alert'
+          aria-live='assertive'
           className={cn('text-[0.8rem] font-medium text-red-500', className)}
           {...props}
         >

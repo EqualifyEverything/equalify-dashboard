@@ -11,6 +11,7 @@ interface Report {
   name: string;
   activeIssues: number;
   mostCommonIssue: string;
+  filters: any[];
 }
 
 const API_NAME = 'auth';
@@ -63,17 +64,16 @@ export const getReportById = async (reportId: string): Promise<Report> => {
 /**
  * Fetch report details
  * @param {string} reportId - The ID of the report to fetch details for
- * @param {Record<string, string>} params - Additional parameters for filtering the details
  * @returns {Promise<any>} The fetched report details
  * @throws Will throw an error if the fetch fails
  */
-export const getReportDetails = async (reportId: string, params: Record<string, string> = {}): Promise<any> => {
+export const getReportDetails = async (reportId: string): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,
       path: `/get/results/all`,
       options: {
-        queryParams: { reportId, ...params },
+        queryParams: { reportId },
       },
     }).response;
 
@@ -87,13 +87,16 @@ export const getReportDetails = async (reportId: string, params: Record<string, 
 };
 
 /**
-* Fetch page details
-* @param {string} reportId - The ID of the report to fetch details for
-* @param {string} urlId - The ID of the report to fetch details for
-* @returns {Promise<any>} The fetched report details
-* @throws Will throw an error if the fetch fails
-*/
-export const getPageDetails = async (reportId: string, urlId: string): Promise<any> => {
+ * Fetch page details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {string} urlId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getPageDetails = async (
+  reportId: string,
+  urlId: string,
+): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,
@@ -113,13 +116,16 @@ export const getPageDetails = async (reportId: string, urlId: string): Promise<a
 };
 
 /**
-* Fetch message details
-* @param {string} reportId - The ID of the report to fetch details for
-* @param {string} messageId - The ID of the report to fetch details for
-* @returns {Promise<any>} The fetched report details
-* @throws Will throw an error if the fetch fails
-*/
-export const getMessageDetails = async (reportId: string, messageId: string): Promise<any> => {
+ * Fetch message details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {string} messageId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getMessageDetails = async (
+  reportId: string,
+  messageId: string,
+): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,
@@ -139,13 +145,16 @@ export const getMessageDetails = async (reportId: string, messageId: string): Pr
 };
 
 /**
-* Fetch tag details
-* @param {string} reportId - The ID of the report to fetch details for
-* @param {string} tagId - The ID of the report to fetch details for
-* @returns {Promise<any>} The fetched report details
-* @throws Will throw an error if the fetch fails
-*/
-export const getTagDetails = async (reportId: string, tagId: string): Promise<any> => {
+ * Fetch tag details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {string} tagId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getTagDetails = async (
+  reportId: string,
+  tagId: string,
+): Promise<any> => {
   try {
     const response = await get({
       apiName: API_NAME,

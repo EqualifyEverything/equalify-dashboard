@@ -66,9 +66,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <Input
                   type="text"
                   id="propertyName"
-                  placeholder="E.g. Accessibility Property"
                   className="h-12 bg-white"
-                  aria-readonly
                   {...field}
                   onChange={(event) => {
                     field.onChange(event);
@@ -90,9 +88,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <Input
                   type="text"
                   id="sitemapUrl"
-                  placeholder="E.g. https://example.com/"
                   className="h-12 bg-white"
-                  aria-readonly
                   {...field}
                   onChange={(event) => {
                     field.onChange(event);
@@ -114,7 +110,6 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                 <select
                   id="propertyDiscovery"
                   className="h-12 bg-white border-[1px] rounded-lg px-2"
-                  aria-readonly
                   {...field}
                   onChange={(event) => {
                     field.onChange(event);

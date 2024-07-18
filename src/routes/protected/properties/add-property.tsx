@@ -98,6 +98,7 @@ const AddProperty = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate(-1)}
+            aria-label='Cancel adding property'
           >
             Cancel
           </Button>

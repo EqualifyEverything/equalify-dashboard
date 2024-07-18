@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import {
   QueryClient,
@@ -95,6 +95,7 @@ const EditReport = () => {
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { data: report } = useQuery({
     ...reportQuery(reportId!),
@@ -128,8 +129,6 @@ const EditReport = () => {
     setIsDeleteDialogOpen(false);
     deleteMutate();
   };
-
-  //TODO: Handle Loading State
 
   return (
     <>
@@ -209,6 +208,7 @@ const EditReport = () => {
             onConfirm={handleDeleteReport}
             title="Confirm Report Deletion"
             description="Are you sure you want to delete your report? This action cannot be undone."
+            triggerButtonRef={deleteButtonRef}
           />
         )}
       </section>
