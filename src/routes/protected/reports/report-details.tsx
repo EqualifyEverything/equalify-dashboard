@@ -7,6 +7,7 @@ import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { reportDetailsQuery } from '~/queries';
 import { assertNonNull } from '~/utils/safety';
+
 interface Message {
   id: string;
   messageId: number;
@@ -134,7 +135,8 @@ const ReportDetails = () => {
           to={`/reports/${reportId}/edit`}
           className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
         >
-          Edit Report
+          <span className="sr-only">{`Edit ${reportName} Report`}</span>
+          <span aria-hidden="true">Edit Report</span>
         </Link>
       </div>
 

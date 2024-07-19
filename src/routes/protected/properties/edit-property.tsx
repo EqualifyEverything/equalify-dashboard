@@ -220,6 +220,7 @@ const EditProperty = () => {
           onClick={() => setIsDeleteDialogOpen(true)}
           className="gap-2 bg-[#cf000f]"
           aria-describedby="delete-property-description"
+          ref={deleteButtonRef}
         >
           Delete Property
           <ExclamationTriangleIcon aria-hidden />

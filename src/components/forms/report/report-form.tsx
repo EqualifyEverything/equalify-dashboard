@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { Input } from '~/components/inputs';
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,7 +25,7 @@ interface ReportFormProps {
   actionUrl: string;
   defaultValues: ReportFormInputs;
   formId: 'create-report-form' | 'edit-report-form';
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => void;
 }
 
 const ReportForm: React.FC<ReportFormProps> = ({
@@ -40,6 +39,15 @@ const ReportForm: React.FC<ReportFormProps> = ({
     resolver: zodResolver(ReportSchema),
     defaultValues,
   });
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }
+  ) => {
+    form.setValue(event.target.name as keyof ReportFormInputs, event.target.value);
+    if (onChange) {
+      onChange(event as unknown as React.ChangeEvent<HTMLInputElement>);
+    }
+  };
 
   return (
     <HookFormProvider {...form}>
@@ -67,8 +75,8 @@ const ReportForm: React.FC<ReportFormProps> = ({
                   className="h-12 bg-white"
                   {...field}
                   onChange={(event) => {
+                    handleChange(event);
                     field.onChange(event);
-                    onChange && onChange(event);
                   }}
                 />
               </FormControl>
@@ -78,7 +86,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
         />
         <ReportFilter
           defaultFilters={defaultValues?.filters}
-          onChange={() => onChange({ target: { name: 'filters' } })}
+          onChange={handleChange}
         />
       </form>
     </HookFormProvider>

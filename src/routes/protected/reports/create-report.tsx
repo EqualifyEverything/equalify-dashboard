@@ -46,16 +46,16 @@ const CreateReport = () => {
   const navigate = useNavigate();
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const form = event.currentTarget.closest('form');
-    const reportName = form?.elements.namedItem(
-      'reportName',
-    ) as HTMLInputElement;
-
-    if (reportName) {
-      const isFormValid = reportName.value.trim() !== '';
-      setIsFormValid(isFormValid);
-    }
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+    if ('currentTarget' in event) {
+      const form = event.currentTarget.closest('form');
+      const reportName = form?.elements.namedItem('reportName') as HTMLInputElement;
+  
+      if (reportName) {
+        const isFormValid = reportName.value.trim() !== '';
+        setIsFormValid(isFormValid);
+      }
+    } 
   };
 
   return (

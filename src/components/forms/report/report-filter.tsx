@@ -16,7 +16,12 @@ import { FilterOption, FiltersResponse } from '~/services/filters';
 import { useStore } from '~/store';
 import { Label } from '../label';
 
-const ReportFilter = ({ defaultFilters, onChange }) => {
+interface ReportFilterProps {
+  defaultFilters: FilterOption[];
+  onChange: (event: { target: { name: string; value: string } }) => void;
+}
+
+const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChange }) => {
   const { data: filterData } = useQuery(filtersQuery());
   const [selectedFilter, setSelectedFilter] =
     useState<keyof FiltersResponse>('messages');
@@ -35,7 +40,7 @@ const ReportFilter = ({ defaultFilters, onChange }) => {
     for (const defaultFilter of defaultFilters) {
       addFilter(defaultFilter);
     }
-  }, [defaultFilters]);
+  }, [defaultFilters, addFilter]);
 
   useEffect(() => {
     return () => {
@@ -63,9 +68,9 @@ const ReportFilter = ({ defaultFilters, onChange }) => {
         setShowDropdown(false);
         setFocusedIndex(-1);
       }
-      onChange();
+      onChange({ target: { name: 'filters', value: JSON.stringify(selectedFilters) } });
     },
-    [selectedFilter, selectedFilters, addFilter, filterData],
+    [selectedFilter, selectedFilters, addFilter, filterData, onChange],
   );
 
   const filteredOptions =

@@ -48,7 +48,8 @@ const PropertyCard: React.FC<Property> = ({ id, name, lastProcessed }) => (
         to={`/properties/${id}/edit`}
         className="inline-flex h-9 justify-center whitespace-nowrap rounded-md bg-[#663808] px-4 py-2 text-sm text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2"
       >
-        Edit Property
+        <span className="sr-only">{`Edit ${name} Property`}</span>
+        <span aria-hidden="true">Edit Property</span>
       </Link>
     </div>
   </article>
