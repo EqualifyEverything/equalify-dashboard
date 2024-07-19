@@ -71,6 +71,7 @@ const SignupForm = () => {
         email: values.email,
         password: values.password,
       });
+      setAnnouncement('Verification code sent to your email.');
     } catch (error) {
       console.error('Sign up error on Submit:', error);
     }
@@ -78,6 +79,7 @@ const SignupForm = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     if (signUpError) errorAlertRef.current?.focus();
@@ -93,7 +95,7 @@ const SignupForm = () => {
   if (needsConfirmation && pendingUsername) {
     return (
       <div role="alert" aria-live="assertive">
-        <OTPValidationForm email={pendingUsername} />;
+        <OTPValidationForm email={pendingUsername} />
       </div>
     );
   }
@@ -281,6 +283,14 @@ const SignupForm = () => {
           </div>
         </form>
       </Form>
+      <div
+        id="signup-announcement"
+        role="alert"
+        aria-live="assertive"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
     </>
   );
 };

@@ -59,6 +59,7 @@ const Account = () => {
           onClick={() => setIsDeleteDialogOpen(true)}
           className="gap-2 bg-[#cf000f]"
           aria-describedby="delete-account-description"
+          ref={deleteButtonRef}
         >
           Delete Account
           <ExclamationTriangleIcon aria-hidden />
