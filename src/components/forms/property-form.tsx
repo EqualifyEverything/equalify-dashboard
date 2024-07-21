@@ -16,7 +16,7 @@ import { useSubmit } from 'react-router-dom';
 
 const PropertySchema = z.object({
   propertyName: z.string().min(1, 'Please enter a Property name.'),
-  sitemapUrl: z.string().url('Please enter a valid URL.'),
+  propertyUrl: z.string().url('Please enter a valid URL.'),
   propertyDiscovery: z.enum(['single', 'sitemap', 'discovery_process']),
 });
 
@@ -80,14 +80,14 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
         />
         <FormField
           control={form.control}
-          name="sitemapUrl"
+          name="propertyUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="sitemapUrl">URL</FormLabel>
+              <FormLabel htmlFor="propertyUrl">URL</FormLabel>
               <FormControl>
                 <Input
                   type="text"
-                  id="sitemapUrl"
+                  id="propertyUrl"
                   className="h-12 bg-white"
                   {...field}
                   onChange={(event) => {

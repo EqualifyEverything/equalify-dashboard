@@ -45,13 +45,13 @@ export const updatePropertyAction =
       try {
         const formData = await request.formData();
         const propertyName = formData.get('propertyName') as string;
-        const sitemapUrl = formData.get('sitemapUrl') as string;
+        const propertyUrl = formData.get('propertyUrl') as string;
         const propertyDiscovery = formData.get('propertyDiscovery') as string;
 
         const response = await updateProperty(
           params.propertyId,
           propertyName,
-          sitemapUrl,
+          propertyUrl,
           propertyDiscovery,
         );
 
@@ -110,7 +110,7 @@ const EditProperty = () => {
     if (name === 'propertyName' && value.trim() !== property?.name.trim()) {
       setIsFormChanged(true);
     } else if (
-      name === 'sitemapUrl' &&
+      name === 'propertyUrl' &&
       value.trim() !== property?.urls.nodes[0].url.trim()
     ) {
       setIsFormChanged(true);
@@ -177,7 +177,7 @@ const EditProperty = () => {
             actionUrl={`/properties/${propertyId}/edit`}
             defaultValues={{
               propertyName: property?.name || '',
-              sitemapUrl: property?.urls.nodes[0].url || '',
+              propertyUrl: property?.urls.nodes[0].url || '',
               propertyDiscovery: property?.discovery || 'single',
             }}
             formId="edit-property-form"

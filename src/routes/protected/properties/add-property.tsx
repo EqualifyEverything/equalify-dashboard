@@ -19,7 +19,7 @@ export const addPropertyAction =
       try {
         const formData = await request.formData();
         const propertyName = formData.get('propertyName') as string;
-        const sitemapUrl = formData.get('sitemapUrl') as string;
+        const propertyUrl = formData.get('propertyUrl') as string;
         const propertyDiscovery = formData.get('propertyDiscovery') as
           | 'single'
           | 'sitemap'
@@ -27,7 +27,7 @@ export const addPropertyAction =
 
         const response = await addProperty(
           propertyName,
-          sitemapUrl,
+          propertyUrl,
           propertyDiscovery,
         );
 
@@ -55,13 +55,13 @@ const AddProperty = () => {
     const propertyName = form?.elements.namedItem(
       'propertyName',
     ) as HTMLInputElement;
-    const sitemapUrl = form?.elements.namedItem(
-      'sitemapUrl',
+    const propertyUrl = form?.elements.namedItem(
+      'propertyUrl',
     ) as HTMLInputElement;
 
-    if (propertyName && sitemapUrl) {
+    if (propertyName && propertyUrl) {
       const isFormValid =
-        propertyName.value.trim() !== '' && sitemapUrl.value.trim() !== '';
+        propertyName.value.trim() !== '' && propertyUrl.value.trim() !== '';
       setIsFormValid(isFormValid);
     }
   };
@@ -86,7 +86,7 @@ const AddProperty = () => {
           actionUrl="/properties/add"
           defaultValues={{
             propertyName: '',
-            sitemapUrl: '',
+            propertyUrl: '',
             propertyDiscovery: 'single',
           }}
           formId="add-property-form"
