@@ -60,12 +60,12 @@ const Reset = () => {
                 </div>
                 <form onSubmit={resetPassword} className='flex flex-col gap-8 w-full max-w-[448px]'>
                     <div className='flex flex-col gap-2'>
-                        <label className='text-sm'>Password</label>
-                        <input name='password' className='rounded-md p-3' />
+                        <label htmlFor='password' className='text-sm'>Password</label>
+                        <input id='password' name='password' className='rounded-md p-3' />
                     </div>
                     <div className='flex flex-col gap-2'>
-                        <label className='text-sm'>Confirm password</label>
-                        <input name='confirm' className='rounded-md p-3' />
+                        <label htmlFor='confirm_password' className='text-sm'>Confirm password</label>
+                        <input id='confirm_password' name='confirm' className='rounded-md p-3' />
                     </div>
                     <button className='bg-[#1D781D] text-white rounded-md p-3 text-sm' type='submit'>Reset password</button>
                 </form>
