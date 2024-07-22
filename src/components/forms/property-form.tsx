@@ -118,7 +118,6 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
                   {[
                     { label: 'Single', value: 'single' },
                     { label: 'Sitemap', value: 'sitemap' },
-                    { label: 'Discovery Process', value: 'discovery_process' },
                   ].map((obj, index) => <option key={index} value={obj.value}>{obj.label}</option>)}
                 </select>
               </FormControl>
