@@ -30,14 +30,16 @@ const ReportCard: React.FC<Report> = ({
     <h2 id={`report-title-${id}`} className="text-lg">
       {name}
     </h2>
-    <div className="mt-2 flex flex-col justify-between gap-3 md:flex-row md:items-end">
+    <div className="mt-2 flex flex-col justify-between gap-3">
       <div className="min-w-0">
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-gray-600">
           Active Issues: {activeIssues}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm mt-1 text-gray-500">
           Most Common:
-          <span className="block truncate">{mostCommonIssue}</span>
+          <div className="overflow-hidden overflow-ellipsis h-16">
+          <p title={mostCommonIssue}>{mostCommonIssue}</p>
+        </div>
         </p>
       </div>
       <Link
