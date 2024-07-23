@@ -33,7 +33,7 @@ const Timeline: React.FC<TimelineProps> = ({ data }) => {
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
   return (
-    <div className='max-h-80'>
+    <div>
       <ChartContainer config={chartConfig} className="max-h-80 w-full">
         <AreaChart
           data={sortedData}
