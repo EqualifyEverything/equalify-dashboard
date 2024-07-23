@@ -46,16 +46,16 @@ const CreateReport = () => {
   const navigate = useNavigate();
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const form = event.currentTarget.closest('form');
-    const reportName = form?.elements.namedItem(
-      'reportName',
-    ) as HTMLInputElement;
-
-    if (reportName) {
-      const isFormValid = reportName.value.trim() !== '';
-      setIsFormValid(isFormValid);
-    }
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+    if ('currentTarget' in event) {
+      const form = event.currentTarget.closest('form');
+      const reportName = form?.elements.namedItem('reportName') as HTMLInputElement;
+  
+      if (reportName) {
+        const isFormValid = reportName.value.trim() !== '';
+        setIsFormValid(isFormValid);
+      }
+    } 
   };
 
   return (
@@ -86,6 +86,7 @@ const CreateReport = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate(-1)}
+            aria-label="Cancel creating report"
           >
             Cancel
           </Button>
@@ -96,6 +97,7 @@ const CreateReport = () => {
             disabled={!isFormValid}
             aria-disabled={!isFormValid}
             aria-live="polite"
+            aria-label="Create report"
           >
             Create Report
           </Button>

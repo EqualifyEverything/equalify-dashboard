@@ -27,16 +27,17 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  type: 'messages' | 'tags' | 'pages' | 'nodes' | 'scans';
 }
 
 const DataTable = <TData, TValue,>({
   columns,
   data,
   type,
-}: DataTableProps<TData, TValue> & { type: 'messages' | 'tags' | 'pages' | 'nodes' | 'scans' }) => {
+}: DataTableProps<TData, TValue>) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 5,
+    pageSize: 10,
   });
 
   const table = useReactTable({
@@ -71,9 +72,9 @@ const DataTable = <TData, TValue,>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}

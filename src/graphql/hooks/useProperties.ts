@@ -5,7 +5,7 @@ interface Property {
   id: string;
   name: string;
   lastProcessed: string;
-  sitemapUrl: string;
+  propertyUrl: string;
 }
 
 const fetchProperties = async (): Promise<Property[]> => {

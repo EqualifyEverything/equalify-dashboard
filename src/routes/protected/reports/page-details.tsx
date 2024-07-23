@@ -1,41 +1,89 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { Link, useParams } from 'react-router-dom';
+import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { usePageDetails } from '~/graphql/hooks/usePageDetails';
-import { Occurrence } from '~/graphql/types';
+import { pageDetailsQuery } from '~/queries';
+import { sendUrlToScan } from '~/services';
+import { assertNonNull } from '~/utils/safety';
+
+interface Occurrence {
+  messageId: number;
+  title: string;
+  codeSnippet: string;
+  status: string;
+}
+
+/**
+ * Loader function to fetch page details
+ * @param queryClient - The Query Client instance.
+ * @returns Loader function to be used with React Router.
+ */
+export const pageDetailsLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+    assertNonNull(params.pageId, 'Page ID is missing in the route parameters');
+
+    const initialPageDetails = await queryClient.ensureQueryData(
+      pageDetailsQuery(params.reportId, params.pageId),
+    );
+    return {
+      initialPageDetails,
+      reportId: params.reportId,
+      pageId: params.pageId,
+    };
+  };
 
 const PageDetails = () => {
-  const { pageId = '', reportId = '' } = useParams();
-  const { data, error } = usePageDetails(pageId, reportId);
+  const { initialPageDetails, reportId, pageId } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof pageDetailsLoader>>
+  >;
+  const { data, error } = useQuery({
+    ...pageDetailsQuery(reportId, pageId),
+    initialData: initialPageDetails,
+  });
+
   if (error) return <div role="alert">Error loading page details.</div>;
 
-  console.log('data', data);
-
-  const timelineData = [
-    { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
-    { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
-    { date: '2021/03', equalified: 20, active: 10, ignored: 5 },
-    { date: '2021/04', equalified: 25, active: 12, ignored: 6 },
-    { date: '2021/05', equalified: 30, active: 15, ignored: 7 },
-  ];
+  const handleSendToScan = async () => {
+    try {
+      const response = await sendUrlToScan(pageId);
+      if (response.status === 'success') {
+        toast.success('Property sent to scan successfully!');
+      } else {
+        toast.error('Failed to send property to scan.');
+      }
+    } catch (error) {
+      toast.error('An error occurred while sending the property to scan.');
+      console.error(error);
+    }
+  };
 
   const ocurranceColumns: ColumnDef<Occurrence>[] = [
     {
-      accessorKey: 'title',
+      accessorKey: 'message',
       header: 'Message',
       cell: ({ row }) => (
         <Link
           to={`/reports/${reportId}/messages/${row.original.messageId}`}
           className="underline"
         >
-          {row.getValue('title')}
+          {row.getValue('message')}
         </Link>
       ),
     },
-    { accessorKey: 'codeSnippet', header: 'Code Snippet' },
+    {
+      accessorKey: 'codeSnippet',
+      header: 'Code Snippet',
+      cell: ({ row }) => <code>{row.getValue('codeSnippet')}</code>,
+    },
     { accessorKey: 'status', header: 'Status' },
   ];
 
@@ -56,7 +104,19 @@ const PageDetails = () => {
               {data?.reportName}
             </h1>
           </Link>
-          <p className="text-lg text-gray-500">{data?.url}</p>
+          <a
+            target="_blank"
+            href={data?.url}
+            className="text-lg text-blue-500 hover:underline"
+          >
+            {data?.url}
+          </a>
+          <button
+            onClick={handleSendToScan}
+            className="ml-2 inline-flex h-9 items-center justify-end gap-2 place-self-end whitespace-nowrap rounded-md bg-[#0d6efd] px-2 py-3 text-base text-white shadow transition-colors hover:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d6efd] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-1"
+          >
+            Send to Scan
+          </button>
         </div>
         <Link
           to={`/reports/${reportId}/edit`}
@@ -67,13 +127,13 @@ const PageDetails = () => {
       </div>
 
       <div className="rounded-lg bg-white p-4 shadow md:p-8">
-        <Timeline data={timelineData} />
+        <Timeline data={data?.chart} />
       </div>
 
       <div className="overflow-x-auto rounded-lg bg-white p-4 shadow">
         <DataTable
           columns={ocurranceColumns}
-          data={data?.occurrences || []}
+          data={data?.nodes || []}
           type="messages"
         />
       </div>

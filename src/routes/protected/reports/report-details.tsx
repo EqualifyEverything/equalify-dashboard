@@ -1,38 +1,82 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { Link, useParams } from 'react-router-dom';
+import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { useReportDetails } from '~/graphql/hooks/useReportDetails';
-import { Message, Page, Tag } from '~/graphql/types';
+import { reportDetailsQuery } from '~/queries';
+import { assertNonNull } from '~/utils/safety';
+
+interface Message {
+  id: string;
+  messageId: number;
+  title: string;
+  activeCount: number;
+}
+
+interface Page {
+  id: string;
+  pageId: number;
+  url: string;
+  occurrencesActive: number;
+}
+interface Tag {
+  id: string;
+  tagId: number;
+  name: string;
+  referenceCount: number;
+}
+
+/**
+ * Loader function to fetch reports details
+ * @param queryClient - The Query Client instance.
+ * @returns Loader function to be used with React Router.
+ */
+export const reportDetailsLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+
+    const initialReportDetail = await queryClient.ensureQueryData(
+      reportDetailsQuery(params.reportId),
+    );
+    return { initialReportDetail, reportId: params.reportId };
+  };
 
 const ReportDetails = () => {
-  const { reportId = '' } = useParams();
-  const { name, messagesData, pagesData, tagsData, error } = useReportDetails(
-    reportId || '',
-  );
+  const { initialReportDetail, reportId } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof reportDetailsLoader>>
+  >;
+
+  const { data: details, error } = useQuery({
+    ...reportDetailsQuery(reportId!),
+    initialData: initialReportDetail,
+  });
 
   if (error) return <div role="alert">Error loading report details.</div>;
 
-  const timelineData = [
-    { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
-    { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
-    { date: '2021/03', equalified: 20, active: 10, ignored: 5 },
-    { date: '2021/04', equalified: 25, active: 12, ignored: 6 },
-    { date: '2021/05', equalified: 30, active: 15, ignored: 7 },
-  ];
+  const {
+    urls: pagesData,
+    messages: messagesData,
+    tags: tagsData,
+    reportName,
+    chart,
+  } = details;
 
   const messageColumns: ColumnDef<Message>[] = [
     {
-      accessorKey: 'title',
+      accessorKey: 'message',
       header: 'Message',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/messages/${row.original.messageId}`}
+          to={`/reports/${reportId}/messages/${row.original.id}`}
           className="underline"
         >
-          {row.getValue('title')}
+          {row.getValue('message')}
         </Link>
       ),
     },
@@ -43,18 +87,18 @@ const ReportDetails = () => {
 
   const tagColumns: ColumnDef<Tag>[] = [
     {
-      accessorKey: 'name',
+      accessorKey: 'tag',
       header: 'Tag',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/tags/${row.original.tagId}`}
+          to={`/reports/${reportId}/tags/${row.original.id}`}
           className="underline"
         >
-          {row.getValue('name')}
+          {row.getValue('tag')}
         </Link>
       ),
     },
-    { accessorKey: 'referenceCount', header: 'Occurrences' },
+    // { accessorKey: 'referenceCount', header: 'Occurrences' },
   ];
 
   const pageColumns: ColumnDef<Page>[] = [
@@ -63,21 +107,21 @@ const ReportDetails = () => {
       header: 'URL',
       cell: ({ row }) => (
         <Link
-          to={`/reports/${reportId}/pages/${row.original.pageId}`}
+          to={`/reports/${reportId}/pages/${row.original.id}`}
           className="underline"
         >
           {row.getValue('url')}
         </Link>
       ),
     },
-    { accessorKey: 'occurrencesActive', header: 'Active' },
+    // { accessorKey: 'occurrencesActive', header: 'Active' },
   ];
 
   return (
     <div className="space-y-4">
       <SEO
-        title={`${name} - Report Details - Equalify`}
-        description={`View the details of the ${name} report, including messages, pages, and tags, on Equalify.`}
+        title={`${reportName} - Report Details - Equalify`}
+        description={`View the details of the ${reportName} report, including messages, pages, and tags, on Equalify.`}
         url={`https://www.equalify.dev/reports/${reportId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
@@ -85,18 +129,19 @@ const ReportDetails = () => {
           id="report-details-heading"
           className="text-2xl font-bold md:text-3xl"
         >
-          {name}
+          {reportName}
         </h1>
         <Link
           to={`/reports/${reportId}/edit`}
           className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
         >
-          Edit Report
+          <span className="sr-only">{`Edit ${reportName} Report`}</span>
+          <span aria-hidden="true">Edit Report</span>
         </Link>
       </div>
 
       <div className="rounded-lg bg-white p-4 shadow md:p-8">
-        <Timeline data={timelineData} />
+        <Timeline data={chart} />
       </div>
 
       <div className="overflow-x-auto rounded-lg bg-white p-4 shadow">

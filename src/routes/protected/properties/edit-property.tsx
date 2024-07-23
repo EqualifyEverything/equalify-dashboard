@@ -1,18 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-  useLoaderData,
-  useNavigate,
-} from 'react-router-dom';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect, useLoaderData, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
@@ -20,7 +9,7 @@ import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
-import { deleteProperty, updateProperty } from '~/services/properties';
+import { deleteProperty, updateProperty, sendToScan } from '~/services';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
 
@@ -31,17 +20,17 @@ import { LoadingProperty } from './loading';
  */
 export const propertyLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.propertyId,
-      'Property ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.propertyId,
+        'Property ID is missing in the route parameters',
+      );
 
-    const initialProperty = await queryClient.ensureQueryData(
-      propertyQuery(params.propertyId),
-    );
-    return { initialProperty, propertyId: params.propertyId };
-  };
+      const initialProperty = await queryClient.ensureQueryData(
+        propertyQuery(params.propertyId),
+      );
+      return { initialProperty, propertyId: params.propertyId };
+    };
 
 /**
  * Handles updating a property.
@@ -50,37 +39,39 @@ export const propertyLoader =
  */
 export const updatePropertyAction =
   (queryClient: QueryClient) =>
-  async ({ request, params }: ActionFunctionArgs) => {
-    assertNonNull(params.propertyId, 'No property ID provided');
+    async ({ request, params }: ActionFunctionArgs) => {
+      assertNonNull(params.propertyId, 'No property ID provided');
 
-    try {
-      const formData = await request.formData();
-      const propertyName = formData.get('propertyName') as string;
-      const sitemapUrl = formData.get('sitemapUrl') as string;
+      try {
+        const formData = await request.formData();
+        const propertyName = formData.get('propertyName') as string;
+        const propertyUrl = formData.get('propertyUrl') as string;
+        const propertyDiscovery = formData.get('propertyDiscovery') as string;
 
-      const response = await updateProperty(
-        params.propertyId,
-        propertyName,
-        sitemapUrl,
-      );
+        const response = await updateProperty(
+          params.propertyId,
+          propertyName,
+          propertyUrl,
+          propertyDiscovery,
+        );
 
-      await queryClient.invalidateQueries({
-        queryKey: ['property', params.propertyId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ['properties'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['property', params.propertyId],
+        });
+        await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
-      if (response.status === 'success') {
-        toast.success('Property updated successfully!');
-        return redirect(`/properties`);
-      } else {
-        toast.error('Failed to update property.');
-        throw new Response('Failed to update property', { status: 500 });
+        if (response.status === 'success') {
+          toast.success('Property updated successfully!');
+          return redirect(`/properties`);
+        } else {
+          toast.error('Failed to update property.');
+          throw new Response('Failed to update property', { status: 500 });
+        }
+      } catch (error) {
+        toast.error('An error occurred while updating the property.');
+        throw error;
       }
-    } catch (error) {
-      toast.error('An error occurred while updating the property.');
-      throw error;
-    }
-  };
+    };
 
 const EditProperty = () => {
   const navigate = useNavigate();
@@ -91,6 +82,7 @@ const EditProperty = () => {
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { data: property, isLoading } = useQuery({
     ...propertyQuery(propertyId!),
@@ -98,7 +90,11 @@ const EditProperty = () => {
   });
 
   const { mutate: deleteMutate } = useMutation({
-    mutationFn: () => deleteProperty(propertyId!),
+    mutationFn: () => {
+      const response = deleteProperty(propertyId!);
+      queryClient.refetchQueries({ queryKey: ['filters'] });
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] });
       toast.success('Property deleted successfully!');
@@ -114,8 +110,12 @@ const EditProperty = () => {
     if (name === 'propertyName' && value.trim() !== property?.name.trim()) {
       setIsFormChanged(true);
     } else if (
-      name === 'sitemapUrl' &&
-      value.trim() !== property?.sitemapUrl.trim()
+      name === 'propertyUrl' &&
+      value.trim() !== property?.urls.nodes[0].url.trim()
+    ) {
+      setIsFormChanged(true);
+    } else if (
+      name === 'propertyDiscovery' && value !== property?.discovery
     ) {
       setIsFormChanged(true);
     } else {
@@ -128,6 +128,19 @@ const EditProperty = () => {
     deleteMutate();
   };
 
+  const handleSendToScan = async () => {
+    try {
+      const response = await sendToScan([propertyId!]);
+      if (response.status === 'success') {
+        toast.success('Property sent to scan successfully!');
+      } else {
+        toast.error('Failed to send property to scan.');
+      }
+    } catch (error) {
+      toast.error('An error occurred while sending the property to scan.');
+      console.error(error);
+    }
+  };
   return (
     <>
       <SEO
@@ -135,9 +148,22 @@ const EditProperty = () => {
         description={`Edit the details of ${property?.name || 'this property'} on Equalify.`}
         url={`https://www.equalify.dev/properties/${propertyId}/edit`}
       />
-      <h1 id="edit-property-heading" className="text-2xl font-bold md:text-3xl">
-        Edit {property?.name || 'Property'}
-      </h1>
+
+      <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
+        <h1
+          id="edit-property-heading"
+          className="text-2xl font-bold md:text-3xl"
+        >
+          Edit {property?.name || 'Property'}
+        </h1>
+
+        <Button
+          className="w-fit justify-end place-self-end bg-[#005031]"
+          onClick={handleSendToScan}
+        >
+          Send to Scan
+        </Button>
+      </div>
 
       <section
         aria-labelledby="edit-property-heading"
@@ -151,8 +177,8 @@ const EditProperty = () => {
             actionUrl={`/properties/${propertyId}/edit`}
             defaultValues={{
               propertyName: property?.name || '',
-              sitemapUrl: property?.sitemapUrl || '',
-              propertyDiscovery: 'manually_added',
+              propertyUrl: property?.urls.nodes[0].url || '',
+              propertyDiscovery: property?.discovery || 'single',
             }}
             formId="edit-property-form"
             onChange={handleFormChange}
@@ -164,6 +190,7 @@ const EditProperty = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate('/properties')}
+            aria-label='Cancel editing property'
           >
             Cancel
           </Button>
@@ -193,6 +220,7 @@ const EditProperty = () => {
           onClick={() => setIsDeleteDialogOpen(true)}
           className="gap-2 bg-[#cf000f]"
           aria-describedby="delete-property-description"
+          ref={deleteButtonRef}
         >
           Delete Property
           <ExclamationTriangleIcon aria-hidden />
@@ -211,6 +239,7 @@ const EditProperty = () => {
             onConfirm={handleDeleteProperty}
             title="Confirm Property Deletion"
             description="Are you sure you want to delete your property? This action cannot be undone."
+            triggerButtonRef={deleteButtonRef}
           />
         )}
       </section>

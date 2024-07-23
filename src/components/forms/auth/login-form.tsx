@@ -56,10 +56,12 @@ const LoginForm = () => {
 
   const onSubmit = async (values: LoginFormInputs) => {
     await signIn({ username: values.email, password: values.password });
+    setAnnouncement('Login successful. Redirecting to reports page.');
   };
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     if (signInError) errorAlertRef.current?.focus();
@@ -73,112 +75,134 @@ const LoginForm = () => {
   }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
-    return <OTPValidationForm email={pendingUsername} />;
+    return (
+      <div role="alert" aria-live="assertive">
+        <OTPValidationForm email={pendingUsername} />
+      </div>
+    );
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full max-w-md space-y-4"
-      >
-        {signInError && (
-          <ErrorAlert
-            error={signInError.message}
-            className="mb-4"
-            ref={errorAlertRef}
-          />
-        )}
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  placeholder="E.g. johndoe@email.com"
-                  className="h-12 bg-white"
-                  id="email"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full max-w-md space-y-4"
+        >
+          {signInError && (
+            <ErrorAlert
+              error={signInError.message}
+              className="mb-4"
+              ref={errorAlertRef}
+            />
           )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <FormControl>
-                <div className="relative">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormControl>
                   <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Your password"
+                    type="email"
                     className="h-12 bg-white"
-                    id="password"
+                    id="email"
                     {...field}
                   />
-                  <Button
-                    type="button"
-                    size="icon"
-                    aria-label={
-                      showPassword ? 'Hide password' : 'Show password'
-                    }
-                    aria-pressed={showPassword}
-                    onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent text-gray-500 shadow-none"
-                  >
-                    {showPassword ? (
-                      <EyeOpenIcon aria-hidden />
-                    ) : (
-                      <EyeClosedIcon aria-hidden />
-                    )}
-                  </Button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="space-y-4">
-          <Button
-            type="submit"
-            className="h-12 w-full bg-[#1D781D] text-white"
-            disabled={loading}
-            aria-live="polite"
-            aria-label={loading ? 'Processing,please wait' : 'Continue'}
-          >
-            {loading ? (
-              <>
-                <span className="sr-only">Processing, please wait...</span>
-                <div
-                  role="status"
-                  className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
-                ></div>
-              </>
-            ) : (
-              'Continue'
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </Button>
-
-          <p className="text-center text-sm text-[#4D4D4D]">
-            Don't have an account?{' '}
-            <Link
-              to="/signup"
-              className="group inline-flex items-end gap-1 font-semibold text-[#1D781D] hover:underline"
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="password">Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      className="h-12 bg-white"
+                      id="password"
+                      {...field}
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      aria-label={
+                        showPassword ? 'Hide password' : 'Show password'
+                      }
+                      aria-pressed={showPassword}
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent text-gray-500 shadow-none"
+                    >
+                      {showPassword ? (
+                        <EyeOpenIcon aria-hidden />
+                      ) : (
+                        <EyeClosedIcon aria-hidden />
+                      )}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="space-y-4">
+            <Button
+              type="submit"
+              className="h-12 w-full bg-[#1D781D] text-white"
+              disabled={loading}
+              aria-live="polite"
+              aria-label={loading ? 'Processing,please wait' : 'Continue'}
             >
-              Sign up
-              <ArrowTopRightIcon className="group-hover:scale-110" />
-            </Link>
-          </p>
-        </div>
-      </form>
-    </Form>
+              {loading ? (
+                <>
+                  <span className="sr-only">Processing, please wait...</span>
+                  <div
+                    role="status"
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
+                  ></div>
+                </>
+              ) : (
+                'Continue'
+              )}
+            </Button>
+
+            <p className="text-center text-sm text-[#4D4D4D]">
+              Don't have an account?{' '}
+              <Link
+                to="/signup"
+                className="group inline-flex items-end gap-1 font-semibold text-[#1D781D] hover:underline"
+              >
+                Sign up
+                <ArrowTopRightIcon className="group-hover:scale-110" />
+              </Link>
+            </p>
+            <p className="text-center text-sm text-[#4D4D4D]">
+              Forgot your password?{' '}
+              <Link
+                to="/forgot"
+                className="group inline-flex items-end gap-1 font-semibold text-[#1D781D] hover:underline"
+              >
+                Reset Now
+                <ArrowTopRightIcon className="group-hover:scale-110" />
+              </Link>
+            </p>
+          </div>
+        </form>
+      </Form>
+      <div
+        id="login-announcement"
+        role="alert"
+        aria-live="assertive"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
+    </>
   );
 };
 

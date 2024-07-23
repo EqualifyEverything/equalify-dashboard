@@ -11,6 +11,7 @@ interface Report {
   name: string;
   activeIssues: number;
   mostCommonIssue: string;
+  filters: any[];
 }
 
 const API_NAME = 'auth';
@@ -48,7 +49,7 @@ export const getReportById = async (reportId: string): Promise<Report> => {
       apiName: API_NAME,
       path: '/get/reports',
       options: {
-        queryParams: { reportIds: reportId },
+        queryParams: { reportId },
       },
     }).response;
 
@@ -57,6 +58,117 @@ export const getReportById = async (reportId: string): Promise<Report> => {
     return result[0];
   } catch (error) {
     console.error('Error fetching report by ID', error);
+    throw error;
+  }
+};
+/**
+ * Fetch report details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getReportDetails = async (reportId: string): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/all`,
+      options: {
+        queryParams: { reportId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching report details', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch page details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {string} urlId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getPageDetails = async (
+  reportId: string,
+  urlId: string,
+): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/urls`,
+      options: {
+        queryParams: { reportId, urlId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching page details', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch message details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {string} messageId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getMessageDetails = async (
+  reportId: string,
+  messageId: string,
+): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/messages`,
+      options: {
+        queryParams: { reportId, messageId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching message details', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch tag details
+ * @param {string} reportId - The ID of the report to fetch details for
+ * @param {string} tagId - The ID of the report to fetch details for
+ * @returns {Promise<any>} The fetched report details
+ * @throws Will throw an error if the fetch fails
+ */
+export const getTagDetails = async (
+  reportId: string,
+  tagId: string,
+): Promise<any> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/results/tags`,
+      options: {
+        queryParams: { reportId, tagId },
+      },
+    }).response;
+
+    const { body } = response;
+    const details = await body.json();
+    return details;
+  } catch (error) {
+    console.error('Error fetching tag details', error);
     throw error;
   }
 };
@@ -104,18 +216,17 @@ export const updateReport = async (
   filters?: any[],
 ): Promise<{ result: Report; status: string }> => {
   try {
-    const updateBody: any = { reportId };
-    if (reportName) updateBody.reportName = reportName;
-    if (filters) updateBody.filters = filters;
-
     const response = await put({
       apiName: API_NAME,
       path: '/update/reports',
       options: {
-        body: updateBody,
+        body: {
+          reportId,
+          reportName,
+          reportFilters: filters,
+        },
       },
     }).response;
-
     const { body, statusCode } = response;
     const { result } = (await body.json()) as unknown as ApiResponse<Report>;
     return { result, status: statusCode === 200 ? 'success' : 'error' };

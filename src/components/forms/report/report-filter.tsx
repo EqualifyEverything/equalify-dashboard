@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Cross2Icon } from '@radix-ui/react-icons';
-import { useStore } from '~/store';
+import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 
 import {
   Input,
@@ -10,40 +11,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/inputs';
+import { filtersQuery } from '~/queries/filters';
+import { FilterOption, FiltersResponse } from '~/services/filters';
+import { useStore } from '~/store';
 import { Label } from '../label';
 
-interface FilterOption {
-  value: string;
-  label: string;
+interface ReportFilterProps {
+  defaultFilters: FilterOption[];
+  onChange: (event: { target: { name: string; value: string } }) => void;
 }
 
-const filterOptions: FilterOption[] = [
-  { value: 'messages', label: 'Messages' },
-  { value: 'tags', label: 'Tags' },
-  { value: 'properties', label: 'Properties' },
-  { value: 'statuses', label: 'Statuses' },
-  { value: 'urls', label: 'Related URL' },
-];
-const ReportFilter = () => {
-  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0].value);
+const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChange }) => {
+  const { data: filterData } = useQuery(filtersQuery());
+  const [selectedFilter, setSelectedFilter] =
+    useState<keyof FiltersResponse>('messages');
   const [inputValue, setInputValue] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   const addFilter = useStore((state) => state.addFilter);
   const removeFilter = useStore((state) => state.removeFilter);
+  const clearFilters = useStore((state) => state.clearFilters);
   const selectedFilters = useStore((state) => state.selectedFilters);
+
+  useEffect(() => {
+    for (const defaultFilter of defaultFilters) {
+      addFilter(defaultFilter);
+    }
+  }, [defaultFilters, addFilter]);
+
+  useEffect(() => {
+    return () => {
+      clearFilters();
+    };
+  }, [location.pathname, clearFilters]);
 
   const handleSelectValue = useCallback(
     (item: string) => {
-      const label =
-        filterOptions.find((opt) => opt.value === selectedFilter)?.label || '';
-      const newFilter = { label, value: item };
+      const filterOption = filterData?.[selectedFilter]?.find(
+        (opt: FilterOption) => opt.value === item,
+      );
+      if (!filterOption) return;
+
+      const { type, label } = filterOption;
+      const newFilter = { type, label, value: item };
 
       if (
         !selectedFilters.some(
-          (filter) => filter.value === item && filter.label === label,
+          (filter) => filter.value === item && filter.type === type,
         )
       ) {
         addFilter(newFilter);
@@ -51,16 +68,15 @@ const ReportFilter = () => {
         setShowDropdown(false);
         setFocusedIndex(-1);
       }
+      onChange({ target: { name: 'filters', value: JSON.stringify(selectedFilters) } });
     },
-    [selectedFilter, selectedFilters, addFilter],
+    [selectedFilter, selectedFilters, addFilter, filterData, onChange],
   );
 
-  const filteredOptions = ['Item 1', 'Item 2', 'Item 3'].filter((item) =>
-    item.toLowerCase().includes(inputValue.toLowerCase()),
-  );
-
-  const selectedLabel =
-    filterOptions.find((opt) => opt.value === selectedFilter)?.label || '';
+  const filteredOptions =
+    filterData?.[selectedFilter]?.filter((item: FilterOption) =>
+      item.label.toLowerCase().includes(inputValue.toLowerCase()),
+    ) || [];
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (filteredOptions.length === 0) return;
@@ -79,7 +95,7 @@ const ReportFilter = () => {
       case 'Enter':
         event.preventDefault();
         if (focusedIndex !== -1) {
-          handleSelectValue(filteredOptions[focusedIndex]);
+          handleSelectValue(filteredOptions[focusedIndex].value);
         }
         break;
       case 'Escape':
@@ -88,13 +104,14 @@ const ReportFilter = () => {
         break;
     }
   };
+
   useEffect(() => {
     if (showDropdown && focusedIndex !== -1 && dropdownRef.current) {
       dropdownRef.current
         .querySelectorAll('[role="option"]')
-        [focusedIndex]?.scrollIntoView({
-          block: 'nearest',
-        });
+      [focusedIndex]?.scrollIntoView({
+        block: 'nearest',
+      });
     }
   }, [focusedIndex, showDropdown]);
 
@@ -108,38 +125,47 @@ const ReportFilter = () => {
       <div>
         <Label htmlFor="filter-type">Filter By:</Label>
         <div className="flex flex-col gap-6 md:flex-row">
-          <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+          <Select
+            value={selectedFilter}
+            onValueChange={(value) =>
+              setSelectedFilter(value as keyof FiltersResponse)
+            }
+          >
             <SelectTrigger
               id="filter-type"
               className="h-12 md:w-2/4"
               aria-label="Select Filter Type"
             >
-              <SelectValue>{selectedLabel}</SelectValue>
+              <SelectValue>
+                {selectedFilter.charAt(0).toUpperCase() +
+                  selectedFilter.slice(1)}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {filterOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
+              {filterData &&
+                Object.keys(filterData).map((key) => (
+                  <SelectItem key={key} value={key}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
 
           <div className="relative w-full">
             <Input
-              aria-label={`Search ${selectedLabel}`}
+              aria-label={`Search ${selectedFilter}`}
               type="text"
               className="h-12"
-              placeholder={`Search ${selectedLabel}...`}
+              placeholder={`Search ${selectedFilter}...`}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onFocus={handleFocus}
+              onKeyDown={handleKeyDown}
             />
             {showDropdown && (
               <div
                 aria-expanded="true"
                 ref={dropdownRef}
-                onKeyDown={handleKeyDown}
                 className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white p-1  shadow-lg"
               >
                 {filteredOptions.map((item, index) => (
@@ -148,9 +174,9 @@ const ReportFilter = () => {
                     role="option"
                     aria-selected={index === focusedIndex}
                     className={`cursor-pointer rounded-sm p-2 ${index === focusedIndex ? 'bg-[#e9ecef]' : 'hover:bg-[#e9ecef]'}`}
-                    onClick={() => handleSelectValue(item)}
+                    onClick={() => handleSelectValue(item.value)}
                   >
-                    {item}
+                    {item.label}
                   </div>
                 ))}
                 {filteredOptions.length === 0 && (
@@ -167,7 +193,7 @@ const ReportFilter = () => {
             key={index}
             className="flex items-center rounded-full bg-[#005031] px-3 py-1 text-white"
           >
-            <span role="status">{`${filter.label}: ${filter.value}`}</span>
+            <span role="status" className='truncate max-w-[150px] sm:max-w-[200px]'>{`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}</span>
             <Cross2Icon
               className="ml-2 h-4 w-4 cursor-pointer"
               aria-label={`Remove ${filter.label} filter`}
@@ -176,6 +202,7 @@ const ReportFilter = () => {
           </div>
         ))}
       </div>
+      <input type='text' hidden name='filters' value={JSON.stringify(selectedFilters)} />
     </div>
   );
 };

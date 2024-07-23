@@ -16,6 +16,7 @@ import ReportFilter from './report-filter';
 
 const ReportSchema = z.object({
   reportName: z.string().min(1, 'Please enter a report name.'),
+  filters: z.any(),
 });
 
 type ReportFormInputs = z.infer<typeof ReportSchema>;
@@ -24,7 +25,7 @@ interface ReportFormProps {
   actionUrl: string;
   defaultValues: ReportFormInputs;
   formId: 'create-report-form' | 'edit-report-form';
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => void;
 }
 
 const ReportForm: React.FC<ReportFormProps> = ({
@@ -38,6 +39,15 @@ const ReportForm: React.FC<ReportFormProps> = ({
     resolver: zodResolver(ReportSchema),
     defaultValues,
   });
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }
+  ) => {
+    form.setValue(event.target.name as keyof ReportFormInputs, event.target.value);
+    if (onChange) {
+      onChange(event as unknown as React.ChangeEvent<HTMLInputElement>);
+    }
+  };
 
   return (
     <HookFormProvider {...form}>
@@ -62,13 +72,11 @@ const ReportForm: React.FC<ReportFormProps> = ({
                 <Input
                   type="text"
                   id="reportName"
-                  placeholder="E.g. Accessibility Report"
                   className="h-12 bg-white"
-                  aria-readonly
                   {...field}
                   onChange={(event) => {
+                    handleChange(event);
                     field.onChange(event);
-                    onChange && onChange(event);
                   }}
                 />
               </FormControl>
@@ -76,8 +84,10 @@ const ReportForm: React.FC<ReportFormProps> = ({
             </FormItem>
           )}
         />
-
-        <ReportFilter />
+        <ReportFilter
+          defaultFilters={defaultValues?.filters}
+          onChange={handleChange}
+        />
       </form>
     </HookFormProvider>
   );

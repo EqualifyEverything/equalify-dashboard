@@ -1,35 +1,65 @@
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { Link, useParams } from 'react-router-dom';
+import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
-import { useTagDetails } from '~/graphql/hooks/useTagDetails';
-import { Message } from '~/graphql/types';
+import { tagDetailsQuery } from '~/queries';
+import { assertNonNull } from '~/utils/safety';
+
+interface Message {
+  id: string;
+  messageId: number;
+  title: string;
+  activeCount: number;
+}
+
+/**
+ * Loader function to fetch tag details
+ * @param queryClient - The Query Client instance.
+ * @returns Loader function to be used with React Router.
+ */
+export const tagDetailsLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+    assertNonNull(params.tagId, 'Tag ID is missing in the route parameters');
+
+    const initialTagDetails = await queryClient.ensureQueryData(
+      tagDetailsQuery(params.reportId, params.tagId),
+    );
+    return {
+      initialTagDetails,
+      reportId: params.reportId,
+      tagId: params.tagId,
+    };
+  };
 
 const TagDetails = () => {
-  const { tagId = '', reportId = '' } = useParams();
-  const { data, error } = useTagDetails(tagId, reportId);
-  if (error) return <div role="alert">Error loading tag details.</div>;
+  const { initialTagDetails, reportId, tagId } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof tagDetailsLoader>>
+  >;
+  const { data, error } = useQuery({
+    ...tagDetailsQuery(reportId, tagId),
+    initialData: initialTagDetails,
+  });
 
-  const timelineData = [
-    { date: '2021/01', equalified: 10, active: 5, ignored: 2 },
-    { date: '2021/02', equalified: 15, active: 7, ignored: 3 },
-    { date: '2021/03', equalified: 20, active: 10, ignored: 5 },
-    { date: '2021/04', equalified: 25, active: 12, ignored: 6 },
-    { date: '2021/05', equalified: 30, active: 15, ignored: 7 },
-  ];
+  if (error) return <div role="alert">Error loading tag details.</div>;
 
   const messageColumns: ColumnDef<Message>[] = [
     {
-      accessorKey: 'title',
+      accessorKey: 'message',
       header: 'Message',
       cell: ({ row }) => (
         <Link
           to={`/reports/${reportId}/messages/${row.original.messageId}`}
           className="underline"
         >
-          {row.getValue('title')}
+          {row.getValue('message')}
         </Link>
       ),
     },
@@ -65,7 +95,7 @@ const TagDetails = () => {
       </div>
 
       <div className="rounded-lg bg-white p-4 shadow md:p-8">
-        <Timeline data={timelineData} />
+        <Timeline data={data?.chart} />
       </div>
 
       <div className="overflow-x-auto rounded-lg bg-white p-4 shadow">

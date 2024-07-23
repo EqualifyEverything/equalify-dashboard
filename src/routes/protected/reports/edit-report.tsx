@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import {
   QueryClient,
@@ -80,6 +80,7 @@ export const updateReportAction =
         throw new Error('Failed to update report');
       }
     } catch (error) {
+      console.log(error);
       toast.error('An error occurred while updating the report.');
       throw error;
     }
@@ -94,8 +95,9 @@ const EditReport = () => {
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const { data: report, isLoading } = useQuery({
+  const { data: report } = useQuery({
     ...reportQuery(reportId!),
     initialData: initialReport,
   });
@@ -112,12 +114,20 @@ const EditReport = () => {
     },
   });
 
-  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    if (name === 'reportName' && value.trim() !== report?.name.trim()) {
-      setIsFormChanged(true);
-    } else {
-      setIsFormChanged(false);
+  const handleFormChange = (
+    event:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } },
+  ) => {
+    if ('currentTarget' in event) {
+      const { name, value } = event.target;
+      if (name === 'reportName' && value.trim() !== report?.name.trim()) {
+        setIsFormChanged(true);
+      } else if (name === 'filters') {
+        setIsFormChanged(true);
+      } else {
+        setIsFormChanged(false);
+      }
     }
   };
 
@@ -125,8 +135,6 @@ const EditReport = () => {
     setIsDeleteDialogOpen(false);
     deleteMutate();
   };
-
-  //TODO: Handle Loading State
 
   return (
     <>
@@ -146,7 +154,10 @@ const EditReport = () => {
       >
         <ReportForm
           actionUrl={`/reports/${reportId}/edit`}
-          defaultValues={{ reportName: report?.name || '' }}
+          defaultValues={{
+            reportName: report?.name || '',
+            filters: report?.filters || [],
+          }}
           formId="edit-report-form"
           onChange={handleFormChange}
         />
@@ -156,6 +167,7 @@ const EditReport = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate(-1)}
+            aria-label="Cancel editing report"
           >
             Cancel
           </Button>
@@ -166,6 +178,7 @@ const EditReport = () => {
             disabled={!isFormChanged}
             aria-disabled={!isFormChanged}
             aria-live="polite"
+            aria-label="Update report"
           >
             Update Report
           </Button>
@@ -185,6 +198,8 @@ const EditReport = () => {
           onClick={() => setIsDeleteDialogOpen(true)}
           className="gap-2 bg-[#cf000f]"
           aria-describedby="delete-report-description"
+          aria-label="Delete report"
+          ref={deleteButtonRef}
         >
           Delete Report
           <ExclamationTriangleIcon aria-hidden />
@@ -203,6 +218,7 @@ const EditReport = () => {
             onConfirm={handleDeleteReport}
             title="Confirm Report Deletion"
             description="Are you sure you want to delete your report? This action cannot be undone."
+            triggerButtonRef={deleteButtonRef}
           />
         )}
       </section>

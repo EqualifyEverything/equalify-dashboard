@@ -23,7 +23,7 @@ const Header = () => {
               alt="Equalify Logo"
             />
           </Link>
-          <nav aria-label="Main navigation">
+          <nav>
             <ul className="flex gap-4">
               {routes.map((route) => (
                 <li key={route.path}>

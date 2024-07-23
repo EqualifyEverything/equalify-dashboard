@@ -71,6 +71,7 @@ const SignupForm = () => {
         email: values.email,
         password: values.password,
       });
+      setAnnouncement('Verification code sent to your email.');
     } catch (error) {
       console.error('Sign up error on Submit:', error);
     }
@@ -78,6 +79,7 @@ const SignupForm = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     if (signUpError) errorAlertRef.current?.focus();
@@ -91,7 +93,11 @@ const SignupForm = () => {
   }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
-    return <OTPValidationForm email={pendingUsername} />;
+    return (
+      <div role="alert" aria-live="assertive">
+        <OTPValidationForm email={pendingUsername} />
+      </div>
+    );
   }
 
   return (
@@ -114,11 +120,10 @@ const SignupForm = () => {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="email">First Name</FormLabel>
+                  <FormLabel htmlFor="firstName">First Name</FormLabel>
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="E.g. John"
                       className="h-12 bg-white"
                       id="firstName"
                       {...field}
@@ -138,7 +143,6 @@ const SignupForm = () => {
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="E.g. Doe"
                       className="h-12 bg-white"
                       id="lastName"
                       {...field}
@@ -159,7 +163,6 @@ const SignupForm = () => {
                 <FormControl>
                   <Input
                     type="email"
-                    placeholder="E.g. johndoe@email.com"
                     className="h-12 bg-white"
                     id="email"
                     {...field}
@@ -180,7 +183,6 @@ const SignupForm = () => {
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Your password"
                       className="h-12 bg-white"
                       id="password"
                       {...field}
@@ -219,7 +221,6 @@ const SignupForm = () => {
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
                       className="h-12 bg-white"
                       id="confirm-password"
                       {...field}
@@ -282,6 +283,14 @@ const SignupForm = () => {
           </div>
         </form>
       </Form>
+      <div
+        id="signup-announcement"
+        role="alert"
+        aria-live="assertive"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
     </>
   );
 };

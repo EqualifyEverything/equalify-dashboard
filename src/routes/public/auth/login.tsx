@@ -1,13 +1,11 @@
-import SEO from '~/components/layout/seo';
-
 import { LoginForm } from '~/components/forms';
-import { AuthLayout } from '~/components/layout';
-import { Public } from '../..';
+import { AuthLayout, SEO } from '~/components/layout';
+import Public from '../public';
 
 const Login = () => (
   <Public>
     <AuthLayout>
-    <SEO
+      <SEO
         title="Login - Equalify"
         description="Log in to your Equalify account to manage your properties and reports."
         url="https://www.equalify.dev/login"
@@ -16,17 +14,12 @@ const Login = () => (
         <div className="w-full max-w-md space-y-2">
           <h1 className="text-3xl md:text-[2.5rem]">Login</h1>
           <h2 className="text-base text-[#4D4D4D]">
-            Welcome back to Equalify, where accessibility is for{' '}
-            <span role="img" aria-label="everyone">
-              everyone
-            </span>
-            !{' '}
-            <span role="img" aria-label="waving hand">
+            Welcome back to Equalify! Please sign in:{' '}
+            <span role="img" aria-hidden="true">
               👋
             </span>
           </h2>
         </div>
-
         <LoginForm />
       </section>
     </AuthLayout>
