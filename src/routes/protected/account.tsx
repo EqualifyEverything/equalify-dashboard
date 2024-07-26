@@ -1,4 +1,3 @@
-import { useRef, useState } from 'react';
 import { ExclamationTriangleIcon, PinRightIcon } from '@radix-ui/react-icons';
 
 import { Button } from '~/components/buttons';
@@ -9,12 +8,9 @@ import { useAuth } from '~/hooks/useAuth';
 
 const Account = () => {
   const { signOut, deleteUser } = useAuth();
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const handleDeleteAccount = async () => {
     await deleteUser();
-    setIsDeleteDialogOpen(false);
   };
   return (
     <>
@@ -55,32 +51,27 @@ const Account = () => {
           Danger Zone
         </h2>
 
-        <Button
-          onClick={() => setIsDeleteDialogOpen(true)}
-          className="gap-2 bg-[#cf000f]"
-          aria-describedby="delete-account-description"
-          ref={deleteButtonRef}
-        >
-          Delete Account
-          <ExclamationTriangleIcon aria-hidden />
-        </Button>
+        <DangerDialog
+          title="Confirm Account Deletion"
+          description="Are you sure you want to delete your account? This action cannot be undone."
+          onConfirm={handleDeleteAccount}
+          triggerButton={
+            <Button
+              className="gap-2 bg-[#cf000f]"
+              aria-describedby="delete-account-description"
+              aria-label="Delete account"
+            >
+              Delete Account
+              <ExclamationTriangleIcon aria-hidden />
+            </Button>
+          }
+        />
         <p
           id="delete-account-description"
           className="mt-2 text-sm text-gray-600"
         >
           Deleting your account is irreversible. Please proceed with caution.
         </p>
-
-        {isDeleteDialogOpen && (
-          <DangerDialog
-            isOpen={isDeleteDialogOpen}
-            onClose={() => setIsDeleteDialogOpen(false)}
-            onConfirm={handleDeleteAccount}
-            title="Confirm Account Deletion"
-            description="Are you sure you want to delete your account? This action cannot be undone."
-            triggerButtonRef={deleteButtonRef}
-          />
-        )}
       </section>
     </>
   );
