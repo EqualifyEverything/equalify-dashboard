@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import {
   QueryClient,
@@ -94,8 +94,6 @@ const EditReport = () => {
   >;
 
   const [isFormChanged, setIsFormChanged] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { data: report } = useQuery({
     ...reportQuery(reportId!),
@@ -132,7 +130,6 @@ const EditReport = () => {
   };
 
   const handleDeleteReport = async () => {
-    setIsDeleteDialogOpen(false);
     deleteMutate();
   };
 
@@ -193,34 +190,27 @@ const EditReport = () => {
         <h2 id="danger-zone-heading" className="text-lg text-[#cf000f]">
           Danger Zone
         </h2>
-
-        <Button
-          onClick={() => setIsDeleteDialogOpen(true)}
-          className="gap-2 bg-[#cf000f]"
-          aria-describedby="delete-report-description"
-          aria-label="Delete report"
-          ref={deleteButtonRef}
-        >
-          Delete Report
-          <ExclamationTriangleIcon aria-hidden />
-        </Button>
+        <DangerDialog
+          title="Confirm Report Deletion"
+          description="Are you sure you want to delete your report? This action cannot be undone."
+          onConfirm={handleDeleteReport}
+          triggerButton={
+            <Button
+              className="gap-2 bg-[#cf000f]"
+              aria-describedby="delete-report-description"
+              aria-label="Delete report"
+            >
+              Delete Report
+              <ExclamationTriangleIcon aria-hidden />
+            </Button>
+          }
+        />
         <p
           id="delete-report-description"
           className="mt-2 text-sm text-gray-600"
         >
           Deleting your report is irreversible. Please proceed with caution.
         </p>
-
-        {isDeleteDialogOpen && (
-          <DangerDialog
-            isOpen={isDeleteDialogOpen}
-            onClose={() => setIsDeleteDialogOpen(false)}
-            onConfirm={handleDeleteReport}
-            title="Confirm Report Deletion"
-            description="Are you sure you want to delete your report? This action cannot be undone."
-            triggerButtonRef={deleteButtonRef}
-          />
-        )}
       </section>
     </>
   );
