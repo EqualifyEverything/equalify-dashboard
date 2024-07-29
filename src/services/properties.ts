@@ -17,8 +17,7 @@ type Nodes = {
 interface Property {
   id: string;
   name: string;
-  // propertyUrl: string;
-  urls: Nodes;
+  propertyUrl: string;
   lastProcessed: string;
   archived: boolean;
   discovery: null | 'single' | 'sitemap' | 'discovery_process';

@@ -120,7 +120,7 @@ const EditProperty = () => {
       setIsFormChanged(true);
     } else if (
       name === 'propertyUrl' &&
-      value.trim() !== property?.urls.nodes[0].url.trim()
+      value.trim() !== property?.propertyUrl.trim()
     ) {
       setIsFormChanged(true);
     } else if (name === 'propertyDiscovery' && value !== property?.discovery) {
@@ -183,7 +183,7 @@ const EditProperty = () => {
             actionUrl={`/properties/${propertyId}/edit`}
             defaultValues={{
               propertyName: property?.name || '',
-              propertyUrl: property?.urls.nodes[0].url || '',
+              propertyUrl: property?.propertyUrl || '',
               propertyDiscovery: property?.discovery || 'single',
             }}
             formId="edit-property-form"
