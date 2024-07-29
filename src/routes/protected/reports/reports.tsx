@@ -38,8 +38,8 @@ const ReportCard: React.FC<Report> = ({
         <p className="text-sm mt-1 text-gray-500">
           Most Common:
           <div className="overflow-hidden overflow-ellipsis h-16">
-          <p title={mostCommonIssue}>{mostCommonIssue}</p>
-        </div>
+            <p title={mostCommonIssue}>{mostCommonIssue}</p>
+          </div>
         </p>
       </div>
       <Link
@@ -73,7 +73,7 @@ const Reports = () => {
       <SEO
         title="Reports - Equalify"
         description="View and manage your accessibility reports on Equalify."
-        url="https://www.equalify.dev/reports"
+        url="https://dashboard.equalify.app/reports"
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1

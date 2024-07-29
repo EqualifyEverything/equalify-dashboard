@@ -17,30 +17,30 @@ import { assertNonNull } from '~/utils/safety';
  */
 export const createReportAction =
   (queryClient: QueryClient) =>
-  async ({ request }: ActionFunctionArgs) => {
-    try {
-      const formData = await request.formData();
-      const reportName = formData.get('reportName');
+    async ({ request }: ActionFunctionArgs) => {
+      try {
+        const formData = await request.formData();
+        const reportName = formData.get('reportName');
 
-      assertNonNull(reportName, 'reportName is required');
+        assertNonNull(reportName, 'reportName is required');
 
-      const selectedFilters = useStore.getState().selectedFilters;
+        const selectedFilters = useStore.getState().selectedFilters;
 
-      const response = await addReport(reportName.toString(), selectedFilters);
-      await queryClient.invalidateQueries({ queryKey: ['reports'] });
+        const response = await addReport(reportName.toString(), selectedFilters);
+        await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
-      if (response.status === 'success') {
-        toast.success('Report created successfully');
-        return redirect('/reports');
-      } else {
-        toast.error('Failed to create report');
-        throw new Error('Failed to create report');
+        if (response.status === 'success') {
+          toast.success('Report created successfully');
+          return redirect('/reports');
+        } else {
+          toast.error('Failed to create report');
+          throw new Error('Failed to create report');
+        }
+      } catch (error) {
+        toast.error('An error occurred while creating the report.');
+        throw error;
       }
-    } catch (error) {
-      toast.error('An error occurred while creating the report.');
-      throw error;
-    }
-  };
+    };
 
 const CreateReport = () => {
   const navigate = useNavigate();
@@ -50,12 +50,12 @@ const CreateReport = () => {
     if ('currentTarget' in event) {
       const form = event.currentTarget.closest('form');
       const reportName = form?.elements.namedItem('reportName') as HTMLInputElement;
-  
+
       if (reportName) {
         const isFormValid = reportName.value.trim() !== '';
         setIsFormValid(isFormValid);
       }
-    } 
+    }
   };
 
   return (
@@ -63,7 +63,7 @@ const CreateReport = () => {
       <SEO
         title="Create Report - Equalify"
         description="Create a new accessibility report on Equalify to start analyzing and improving your website's accessibility."
-        url="https://www.equalify.dev/reports/create"
+        url="https://dashboard.equalify.app/reports/create"
       />
       <h1 id="create-report-heading" className="text-2xl font-bold md:text-3xl">
         Create a New Report

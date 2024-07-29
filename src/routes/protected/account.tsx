@@ -17,7 +17,7 @@ const Account = () => {
       <SEO
         title="Account - Equalify"
         description="Manage your Equalify account settings and personal information."
-        url="https://www.equalify.dev/account"
+        url="https://dashboard.equalify.app/account"
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1 id="account-heading" className="text-2xl font-bold md:text-3xl">

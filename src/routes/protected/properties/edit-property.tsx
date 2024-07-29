@@ -31,17 +31,17 @@ import { LoadingProperty } from './loading';
  */
 export const propertyLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.propertyId,
-      'Property ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.propertyId,
+        'Property ID is missing in the route parameters',
+      );
 
-    const initialProperty = await queryClient.ensureQueryData(
-      propertyQuery(params.propertyId),
-    );
-    return { initialProperty, propertyId: params.propertyId };
-  };
+      const initialProperty = await queryClient.ensureQueryData(
+        propertyQuery(params.propertyId),
+      );
+      return { initialProperty, propertyId: params.propertyId };
+    };
 
 /**
  * Handles updating a property.
@@ -50,39 +50,39 @@ export const propertyLoader =
  */
 export const updatePropertyAction =
   (queryClient: QueryClient) =>
-  async ({ request, params }: ActionFunctionArgs) => {
-    assertNonNull(params.propertyId, 'No property ID provided');
+    async ({ request, params }: ActionFunctionArgs) => {
+      assertNonNull(params.propertyId, 'No property ID provided');
 
-    try {
-      const formData = await request.formData();
-      const propertyName = formData.get('propertyName') as string;
-      const propertyUrl = formData.get('propertyUrl') as string;
-      const propertyDiscovery = formData.get('propertyDiscovery') as string;
+      try {
+        const formData = await request.formData();
+        const propertyName = formData.get('propertyName') as string;
+        const propertyUrl = formData.get('propertyUrl') as string;
+        const propertyDiscovery = formData.get('propertyDiscovery') as string;
 
-      const response = await updateProperty(
-        params.propertyId,
-        propertyName,
-        propertyUrl,
-        propertyDiscovery,
-      );
+        const response = await updateProperty(
+          params.propertyId,
+          propertyName,
+          propertyUrl,
+          propertyDiscovery,
+        );
 
-      await queryClient.invalidateQueries({
-        queryKey: ['property', params.propertyId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ['properties'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['property', params.propertyId],
+        });
+        await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
-      if (response.status === 'success') {
-        toast.success('Property updated successfully!');
-        return redirect(`/properties`);
-      } else {
-        toast.error('Failed to update property.');
-        throw new Response('Failed to update property', { status: 500 });
+        if (response.status === 'success') {
+          toast.success('Property updated successfully!');
+          return redirect(`/properties`);
+        } else {
+          toast.error('Failed to update property.');
+          throw new Response('Failed to update property', { status: 500 });
+        }
+      } catch (error) {
+        toast.error('An error occurred while updating the property.');
+        throw error;
       }
-    } catch (error) {
-      toast.error('An error occurred while updating the property.');
-      throw error;
-    }
-  };
+    };
 
 const EditProperty = () => {
   const navigate = useNavigate();
@@ -152,7 +152,7 @@ const EditProperty = () => {
       <SEO
         title={`Edit ${property?.name || 'Property'} - Equalify`}
         description={`Edit the details of ${property?.name || 'this property'} on Equalify.`}
-        url={`https://www.equalify.dev/properties/${propertyId}/edit`}
+        url={`https://dashboard.equalify.app/properties/${propertyId}/edit`}
       />
 
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">

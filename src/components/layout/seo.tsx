@@ -12,7 +12,7 @@ const SEO: React.FC<SEOProps> = ({
   title,
   description,
   url,
-  image = 'https://www.equalify.dev/equalify.svg',
+  image = 'https://dashboard.equalify.app/equalify.svg',
   type = 'website',
 }) => (
   <Helmet>

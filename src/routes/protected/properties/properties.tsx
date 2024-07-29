@@ -75,7 +75,7 @@ const Properties = () => {
       <SEO
         title="Properties - Equalify"
         description="Manage and monitor your properties on Equalify to improve their accessibility."
-        url="https://www.equalify.dev/properties"
+        url="https://dashboard.equalify.app/properties"
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1

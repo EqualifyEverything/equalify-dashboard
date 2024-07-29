@@ -136,7 +136,7 @@ const EditReport = () => {
       <SEO
         title={`Edit ${report?.name || 'Report'} - Equalify`}
         description={`Edit the details of ${report?.name || 'this report'} on Equalify.`}
-        url={`https://www.equalify.dev/reports/${reportId}/edit`}
+        url={`https://dashboard.equalify.app/reports/${reportId}/edit`}
       />
       <h1 id="edit-report-heading" className="text-2xl font-bold md:text-3xl">
         Edit {report?.name || 'Report'}

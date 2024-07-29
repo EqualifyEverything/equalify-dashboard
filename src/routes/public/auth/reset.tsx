@@ -46,7 +46,7 @@ const Reset = () => {
             <SEO
                 title="Reset Password - Equalify"
                 description="Log in to your Equalify account to manage your properties and reports."
-                url="https://www.equalify.dev/reset"
+                url="https://dashboard.equalify.app/reset"
             />
             <section className="flex h-full w-full flex-col items-center justify-center gap-10">
                 <div className="w-full max-w-md space-y-2">

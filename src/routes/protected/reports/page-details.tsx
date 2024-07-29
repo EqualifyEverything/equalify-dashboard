@@ -24,22 +24,22 @@ interface Occurrence {
  */
 export const pageDetailsLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
-    assertNonNull(params.pageId, 'Page ID is missing in the route parameters');
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
+      assertNonNull(params.pageId, 'Page ID is missing in the route parameters');
 
-    const initialPageDetails = await queryClient.ensureQueryData(
-      pageDetailsQuery(params.reportId, params.pageId),
-    );
-    return {
-      initialPageDetails,
-      reportId: params.reportId,
-      pageId: params.pageId,
+      const initialPageDetails = await queryClient.ensureQueryData(
+        pageDetailsQuery(params.reportId, params.pageId),
+      );
+      return {
+        initialPageDetails,
+        reportId: params.reportId,
+        pageId: params.pageId,
+      };
     };
-  };
 
 const PageDetails = () => {
   const { initialPageDetails, reportId, pageId } = useLoaderData() as Awaited<
@@ -92,7 +92,7 @@ const PageDetails = () => {
       <SEO
         title={`${data?.url} - Page Details - Equalify`}
         description={`View the details of the ${data?.url} page, including associated messages and occurrences, on Equalify.`}
-        url={`https://www.equalify.dev/reports/${reportId}/pages/${pageId}`}
+        url={`https://dashboard.equalify.app/reports/${reportId}/pages/${pageId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <div>

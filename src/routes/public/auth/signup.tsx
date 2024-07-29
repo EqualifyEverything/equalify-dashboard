@@ -8,7 +8,7 @@ const Signup = () => (
       <SEO
         title="Signup - Equalify"
         description="Join Equalify to start making your website accessible to everyone."
-        url="https://www.equalify.dev/signup"
+        url="https://dashboard.equalify.app/signup"
       />
       <section className="flex h-full w-full flex-col items-center justify-center gap-10">
         <div className="w-full max-w-md space-y-2">
