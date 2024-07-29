@@ -30,17 +30,17 @@ import { assertNonNull } from '~/utils/safety';
  */
 export const reportLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
 
-    const initialReport = await queryClient.ensureQueryData(
-      reportQuery(params.reportId),
-    );
-    return { initialReport, reportId: params.reportId };
-  };
+      const initialReport = await queryClient.ensureQueryData(
+        reportQuery(params.reportId),
+      );
+      return { initialReport, reportId: params.reportId };
+    };
 
 /**
  * Handles updating a report.
@@ -49,42 +49,42 @@ export const reportLoader =
  */
 export const updateReportAction =
   (queryClient: QueryClient) =>
-  async ({ params, request }: ActionFunctionArgs) => {
-    try {
-      assertNonNull(params.reportId, 'reportId is required');
+    async ({ params, request }: ActionFunctionArgs) => {
+      try {
+        assertNonNull(params.reportId, 'reportId is required');
 
-      const formData = await request.formData();
-      const reportName = formData.get('reportName');
-      const filtersRaw = formData.get('filters');
+        const formData = await request.formData();
+        const reportName = formData.get('reportName');
+        const filtersRaw = formData.get('filters');
 
-      assertNonNull(reportName, 'reportName is required');
-      assertNonNull(filtersRaw, 'filters is required');
+        assertNonNull(reportName, 'reportName is required');
+        assertNonNull(filtersRaw, 'filters is required');
 
-      const filters = JSON.parse(filtersRaw.toString());
+        const filters = JSON.parse(filtersRaw.toString());
 
-      const response = await updateReport(
-        params.reportId,
-        reportName.toString(),
-        filters,
-      );
-      await queryClient.invalidateQueries({
-        queryKey: ['report', params.reportId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ['reports'] });
+        const response = await updateReport(
+          params.reportId,
+          reportName.toString(),
+          filters,
+        );
+        await queryClient.invalidateQueries({
+          queryKey: ['report', params.reportId],
+        });
+        await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
-      if (response.status === 'success') {
-        toast.success('Report updated successfully');
-        return redirect(`/reports/${params.reportId}`);
-      } else {
-        toast.error('Failed to update report');
-        throw new Error('Failed to update report');
+        if (response.status === 'success') {
+          toast.success('Report updated successfully');
+          return redirect(`/reports/${params.reportId}`);
+        } else {
+          toast.error('Failed to update report');
+          throw new Error('Failed to update report');
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error('An error occurred while updating the report.');
+        throw error;
       }
-    } catch (error) {
-      console.log(error);
-      toast.error('An error occurred while updating the report.');
-      throw error;
-    }
-  };
+    };
 
 const EditReport = () => {
   const navigate = useNavigate();
@@ -117,15 +117,13 @@ const EditReport = () => {
       | React.ChangeEvent<HTMLInputElement>
       | { target: { name: string; value: string } },
   ) => {
-    if ('currentTarget' in event) {
-      const { name, value } = event.target;
-      if (name === 'reportName' && value.trim() !== report?.name.trim()) {
-        setIsFormChanged(true);
-      } else if (name === 'filters') {
-        setIsFormChanged(true);
-      } else {
-        setIsFormChanged(false);
-      }
+    const { name, value } = event.target;
+    if (name === 'reportName' && value.trim() !== report?.name.trim()) {
+      setIsFormChanged(true);
+    } else if (name === 'filters') {
+      setIsFormChanged(true);
+    } else {
+      setIsFormChanged(false);
     }
   };
 
