@@ -1,7 +1,18 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect, useLoaderData, useNavigate } from 'react-router-dom';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+  useNavigate,
+} from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
@@ -9,7 +20,7 @@ import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
-import { deleteProperty, updateProperty, sendToScan } from '~/services';
+import { deleteProperty, sendToScan, updateProperty } from '~/services';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
 
@@ -20,17 +31,17 @@ import { LoadingProperty } from './loading';
  */
 export const propertyLoader =
   (queryClient: QueryClient) =>
-    async ({ params }: LoaderFunctionArgs) => {
-      assertNonNull(
-        params.propertyId,
-        'Property ID is missing in the route parameters',
-      );
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.propertyId,
+      'Property ID is missing in the route parameters',
+    );
 
-      const initialProperty = await queryClient.ensureQueryData(
-        propertyQuery(params.propertyId),
-      );
-      return { initialProperty, propertyId: params.propertyId };
-    };
+    const initialProperty = await queryClient.ensureQueryData(
+      propertyQuery(params.propertyId),
+    );
+    return { initialProperty, propertyId: params.propertyId };
+  };
 
 /**
  * Handles updating a property.
@@ -39,39 +50,39 @@ export const propertyLoader =
  */
 export const updatePropertyAction =
   (queryClient: QueryClient) =>
-    async ({ request, params }: ActionFunctionArgs) => {
-      assertNonNull(params.propertyId, 'No property ID provided');
+  async ({ request, params }: ActionFunctionArgs) => {
+    assertNonNull(params.propertyId, 'No property ID provided');
 
-      try {
-        const formData = await request.formData();
-        const propertyName = formData.get('propertyName') as string;
-        const propertyUrl = formData.get('propertyUrl') as string;
-        const propertyDiscovery = formData.get('propertyDiscovery') as string;
+    try {
+      const formData = await request.formData();
+      const propertyName = formData.get('propertyName') as string;
+      const propertyUrl = formData.get('propertyUrl') as string;
+      const propertyDiscovery = formData.get('propertyDiscovery') as string;
 
-        const response = await updateProperty(
-          params.propertyId,
-          propertyName,
-          propertyUrl,
-          propertyDiscovery,
-        );
+      const response = await updateProperty(
+        params.propertyId,
+        propertyName,
+        propertyUrl,
+        propertyDiscovery,
+      );
 
-        await queryClient.invalidateQueries({
-          queryKey: ['property', params.propertyId],
-        });
-        await queryClient.invalidateQueries({ queryKey: ['properties'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['property', params.propertyId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
-        if (response.status === 'success') {
-          toast.success('Property updated successfully!');
-          return redirect(`/properties`);
-        } else {
-          toast.error('Failed to update property.');
-          throw new Response('Failed to update property', { status: 500 });
-        }
-      } catch (error) {
-        toast.error('An error occurred while updating the property.');
-        throw error;
+      if (response.status === 'success') {
+        toast.success('Property updated successfully!');
+        return redirect(`/properties`);
+      } else {
+        toast.error('Failed to update property.');
+        throw new Response('Failed to update property', { status: 500 });
       }
-    };
+    } catch (error) {
+      toast.error('An error occurred while updating the property.');
+      throw error;
+    }
+  };
 
 const EditProperty = () => {
   const navigate = useNavigate();
@@ -81,8 +92,6 @@ const EditProperty = () => {
   >;
 
   const [isFormChanged, setIsFormChanged] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { data: property, isLoading } = useQuery({
     ...propertyQuery(propertyId!),
@@ -114,9 +123,7 @@ const EditProperty = () => {
       value.trim() !== property?.urls.nodes[0].url.trim()
     ) {
       setIsFormChanged(true);
-    } else if (
-      name === 'propertyDiscovery' && value !== property?.discovery
-    ) {
+    } else if (name === 'propertyDiscovery' && value !== property?.discovery) {
       setIsFormChanged(true);
     } else {
       setIsFormChanged(false);
@@ -124,7 +131,6 @@ const EditProperty = () => {
   };
 
   const handleDeleteProperty = async () => {
-    setIsDeleteDialogOpen(false);
     deleteMutate();
   };
 
@@ -190,7 +196,7 @@ const EditProperty = () => {
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate('/properties')}
-            aria-label='Cancel editing property'
+            aria-label="Cancel editing property"
           >
             Cancel
           </Button>
@@ -216,32 +222,27 @@ const EditProperty = () => {
           Danger Zone
         </h2>
 
-        <Button
-          onClick={() => setIsDeleteDialogOpen(true)}
-          className="gap-2 bg-[#cf000f]"
-          aria-describedby="delete-property-description"
-          ref={deleteButtonRef}
-        >
-          Delete Property
-          <ExclamationTriangleIcon aria-hidden />
-        </Button>
+        <DangerDialog
+          title="Confirm Property Deletion"
+          description="Are you sure you want to delete your property? This action cannot be undone."
+          onConfirm={handleDeleteProperty}
+          triggerButton={
+            <Button
+              className="gap-2 bg-[#cf000f]"
+              aria-describedby="delete-property-description"
+              aria-label="Delete property"
+            >
+              Delete Property
+              <ExclamationTriangleIcon aria-hidden />
+            </Button>
+          }
+        />
         <p
           id="delete-property-description"
           className="mt-2 text-sm text-gray-600"
         >
           Deleting your property is irreversible. Please proceed with caution.
         </p>
-
-        {isDeleteDialogOpen && (
-          <DangerDialog
-            isOpen={isDeleteDialogOpen}
-            onClose={() => setIsDeleteDialogOpen(false)}
-            onConfirm={handleDeleteProperty}
-            title="Confirm Property Deletion"
-            description="Are you sure you want to delete your property? This action cannot be undone."
-            triggerButtonRef={deleteButtonRef}
-          />
-        )}
       </section>
     </>
   );
