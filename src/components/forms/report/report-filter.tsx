@@ -53,9 +53,8 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
         (opt: FilterOption) => opt.label === value,
       );
       if (!filterOption) return;
-
-      const { type, label } = filterOption;
-      const newFilter = { type, label, value };
+      const { type, label, value: id } = filterOption;
+      const newFilter = { type, label, value: id };
 
       if (
         !selectedFilters.some(
