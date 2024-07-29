@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 
 import {
-  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  TypeAhead,
 } from '~/components/inputs';
 import { filtersQuery } from '~/queries/filters';
 import { FilterOption, FiltersResponse } from '~/services/filters';
@@ -21,14 +21,13 @@ interface ReportFilterProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
 }
 
-const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChange }) => {
+const ReportFilter: React.FC<ReportFilterProps> = ({
+  defaultFilters = [],
+  onChange,
+}) => {
   const { data: filterData } = useQuery(filtersQuery());
   const [selectedFilter, setSelectedFilter] =
     useState<keyof FiltersResponse>('messages');
-  const [inputValue, setInputValue] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState(-1);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const addFilter = useStore((state) => state.addFilter);
@@ -49,76 +48,31 @@ const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChan
   }, [location.pathname, clearFilters]);
 
   const handleSelectValue = useCallback(
-    (item: string) => {
+    (value: string) => {
       const filterOption = filterData?.[selectedFilter]?.find(
-        (opt: FilterOption) => opt.value === item,
+        (opt: FilterOption) => opt.label === value,
       );
       if (!filterOption) return;
 
       const { type, label } = filterOption;
-      const newFilter = { type, label, value: item };
+      const newFilter = { type, label, value };
 
       if (
         !selectedFilters.some(
-          (filter) => filter.value === item && filter.type === type,
+          (filter) => filter.value === value && filter.type === type,
         )
       ) {
         addFilter(newFilter);
-        setInputValue('');
-        setShowDropdown(false);
-        setFocusedIndex(-1);
+        onChange({
+          target: { name: 'filters', value: JSON.stringify(selectedFilters) },
+        });
       }
-      onChange({ target: { name: 'filters', value: JSON.stringify(selectedFilters) } });
     },
     [selectedFilter, selectedFilters, addFilter, filterData, onChange],
   );
 
-  const filteredOptions =
-    filterData?.[selectedFilter]?.filter((item: FilterOption) =>
-      item.label.toLowerCase().includes(inputValue.toLowerCase()),
-    ) || [];
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (filteredOptions.length === 0) return;
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        setFocusedIndex((prev) => (prev + 1) % filteredOptions.length);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        setFocusedIndex(
-          (prev) =>
-            (prev - 1 + filteredOptions.length) % filteredOptions.length,
-        );
-        break;
-      case 'Enter':
-        event.preventDefault();
-        if (focusedIndex !== -1) {
-          handleSelectValue(filteredOptions[focusedIndex].value);
-        }
-        break;
-      case 'Escape':
-        setShowDropdown(false);
-        setFocusedIndex(-1);
-        break;
-    }
-  };
-
-  useEffect(() => {
-    if (showDropdown && focusedIndex !== -1 && dropdownRef.current) {
-      dropdownRef.current
-        .querySelectorAll('[role="option"]')
-      [focusedIndex]?.scrollIntoView({
-        block: 'nearest',
-      });
-    }
-  }, [focusedIndex, showDropdown]);
-
-  const handleFocus = () => {
-    setShowDropdown(true);
-    setFocusedIndex(0);
-  };
+  const suggestions =
+    filterData?.[selectedFilter]?.map((item: FilterOption) => item.label) || [];
 
   return (
     <div className="flex min-h-80 flex-col justify-between gap-6">
@@ -152,38 +106,11 @@ const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChan
           </Select>
 
           <div className="relative w-full">
-            <Input
-              aria-label={`Search ${selectedFilter}`}
-              type="text"
-              className="h-12"
-              placeholder={`Search ${selectedFilter}...`}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onFocus={handleFocus}
-              onKeyDown={handleKeyDown}
+            <TypeAhead
+              inputId="search-box"
+              onConfirm={handleSelectValue}
+              suggestions={suggestions}
             />
-            {showDropdown && (
-              <div
-                aria-expanded="true"
-                ref={dropdownRef}
-                className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white p-1  shadow-lg"
-              >
-                {filteredOptions.map((item, index) => (
-                  <div
-                    key={index}
-                    role="option"
-                    aria-selected={index === focusedIndex}
-                    className={`cursor-pointer rounded-sm p-2 ${index === focusedIndex ? 'bg-[#e9ecef]' : 'hover:bg-[#e9ecef]'}`}
-                    onClick={() => handleSelectValue(item.value)}
-                  >
-                    {item.label}
-                  </div>
-                ))}
-                {filteredOptions.length === 0 && (
-                  <div className="p-2 text-gray-500">No items found.</div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -193,7 +120,12 @@ const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChan
             key={index}
             className="flex items-center rounded-full bg-[#005031] px-3 py-1 text-white"
           >
-            <span role="status" className='truncate max-w-[150px] sm:max-w-[200px]'>{`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}</span>
+            <span
+              role="status"
+              className="max-w-[150px] truncate sm:max-w-[200px]"
+            >
+              {`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
+            </span>
             <Cross2Icon
               className="ml-2 h-4 w-4 cursor-pointer"
               aria-label={`Remove ${filter.label} filter`}
@@ -202,7 +134,12 @@ const ReportFilter: React.FC<ReportFilterProps> = ({ defaultFilters = [], onChan
           </div>
         ))}
       </div>
-      <input type='text' hidden name='filters' value={JSON.stringify(selectedFilters)} />
+      <input
+        type="text"
+        hidden
+        name="filters"
+        value={JSON.stringify(selectedFilters)}
+      />
     </div>
   );
 };
