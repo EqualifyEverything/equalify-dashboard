@@ -1,26 +1,36 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Toaster as Sonner } from 'sonner';
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const liveRegionRef = useRef<HTMLDivElement>(null);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      if (liveRegionRef.current) {
-        liveRegionRef.current.focus();
+      const toastElement = document.querySelector('.sonner-toast');
+      if (toastElement) {
+        const message = toastElement.textContent || '';
+        setToastMessage(message);
       }
     });
 
     if (liveRegionRef.current) {
       observer.observe(liveRegionRef.current, {
         childList: true,
+        subtree: true,
       });
     }
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (toastMessage && liveRegionRef.current) {
+      liveRegionRef.current.textContent = toastMessage;
+    }
+  }, [toastMessage]);
 
   return (
     <>
