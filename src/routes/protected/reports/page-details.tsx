@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { Button } from '~/components/buttons';
 import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
@@ -24,22 +26,22 @@ interface Occurrence {
  */
 export const pageDetailsLoader =
   (queryClient: QueryClient) =>
-    async ({ params }: LoaderFunctionArgs) => {
-      assertNonNull(
-        params.reportId,
-        'Report ID is missing in the route parameters',
-      );
-      assertNonNull(params.pageId, 'Page ID is missing in the route parameters');
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.reportId,
+      'Report ID is missing in the route parameters',
+    );
+    assertNonNull(params.pageId, 'Page ID is missing in the route parameters');
 
-      const initialPageDetails = await queryClient.ensureQueryData(
-        pageDetailsQuery(params.reportId, params.pageId),
-      );
-      return {
-        initialPageDetails,
-        reportId: params.reportId,
-        pageId: params.pageId,
-      };
+    const initialPageDetails = await queryClient.ensureQueryData(
+      pageDetailsQuery(params.reportId, params.pageId),
+    );
+    return {
+      initialPageDetails,
+      reportId: params.reportId,
+      pageId: params.pageId,
     };
+  };
 
 const PageDetails = () => {
   const { initialPageDetails, reportId, pageId } = useLoaderData() as Awaited<
@@ -50,9 +52,12 @@ const PageDetails = () => {
     initialData: initialPageDetails,
   });
 
+  const [isSending, setIsSending] = useState(false);
+
   if (error) return <div role="alert">Error loading page details.</div>;
 
   const handleSendToScan = async () => {
+    setIsSending(true);
     try {
       const response = await sendUrlToScan(pageId);
       if (response.status === 'success') {
@@ -63,6 +68,8 @@ const PageDetails = () => {
     } catch (error) {
       toast.error('An error occurred while sending the property to scan.');
       console.error(error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -111,12 +118,14 @@ const PageDetails = () => {
           >
             {data?.url}
           </a>
-          <button
+          <Button
+            className="w-fit justify-end place-self-end bg-[#005031]"
             onClick={handleSendToScan}
-            className="ml-2 inline-flex h-9 items-center justify-end gap-2 place-self-end whitespace-nowrap rounded-md bg-[#0d6efd] px-2 py-3 text-base text-white shadow transition-colors hover:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d6efd] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-1"
+            disabled={isSending}
+            aria-disabled={isSending}
           >
-            Send to Scan
-          </button>
+            {isSending ? 'Sending...' : 'Send to Scan'}
+          </Button>
         </div>
         <Link
           to={`/reports/${reportId}/edit`}

@@ -92,6 +92,7 @@ const EditProperty = () => {
   >;
 
   const [isFormChanged, setIsFormChanged] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const { data: property, isLoading } = useQuery({
     ...propertyQuery(propertyId!),
@@ -135,6 +136,7 @@ const EditProperty = () => {
   };
 
   const handleSendToScan = async () => {
+    setIsSending(true);
     try {
       const response = await sendToScan([propertyId!]);
       if (response.status === 'success') {
@@ -145,6 +147,8 @@ const EditProperty = () => {
     } catch (error) {
       toast.error('An error occurred while sending the property to scan.');
       console.error(error);
+    } finally {
+      setIsSending(false);
     }
   };
   return (
@@ -166,8 +170,10 @@ const EditProperty = () => {
         <Button
           className="w-fit justify-end place-self-end bg-[#005031]"
           onClick={handleSendToScan}
+          disabled={isSending}
+          aria-disabled={isSending}
         >
-          Send to Scan
+          {isSending ? 'Sending...' : 'Send to Scan'}
         </Button>
       </div>
 
