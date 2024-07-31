@@ -22,6 +22,8 @@ import {
   FormLabel,
   FormMessage,
 } from '.';
+import { useQuery } from '@tanstack/react-query';
+import { getApikey } from '~/services';
 
 const AccountSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -43,6 +45,11 @@ const AccountForm = () => {
       selectedAccount: '',
     },
   });
+
+  const { data: apikey } = useQuery({
+    queryKey: ['apikey'],
+    queryFn: () => getApikey(),
+  })
 
   const [isFormChanged, setIsFormChanged] = useState(false);
 
@@ -132,6 +139,19 @@ const AccountForm = () => {
                   aria-readonly
                   {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="apikey"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>API Key</FormLabel>
+              <FormControl>
+                <input className='border-[1px] p-[11px] rounded-md' id='apikey' name='apikey' value={apikey?.apikey} disabled readOnly />
               </FormControl>
               <FormMessage />
             </FormItem>
