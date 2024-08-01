@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { ErrorAlert } from '~/components/alerts';
@@ -27,12 +28,15 @@ type OTPFormInputs = z.infer<typeof OTPSchema>;
 
 interface OTPValidationFormProps {
   email: string;
+  type: 'signup' | 'login';
 }
 
 const RESEND_TIMEOUT = 60;
 
-const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
+const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) => {
   const errorAlertRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const announcerRef = useRef<HTMLDivElement>(null);
   const [countdown, setCountdown] = useState<number>(RESEND_TIMEOUT);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const {
@@ -66,18 +70,39 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
     }
   }, [isCountingDown]);
 
+  useEffect(() => {
+    if (announcerRef.current) {
+      announcerRef.current.innerText = 'Please enter the verification code sent to your email.';
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   const handleResendCode = useCallback(async () => {
     await resendSignUpCode(email);
     setIsCountingDown(true);
     setCountdown(RESEND_TIMEOUT);
+    toast.success('Verification code resent successfully.');
   }, [email, resendSignUpCode]);
 
   const onSubmit = async (values: OTPFormInputs) => {
-    await confirmSignUp({ username: email, confirmationCode: values.pin });
+    try {
+      await confirmSignUp({ username: email, confirmationCode: values.pin });
+      toast.success('Account verified successfully.');
+    } catch (error) {
+      toast.error('Failed to verify account. Please try again.');
+    }
   };
 
   return (
     <Form {...form}>
+      <div ref={announcerRef} className="sr-only" aria-live="assertive"></div>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full max-w-md space-y-4"
@@ -96,7 +121,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
             <FormItem>
               <FormLabel>Verification Code</FormLabel>
               <FormControl>
-                <InputOTP maxLength={6} {...field}>
+                <InputOTP maxLength={6} {...field} ref={inputRef}>
                   <InputOTPGroup>
                     {Array.from({ length: 6 }).map((_, index) => (
                       <InputOTPSlot
@@ -133,7 +158,9 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
             className="h-12 w-full bg-[#1D781D] text-white"
             disabled={loading}
             aria-live="polite"
-            aria-label={loading ? 'Processing,please wait' : 'Verify and Sign Up'}
+            aria-label={
+              loading ? 'Processing,please wait' : type === 'signup' ? 'Verify and Sign Up' : 'Verify and Log In'
+            }
           >
             {loading ? (
               <>
@@ -144,7 +171,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email }) => {
                 ></div>
               </>
             ) : (
-              'Verify and Sign Up'
+              type === 'signup' ? 'Verify and Sign Up' : 'Verify and Log In'
             )}
           </Button>
         </div>

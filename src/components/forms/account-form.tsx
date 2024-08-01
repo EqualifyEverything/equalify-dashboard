@@ -7,11 +7,6 @@ import { z } from 'zod';
 import { Button } from '~/components/buttons';
 import {
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '~/components/inputs';
 import { useAuth } from '~/hooks/useAuth';
 import {

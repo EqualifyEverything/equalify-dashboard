@@ -7,6 +7,7 @@ import {
 } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { ErrorAlert } from '~/components/alerts';
@@ -55,13 +56,24 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (values: LoginFormInputs) => {
-    await signIn({ username: values.email, password: values.password });
-    setAnnouncement('Login successful. Redirecting to reports page.');
+    try {
+      const { success, confirmationRequired } = await signIn({
+        username: values.email,
+        password: values.password,
+      });
+
+      if (success) {
+        toast.success('Login successful. Redirecting to reports page.');
+      } else if (confirmationRequired) {
+        toast.success('Email not confirmed. A code has been sent to your email.');
+      }
+    } catch (error) {
+      toast.error('Login failed. Please try again.');
+    }
   };
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     if (signInError) errorAlertRef.current?.focus();
@@ -75,11 +87,7 @@ const LoginForm = () => {
   }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
-    return (
-      <div role="alert" aria-live="assertive">
-        <OTPValidationForm email={pendingUsername} />
-      </div>
-    );
+    return <OTPValidationForm email={pendingUsername} type='login'/>;
   }
 
   return (
@@ -194,14 +202,6 @@ const LoginForm = () => {
           </div>
         </form>
       </Form>
-      <div
-        id="login-announcement"
-        role="alert"
-        aria-live="assertive"
-        className="sr-only"
-      >
-        {announcement}
-      </div>
     </>
   );
 };

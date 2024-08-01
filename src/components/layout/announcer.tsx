@@ -46,7 +46,8 @@ const Announcer: React.FC = () => {
     <div
       id="page-announcer"
       aria-live="assertive"
-      className="absolute left-[-9999px] size-[1px] overflow-hidden"
+      aria-atomic="true"
+      className="sr-only"
     />
   );
 };

@@ -26,6 +26,7 @@ interface ReportFormProps {
   defaultValues: ReportFormInputs;
   formId: 'create-report-form' | 'edit-report-form';
   onChange?: (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => void;
+  onFilterChange: () => void;
 }
 
 const ReportForm: React.FC<ReportFormProps> = ({
@@ -33,6 +34,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
   defaultValues,
   formId,
   onChange,
+  onFilterChange,
 }) => {
   const submit = useSubmit();
   const form = useForm<ReportFormInputs>({
@@ -87,6 +89,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
         <ReportFilter
           defaultFilters={defaultValues?.filters}
           onChange={handleChange}
+          onFilterChange={onFilterChange}
         />
       </form>
     </HookFormProvider>

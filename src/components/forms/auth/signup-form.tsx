@@ -22,6 +22,7 @@ import {
   FormMessage,
   OTPValidationForm,
 } from '..';
+import { toast } from 'sonner';
 
 const SignupSchema = z
   .object({
@@ -71,15 +72,14 @@ const SignupForm = () => {
         email: values.email,
         password: values.password,
       });
-      setAnnouncement('Verification code sent to your email.');
+      toast.success('A verification code has been sent to your email.');
     } catch (error) {
-      console.error('Sign up error on Submit:', error);
+      toast.error('Failed to sign up. Please try again.');
     }
   };
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     if (signUpError) errorAlertRef.current?.focus();
@@ -94,9 +94,7 @@ const SignupForm = () => {
 
   if (needsConfirmation && pendingUsername) {
     return (
-      <div role="alert" aria-live="assertive">
-        <OTPValidationForm email={pendingUsername} />
-      </div>
+        <OTPValidationForm email={pendingUsername} type="signup"/>
     );
   }
 
@@ -283,14 +281,6 @@ const SignupForm = () => {
           </div>
         </form>
       </Form>
-      <div
-        id="signup-announcement"
-        role="alert"
-        aria-live="assertive"
-        className="sr-only"
-      >
-        {announcement}
-      </div>
     </>
   );
 };

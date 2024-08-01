@@ -176,16 +176,18 @@ export const TypeAhead: React.FC<TypeAheadProps> = ({
   }, [debounceInputChange]);
 
   useEffect(() => {
-    if (state.searchTerm) {
-      const filteredData = suggestions.filter((data) =>
-        data.toLowerCase().includes(state.searchTerm.toLowerCase())
-      );
+    if (isFocused) {
+      const filteredData = state.searchTerm
+        ? suggestions.filter((data) =>
+            data.toLowerCase().includes(state.searchTerm.toLowerCase())
+          )
+        : suggestions;
 
       dispatch({ type: 'setSuggestions', suggestions: filteredData });
     } else {
-      dispatch({ type: 'setSuggestions', suggestions });
+      dispatch({ type: 'resetSuggestions' });
     }
-  }, [state.searchTerm, suggestions]);
+  }, [state.searchTerm, suggestions, isFocused]);
 
   useEffect(() => {
     if (state.currentIndex !== -1) {
@@ -207,13 +209,7 @@ export const TypeAhead: React.FC<TypeAheadProps> = ({
         aria-expanded={isFocused && state.suggestions.length > 0}
         type="search"
         onFocus={() => setIsFocused(true)}
-        onBlur={() => {
-          if (inputRef.current && inputRef.current === document.activeElement) {
-            setIsFocused(true);
-          } else {
-            setIsFocused(false);
-          }
-        }}
+        onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         placeholder="Type to search"

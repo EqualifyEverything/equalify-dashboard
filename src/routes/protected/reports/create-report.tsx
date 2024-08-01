@@ -79,6 +79,7 @@ const CreateReport = () => {
           defaultValues={{ reportName: '' }}
           formId="create-report-form"
           onChange={handleFormChange}
+          onFilterChange={() => {}}
         />
 
         <div className="space-x-6">
