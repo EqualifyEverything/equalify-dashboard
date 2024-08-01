@@ -102,7 +102,6 @@ export const useAuth = () => {
     setError(null);
   }, [setError]);
 
-
   useEffect(() => {
     transformAndSetUser();
   }, [transformAndSetUser]);
@@ -154,10 +153,12 @@ export const useAuth = () => {
         ) {
           const { isSignedIn } = await autoSignIn();
           if (isSignedIn) {
+            setTimeout(async () => {
             await transformAndSetUser();
             setIsAuthenticated(true);
             setNeedsConfirmation(false);
             setPendingUsername(null);
+          }, 1000);
           }
         } else {
           console.warn('Unexpected confirmation flow:', nextStep);
@@ -205,24 +206,29 @@ export const useAuth = () => {
           password,
         });
         if (isSignedIn) {
-          await transformAndSetUser();
-          setIsAuthenticated(true);
+          setTimeout(async () => {
+            await transformAndSetUser();
+            setIsAuthenticated(true);
+          }, 1000);
+          return { success: true };
         } else {
           switch (nextStep.signInStep) {
             case 'DONE':
               await transformAndSetUser();
               setIsAuthenticated(true);
-              break;
+              return { success: true };
             case 'CONFIRM_SIGN_UP':
               setNeedsConfirmation(true);
               setPendingUsername(username);
-              break;
+              return { success: false, confirmationRequired: true };
             default:
               console.error('Unhandled sign-in step:', nextStep.signInStep);
+              return { success: false };
           }
         }
       } catch (error) {
         handleError(error, 'Error signing in:');
+        return { success: false };
       } finally {
         setLoading(false);
       }

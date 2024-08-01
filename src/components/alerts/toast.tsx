@@ -1,23 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Toaster as Sonner } from 'sonner';
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const liveRegionRef = useRef<HTMLDivElement>(null);
-  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const toastElement = document.querySelector('.sonner-toast');
-      if (toastElement) {
-        const message = toastElement.textContent || '';
-        setToastMessage(message);
-      }
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as HTMLElement;
+              if (element.hasAttribute('data-sonner-toast')) {
+                const message = element.textContent || '';
+                if (liveRegionRef.current) {
+                  liveRegionRef.current.textContent = message;
+                }
+              }
+            }
+          });
+        }
+      });
     });
 
-    if (liveRegionRef.current) {
-      observer.observe(liveRegionRef.current, {
+    const targetNode = document.querySelector('[data-sonner-toaster]');
+    if (targetNode) {
+      observer.observe(targetNode, {
         childList: true,
         subtree: true,
       });
@@ -26,19 +36,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (toastMessage && liveRegionRef.current) {
-      liveRegionRef.current.textContent = toastMessage;
-    }
-  }, [toastMessage]);
-
   return (
     <>
       <div
         ref={liveRegionRef}
-        aria-live="assertive"
+        aria-live="polite"
         aria-atomic="true"
-        role="alert"
+        role="log"
         className="sr-only"
       />
       <Sonner
