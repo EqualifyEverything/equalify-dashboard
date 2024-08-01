@@ -28,6 +28,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
   const { data: filterData } = useQuery(filtersQuery());
   const [selectedFilter, setSelectedFilter] =
     useState<keyof FiltersResponse>('messages');
+  const [removalMessage, setRemovalMessage] = useState<string | null>(null);
   const location = useLocation();
 
   const addFilter = useStore((state) => state.addFilter);
@@ -70,6 +71,15 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
     [selectedFilter, selectedFilters, addFilter, filterData, onChange],
   );
 
+  const handleRemoveFilter = useCallback(
+    (filter: FilterOption) => {
+      removeFilter(filter);
+      setRemovalMessage(`Removed ${filter.label} filter`);
+      setTimeout(() => setRemovalMessage(null), 3000);
+    },
+    [removeFilter]
+  );
+
   const suggestions =
     filterData?.[selectedFilter]?.map((item: FilterOption) => item.label) || [];
 
@@ -109,29 +119,43 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
               inputId="search-box"
               onConfirm={handleSelectValue}
               suggestions={suggestions}
+              selectedFilters={selectedFilters.map(filter => filter.label)} // Pass selected filters
             />
           </div>
         </div>
       </div>
-      <div className="flex w-full flex-wrap gap-2 p-3">
-        {selectedFilters.map((filter, index) => (
-          <div
-            key={index}
-            className="flex items-center rounded-full bg-[#005031] px-3 py-1 text-white"
-          >
-            <span
-              role="status"
-              className="max-w-[150px] truncate sm:max-w-[200px]"
+      <section aria-label="Selected Filters">
+        <h2 className="sr-only">Selected Filters</h2>
+        <div className="flex w-full flex-wrap gap-2 p-3">
+          {selectedFilters.map((filter, index) => (
+            <div
+              key={index}
+              className="flex items-center rounded-full bg-[#005031] px-3 py-1 text-white"
+              role="group"
+              aria-label={`Filter: ${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
             >
-              {`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
-            </span>
-            <Cross2Icon
-              className="ml-2 h-4 w-4 cursor-pointer"
-              aria-label={`Remove ${filter.label} filter`}
-              onClick={() => removeFilter(filter)}
-            />
-          </div>
-        ))}
+              <span
+                role="status"
+                className="max-w-[150px] truncate sm:max-w-[200px]"
+                tabIndex={0}
+                aria-label={`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
+              >
+                {`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
+              </span>
+              <button
+                className="ml-2 h-4 w-4 cursor-pointer"
+                aria-label={`Remove ${filter.label} filter`}
+                onClick={() => handleRemoveFilter(filter)}
+                tabIndex={0}
+              >
+                <Cross2Icon />
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+      <div className="sr-only" aria-live="assertive">
+        {removalMessage}
       </div>
       <input
         type="text"
@@ -142,5 +166,6 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
     </div>
   );
 };
+
 
 export default ReportFilter;
