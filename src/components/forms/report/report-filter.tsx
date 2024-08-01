@@ -19,15 +19,17 @@ import { Label } from '../label';
 interface ReportFilterProps {
   defaultFilters: FilterOption[];
   onChange: (event: { target: { name: string; value: string } }) => void;
+  onFilterChange: () => void;
 }
 
 const ReportFilter: React.FC<ReportFilterProps> = ({
   defaultFilters = [],
   onChange,
+  onFilterChange,
 }) => {
   const { data: filterData } = useQuery(filtersQuery());
   const [selectedFilter, setSelectedFilter] =
-    useState<keyof FiltersResponse>('messages');
+    useState<keyof FiltersResponse | 'types'>('messages');
   const [removalMessage, setRemovalMessage] = useState<string | null>(null);
   const location = useLocation();
 
@@ -35,6 +37,12 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
   const removeFilter = useStore((state) => state.removeFilter);
   const clearFilters = useStore((state) => state.clearFilters);
   const selectedFilters = useStore((state) => state.selectedFilters);
+
+  const typeFilterValues = [
+    { type: 'types', label: 'Violation', value: 'violation' },
+    { type: 'types', label: 'Warning', value: 'warning' },
+    { type: 'types', label: 'Error', value: 'error' },
+  ];
 
   useEffect(() => {
     for (const defaultFilter of defaultFilters) {
@@ -50,12 +58,23 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
 
   const handleSelectValue = useCallback(
     (value: string) => {
-      const filterOption = filterData?.[selectedFilter]?.find(
-        (opt: FilterOption) => opt.label === value,
-      );
+      const filterOption =
+        selectedFilter === 'types'
+          ? typeFilterValues.find((opt) => opt.label === value)
+          : filterData?.[selectedFilter]?.find((opt: FilterOption) => opt.label === value);
       if (!filterOption) return;
       const { type, label, value: id } = filterOption;
       const newFilter = { type, label, value: id };
+
+      const hasPropertyOrUrl = selectedFilters.some(
+        (filter) => filter.type === 'properties' || filter.type === 'urls',
+      );
+
+      if (type === 'types' && !hasPropertyOrUrl) {
+        setRemovalMessage('Please add at least one property or URL before filtering by types.');
+        setTimeout(() => setRemovalMessage(null), 3000);
+        return;
+      }
 
       if (
         !selectedFilters.some(
@@ -66,22 +85,41 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
         onChange({
           target: { name: 'filters', value: JSON.stringify(selectedFilters) },
         });
+        onFilterChange(); 
       }
     },
-    [selectedFilter, selectedFilters, addFilter, filterData, onChange],
+    [selectedFilter, selectedFilters, addFilter, filterData, typeFilterValues, onChange, onFilterChange],
   );
 
   const handleRemoveFilter = useCallback(
     (filter: FilterOption) => {
       removeFilter(filter);
+      onFilterChange();  
+
+      if (filter.type === 'properties' || filter.type === 'urls') {
+        const hasRemainingPropertyOrUrl = selectedFilters.some(
+          (f) => f.type === 'properties' || f.type === 'urls',
+        );
+
+        if (!hasRemainingPropertyOrUrl) {
+          setRemovalMessage('Please add at least one property or URL before filtering by types.');
+        }
+      }
+
       setRemovalMessage(`Removed ${filter.label} filter`);
       setTimeout(() => setRemovalMessage(null), 3000);
     },
-    [removeFilter]
+    [removeFilter, selectedFilters, onFilterChange]
   );
 
   const suggestions =
-    filterData?.[selectedFilter]?.map((item: FilterOption) => item.label) || [];
+    selectedFilter === 'types'
+      ? typeFilterValues.map((item) => item.label)
+      : filterData?.[selectedFilter]?.map((item: FilterOption) => item.label) || [];
+
+  const hasPropertyOrUrl = selectedFilters.some(
+    (filter) => filter.type === 'properties' || filter.type === 'urls',
+  );
 
   return (
     <div className="flex min-h-80 flex-col justify-between gap-6">
@@ -91,7 +129,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
           <Select
             value={selectedFilter}
             onValueChange={(value) =>
-              setSelectedFilter(value as keyof FiltersResponse)
+              setSelectedFilter(value as keyof FiltersResponse | 'types')
             }
           >
             <SelectTrigger
@@ -111,6 +149,9 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                   </SelectItem>
                 ))}
+              <SelectItem key="types" value="types" disabled={!hasPropertyOrUrl}>
+                Types
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -119,10 +160,15 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
               inputId="search-box"
               onConfirm={handleSelectValue}
               suggestions={suggestions}
-              selectedFilters={selectedFilters.map(filter => filter.label)} // Pass selected filters
+              selectedFilters={selectedFilters.map((filter) => filter.label)} // Pass selected filters
             />
           </div>
         </div>
+        {!hasPropertyOrUrl && (
+          <p className="mt-2 text-sm text-red-600">
+            Please add at least one property or URL before filtering by types.
+          </p>
+        )}
       </div>
       <section aria-label="Selected Filters">
         <h2 className="sr-only">Selected Filters</h2>
@@ -154,6 +200,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
                 className="ml-2 h-4 w-4 cursor-pointer"
                 aria-label={`Remove ${filter.label} filter`}
                 onClick={() => handleRemoveFilter(filter)}
+                onFocus={() => setRemovalMessage(`Focused on remove button for ${filter.label} filter`)}
               >
                 <Cross2Icon />
               </button>

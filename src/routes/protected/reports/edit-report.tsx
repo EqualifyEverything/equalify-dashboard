@@ -155,6 +155,7 @@ const EditReport = () => {
           }}
           formId="edit-report-form"
           onChange={handleFormChange}
+          onFilterChange={() => setIsFormChanged(true)}
         />
 
         <div className="space-x-6">
