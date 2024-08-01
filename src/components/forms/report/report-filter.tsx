@@ -133,20 +133,27 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
               className="flex items-center rounded-full bg-[#005031] px-3 py-1 text-white"
               role="group"
               aria-label={`Filter: ${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
+              tabIndex={0}
+              onKeyPress={(event) => {
+                if (event.key === 'Enter') {
+                  const button = document.getElementById(`remove-filter-${index}`);
+                  button?.focus();
+                }
+              }}
             >
               <span
                 role="status"
                 className="max-w-[150px] truncate sm:max-w-[200px]"
-                tabIndex={0}
                 aria-label={`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
               >
                 {`${filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}: ${filter.label}`}
               </span>
               <button
+                id={`remove-filter-${index}`}
+                type="button"
                 className="ml-2 h-4 w-4 cursor-pointer"
                 aria-label={`Remove ${filter.label} filter`}
                 onClick={() => handleRemoveFilter(filter)}
-                tabIndex={0}
               >
                 <Cross2Icon />
               </button>
