@@ -162,12 +162,15 @@ export const useAuth = () => {
             setNeedsConfirmation(false);
             setPendingUsername(null);
           }, 1000);
+          return { isSignUpComplete: true }
           }
         } else {
           console.warn('Unexpected confirmation flow:', nextStep);
+          return { isSignUpComplete: false }
         }
       } catch (error) {
         handleError(error, 'Error confirming sign up:');
+        return { isSignUpComplete: false }
       } finally {
         setLoading(false);
       }

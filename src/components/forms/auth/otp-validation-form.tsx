@@ -33,7 +33,10 @@ interface OTPValidationFormProps {
 
 const RESEND_TIMEOUT = 60;
 
-const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) => {
+const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
+  email,
+  type,
+}) => {
   const errorAlertRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const announcerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +47,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) =>
     resendSignUpCode,
     loading,
     error: confirmSignUpError,
+    clearErrors,
   } = useAuth();
   const form = useForm<OTPFormInputs>({
     resolver: zodResolver(OTPSchema),
@@ -72,7 +76,8 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) =>
 
   useEffect(() => {
     if (announcerRef.current) {
-      announcerRef.current.innerText = 'Please enter the verification code sent to your email.';
+      announcerRef.current.innerText =
+        'Please enter the verification code sent to your email.';
     }
 
     const timeoutId = setTimeout(() => {
@@ -92,12 +97,17 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) =>
   }, [email, resendSignUpCode]);
 
   const onSubmit = async (values: OTPFormInputs) => {
-    try {
-      await confirmSignUp({ username: email, confirmationCode: values.pin });
+    const { isSignUpComplete } = await confirmSignUp({
+      username: email,
+      confirmationCode: values.pin,
+    });
+    if (isSignUpComplete) {
       toast.success('Account verified successfully.');
-    } catch (error) {
-      toast.error('Failed to verify account. Please try again.');
-    }
+    } 
+  };
+
+  const handleFocus = () => {
+    clearErrors();
   };
 
   return (
@@ -121,7 +131,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) =>
             <FormItem>
               <FormLabel>Verification Code</FormLabel>
               <FormControl>
-                <InputOTP maxLength={6} {...field} ref={inputRef}>
+                <InputOTP maxLength={6} {...field} ref={inputRef} onFocus={handleFocus}>
                   <InputOTPGroup>
                     {Array.from({ length: 6 }).map((_, index) => (
                       <InputOTPSlot
@@ -159,7 +169,11 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) =>
             disabled={loading}
             aria-live="polite"
             aria-label={
-              loading ? 'Processing,please wait' : type === 'signup' ? 'Verify and Sign Up' : 'Verify and Log In'
+              loading
+                ? 'Processing,please wait'
+                : type === 'signup'
+                  ? 'Verify and Sign Up'
+                  : 'Verify and Log In'
             }
           >
             {loading ? (
@@ -170,8 +184,10 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({ email, type }) =>
                   className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
                 ></div>
               </>
+            ) : type === 'signup' ? (
+              'Verify and Sign Up'
             ) : (
-              type === 'signup' ? 'Verify and Sign Up' : 'Verify and Log In'
+              'Verify and Log In'
             )}
           </Button>
         </div>
