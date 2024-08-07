@@ -71,7 +71,7 @@ const AddProperty = () => {
       <SEO
         title="Add Property - Equalify"
         description="Add a new property to Equalify to start monitoring and improving its accessibility."
-        url="https://www.equalify.dev/properties/add"
+        url="https://dashboard.equalify.app/properties/add"
       />
       <h1 id="add-property-heading" className="text-2xl font-bold md:text-3xl">
         Add New Property

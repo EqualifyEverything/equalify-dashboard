@@ -25,7 +25,13 @@ interface ReportFormProps {
   actionUrl: string;
   defaultValues: ReportFormInputs;
   formId: 'create-report-form' | 'edit-report-form';
-  onChange?: (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => void;
+  onChange?: (
+    event:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } },
+  ) => void;
+  onFilterChange: () => void;
+  error?: string;
 }
 
 const ReportForm: React.FC<ReportFormProps> = ({
@@ -33,6 +39,8 @@ const ReportForm: React.FC<ReportFormProps> = ({
   defaultValues,
   formId,
   onChange,
+  onFilterChange,
+  error,
 }) => {
   const submit = useSubmit();
   const form = useForm<ReportFormInputs>({
@@ -41,9 +49,14 @@ const ReportForm: React.FC<ReportFormProps> = ({
   });
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }
+    event:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } },
   ) => {
-    form.setValue(event.target.name as keyof ReportFormInputs, event.target.value);
+    form.setValue(
+      event.target.name as keyof ReportFormInputs,
+      event.target.value,
+    );
     if (onChange) {
       onChange(event as unknown as React.ChangeEvent<HTMLInputElement>);
     }
@@ -87,6 +100,8 @@ const ReportForm: React.FC<ReportFormProps> = ({
         <ReportFilter
           defaultFilters={defaultValues?.filters}
           onChange={handleChange}
+          onFilterChange={onFilterChange}
+          filterError={error}
         />
       </form>
     </HookFormProvider>

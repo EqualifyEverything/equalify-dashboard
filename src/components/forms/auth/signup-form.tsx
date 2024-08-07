@@ -7,6 +7,7 @@ import {
 } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { ErrorAlert } from '~/components/alerts';
@@ -64,22 +65,20 @@ const SignupForm = () => {
   });
 
   const onSubmit = async (values: SignupFormInputs) => {
-    try {
-      await signUp({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        password: values.password,
-      });
-      setAnnouncement('Verification code sent to your email.');
-    } catch (error) {
-      console.error('Sign up error on Submit:', error);
+    const signUpSuccess = await signUp({
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      password: values.password,
+    });
+
+    if (signUpSuccess) {
+      toast.success('A verification code has been sent to your email.');
     }
   };
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     if (signUpError) errorAlertRef.current?.focus();
@@ -92,12 +91,16 @@ const SignupForm = () => {
     };
   }, [clearErrors, cancelConfirmation]);
 
+  useEffect(() => {
+    form.watch((_, { name }) => {
+      if (name === 'email') {
+        clearErrors();
+      }
+    });
+  }, [form.watch, clearErrors]);
+
   if (needsConfirmation && pendingUsername) {
-    return (
-      <div role="alert" aria-live="assertive">
-        <OTPValidationForm email={pendingUsername} />
-      </div>
-    );
+    return <OTPValidationForm email={pendingUsername} type="signup" />;
   }
 
   return (
@@ -283,14 +286,6 @@ const SignupForm = () => {
           </div>
         </form>
       </Form>
-      <div
-        id="signup-announcement"
-        role="alert"
-        aria-live="assertive"
-        className="sr-only"
-      >
-        {announcement}
-      </div>
     </>
   );
 };

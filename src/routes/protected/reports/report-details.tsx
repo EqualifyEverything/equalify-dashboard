@@ -35,17 +35,17 @@ interface Tag {
  */
 export const reportDetailsLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
 
-    const initialReportDetail = await queryClient.ensureQueryData(
-      reportDetailsQuery(params.reportId),
-    );
-    return { initialReportDetail, reportId: params.reportId };
-  };
+      const initialReportDetail = await queryClient.ensureQueryData(
+        reportDetailsQuery(params.reportId),
+      );
+      return { initialReportDetail, reportId: params.reportId };
+    };
 
 const ReportDetails = () => {
   const { initialReportDetail, reportId } = useLoaderData() as Awaited<
@@ -122,7 +122,7 @@ const ReportDetails = () => {
       <SEO
         title={`${reportName} - Report Details - Equalify`}
         description={`View the details of the ${reportName} report, including messages, pages, and tags, on Equalify.`}
-        url={`https://www.equalify.dev/reports/${reportId}`}
+        url={`https://dashboard.equalify.app/reports/${reportId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1

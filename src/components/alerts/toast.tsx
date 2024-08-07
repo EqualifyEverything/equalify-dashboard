@@ -7,15 +7,29 @@ const Toaster = ({ ...props }: ToasterProps) => {
   const liveRegionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      if (liveRegionRef.current) {
-        liveRegionRef.current.focus();
-      }
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as HTMLElement;
+              if (element.hasAttribute('data-sonner-toast')) {
+                const message = element.textContent || '';
+                if (liveRegionRef.current) {
+                  liveRegionRef.current.textContent = message;
+                }
+              }
+            }
+          });
+        }
+      });
     });
 
-    if (liveRegionRef.current) {
-      observer.observe(liveRegionRef.current, {
+    const targetNode = document.querySelector('[data-sonner-toaster]');
+    if (targetNode) {
+      observer.observe(targetNode, {
         childList: true,
+        subtree: true,
       });
     }
 
@@ -26,9 +40,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <>
       <div
         ref={liveRegionRef}
-        aria-live="assertive"
+        aria-live="polite"
         aria-atomic="true"
-        role="alert"
+        role="log"
         className="sr-only"
       />
       <Sonner

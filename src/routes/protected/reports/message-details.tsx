@@ -22,25 +22,25 @@ interface Node {
  */
 export const messageDetailsLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
-    assertNonNull(
-      params.messageId,
-      'Message ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
+      assertNonNull(
+        params.messageId,
+        'Message ID is missing in the route parameters',
+      );
 
-    const initialMessageDetails = await queryClient.ensureQueryData(
-      messageDetailsQuery(params.reportId, params.messageId),
-    );
-    return {
-      initialMessageDetails,
-      reportId: params.reportId,
-      messageId: params.messageId,
+      const initialMessageDetails = await queryClient.ensureQueryData(
+        messageDetailsQuery(params.reportId, params.messageId),
+      );
+      return {
+        initialMessageDetails,
+        reportId: params.reportId,
+        messageId: params.messageId,
+      };
     };
-  };
 
 const MessageDetails = () => {
   const { initialMessageDetails, reportId, messageId } =
@@ -80,7 +80,7 @@ const MessageDetails = () => {
       <SEO
         title={`${data?.messageName} - Message Details - Equalify`}
         description={`View the details of the ${data?.messageName} message, including associated nodes and pages, on Equalify.`}
-        url={`https://www.equalify.dev/reports/${reportId}/messages/${messageId}`}
+        url={`https://dashboard.equalify.app/reports/${reportId}/messages/${messageId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <div>

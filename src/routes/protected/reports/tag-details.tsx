@@ -22,22 +22,22 @@ interface Message {
  */
 export const tagDetailsLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
-    assertNonNull(params.tagId, 'Tag ID is missing in the route parameters');
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
+      assertNonNull(params.tagId, 'Tag ID is missing in the route parameters');
 
-    const initialTagDetails = await queryClient.ensureQueryData(
-      tagDetailsQuery(params.reportId, params.tagId),
-    );
-    return {
-      initialTagDetails,
-      reportId: params.reportId,
-      tagId: params.tagId,
+      const initialTagDetails = await queryClient.ensureQueryData(
+        tagDetailsQuery(params.reportId, params.tagId),
+      );
+      return {
+        initialTagDetails,
+        reportId: params.reportId,
+        tagId: params.tagId,
+      };
     };
-  };
 
 const TagDetails = () => {
   const { initialTagDetails, reportId, tagId } = useLoaderData() as Awaited<
@@ -72,7 +72,7 @@ const TagDetails = () => {
       <SEO
         title={`${data?.tagName} - Tag Details - Equalify`}
         description={`View the details of the ${data?.tagName} tag, including associated messages, on Equalify.`}
-        url={`https://www.equalify.dev/reports/${reportId}/tags/${tagId}`}
+        url={`https://dashboard.equalify.app/reports/${reportId}/tags/${tagId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <div>

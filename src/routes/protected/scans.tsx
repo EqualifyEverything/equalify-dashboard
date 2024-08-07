@@ -81,7 +81,7 @@ const Scans = () => {
       <SEO
         title="Scans - Equalify"
         description="View and manage your scans on Equalify."
-        url="https://www.equalify.dev/scans"
+        url="https://dashboard.equalify.app/scans"
       />
 
       <h1 id="scans-heading" className="text-2xl font-bold md:text-3xl">

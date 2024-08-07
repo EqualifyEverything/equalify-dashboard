@@ -48,13 +48,15 @@ import {
   tagDetailsLoader,
   updatePropertyAction,
   updateReportAction,
+  authenticatedLoader,
 } from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000,
       refetchOnWindowFocus: true,
+      refetchOnMount: true,
     },
   },
 });
@@ -71,7 +73,7 @@ const router = createBrowserRouter([
       {
         path: 'reports',
         element: <Reports />,
-        loader: reportsLoader(queryClient),
+        loader: authenticatedLoader(reportsLoader(queryClient)),
       },
       {
         path: 'reports/create',
@@ -81,7 +83,7 @@ const router = createBrowserRouter([
       {
         path: 'reports/:reportId',
         element: <ReportDetails />,
-        loader: reportDetailsLoader(queryClient),
+        loader: authenticatedLoader(reportDetailsLoader(queryClient)),
       },
       {
         path: 'reports/:reportId/edit',
@@ -92,24 +94,24 @@ const router = createBrowserRouter([
       {
         path: 'reports/:reportId/messages/:messageId',
         element: <MessageDetails />,
-        loader: messageDetailsLoader(queryClient),
+        loader: authenticatedLoader(messageDetailsLoader(queryClient)),
       },
       {
         path: 'reports/:reportId/tags/:tagId',
         element: <TagDetails />,
-        loader: tagDetailsLoader(queryClient),
+        loader: authenticatedLoader(tagDetailsLoader(queryClient)),
       },
       {
         path: 'reports/:reportId/pages/:pageId',
         element: <PageDetails />,
-        loader: pageDetailsLoader(queryClient),
+        loader: authenticatedLoader(pageDetailsLoader(queryClient)),
       },
       { path: 'account', element: <Account /> },
-      { path: 'scans', element: <Scans />, loader: scansLoader(queryClient) },
+      { path: 'scans', element: <Scans />, loader: authenticatedLoader(scansLoader(queryClient)) },
       {
         path: 'properties',
         element: <Properties />,
-        loader: propertiesLoader(queryClient),
+        loader: authenticatedLoader(propertiesLoader(queryClient)),
       },
       {
         path: 'properties/add',
@@ -119,7 +121,7 @@ const router = createBrowserRouter([
       {
         path: 'properties/:propertyId/edit',
         element: <EditProperty />,
-        loader: propertyLoader(queryClient),
+        loader: authenticatedLoader(propertyLoader(queryClient)),
         action: updatePropertyAction(queryClient),
       },
     ],

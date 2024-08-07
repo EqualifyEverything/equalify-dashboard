@@ -32,7 +32,7 @@ const Forgot = () => {
             <SEO
                 title="Forgot Password - Equalify"
                 description="Log in to your Equalify account to manage your properties and reports."
-                url="https://www.equalify.dev/forgot"
+                url="https://dashboard.equalify.app/forgot"
             />
             <section className="flex h-full w-full flex-col items-center justify-center gap-10">
                 <div className="w-full max-w-md space-y-2">

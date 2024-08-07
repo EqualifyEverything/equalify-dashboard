@@ -5,10 +5,6 @@ const Footer = () => {
     <footer className="border-t border-gray-300 bg-white max-md:py-3">
       <MaxWidthWrapper>
         <div className="flex flex-col items-center justify-center gap-3 text-sm text-slate-500 md:h-16 md:gap-0 md:text-base">
-          <span className="text-center">
-            Equalify Web App - Version 0.3.0 <br className="block sm:hidden" />
-            (Development Preview)
-          </span>
 
           <nav aria-label="Footer Links">
             <ul className="flex justify-center gap-4">

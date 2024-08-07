@@ -1,4 +1,6 @@
 import { ExclamationTriangleIcon, PinRightIcon } from '@radix-ui/react-icons';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
@@ -8,23 +10,40 @@ import { useAuth } from '~/hooks/useAuth';
 
 const Account = () => {
   const { signOut, deleteUser } = useAuth();
+  const navigate = useNavigate();
 
   const handleDeleteAccount = async () => {
-    await deleteUser();
+    try {
+      await deleteUser();
+      toast.success('Account deleted successfully.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+    } catch (error) {
+      toast.error('Failed to delete account. Please try again.');
+    }
+  };
+
+  const handleSignOut = () => {
+    toast.success('You have logged out.');
+    setTimeout(() => {
+      signOut();
+      navigate('/login');
+    }, 1000);
   };
   return (
     <>
       <SEO
         title="Account - Equalify"
         description="Manage your Equalify account settings and personal information."
-        url="https://www.equalify.dev/account"
+        url="https://dashboard.equalify.app/account"
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <h1 id="account-heading" className="text-2xl font-bold md:text-3xl">
           Your Account
         </h1>
         <Button
-          onClick={signOut}
+          onClick={handleSignOut}
           className="w-fit gap-2 place-self-end bg-[#005031]"
         >
           Log Out

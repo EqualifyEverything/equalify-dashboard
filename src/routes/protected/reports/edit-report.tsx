@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import {
   QueryClient,
@@ -10,6 +10,7 @@ import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   redirect,
+  useActionData,
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
@@ -22,6 +23,7 @@ import { SEO } from '~/components/layout';
 import { reportQuery } from '~/queries/reports';
 import { deleteReport, updateReport } from '~/services';
 import { assertNonNull } from '~/utils/safety';
+import { useStore } from '~/store';
 
 /**
  * Loader function to fetch report data
@@ -30,17 +32,17 @@ import { assertNonNull } from '~/utils/safety';
  */
 export const reportLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    assertNonNull(
-      params.reportId,
-      'Report ID is missing in the route parameters',
-    );
+    async ({ params }: LoaderFunctionArgs) => {
+      assertNonNull(
+        params.reportId,
+        'Report ID is missing in the route parameters',
+      );
 
-    const initialReport = await queryClient.ensureQueryData(
-      reportQuery(params.reportId),
-    );
-    return { initialReport, reportId: params.reportId };
-  };
+      const initialReport = await queryClient.ensureQueryData(
+        reportQuery(params.reportId),
+      );
+      return { initialReport, reportId: params.reportId };
+    };
 
 /**
  * Handles updating a report.
@@ -49,42 +51,43 @@ export const reportLoader =
  */
 export const updateReportAction =
   (queryClient: QueryClient) =>
-  async ({ params, request }: ActionFunctionArgs) => {
-    try {
-      assertNonNull(params.reportId, 'reportId is required');
+    async ({ params, request }: ActionFunctionArgs) => {
+      try {
+        assertNonNull(params.reportId, 'reportId is required');
 
-      const formData = await request.formData();
-      const reportName = formData.get('reportName');
-      const filtersRaw = formData.get('filters');
+        const formData = await request.formData();
+        const reportName = formData.get('reportName');
 
-      assertNonNull(reportName, 'reportName is required');
-      assertNonNull(filtersRaw, 'filters is required');
+        assertNonNull(reportName, 'reportName is required');
+        const selectedFilters = useStore.getState().selectedFilters;
 
-      const filters = JSON.parse(filtersRaw.toString());
+        if (!selectedFilters.some((filter) => filter.type === 'properties')) {
+          return { error: 'Please add at least one property filter.' };
+        }
 
-      const response = await updateReport(
-        params.reportId,
-        reportName.toString(),
-        filters,
-      );
-      await queryClient.invalidateQueries({
-        queryKey: ['report', params.reportId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ['reports'] });
+        const response = await updateReport(
+          params.reportId,
+          reportName.toString(),
+          selectedFilters,
+        );
+        await queryClient.invalidateQueries({
+          queryKey: ['report', params.reportId],
+        });
+        await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
-      if (response.status === 'success') {
-        toast.success('Report updated successfully');
-        return redirect(`/reports/${params.reportId}`);
-      } else {
-        toast.error('Failed to update report');
-        throw new Error('Failed to update report');
+        if (response.status === 'success') {
+          toast.success('Report updated successfully');
+          return redirect(`/reports/${params.reportId}`);
+        } else {
+          toast.error('Failed to update report');
+          throw new Error('Failed to update report');
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error('An error occurred while updating the report.');
+        throw error;
       }
-    } catch (error) {
-      console.log(error);
-      toast.error('An error occurred while updating the report.');
-      throw error;
-    }
-  };
+    };
 
 const EditReport = () => {
   const navigate = useNavigate();
@@ -93,7 +96,16 @@ const EditReport = () => {
     ReturnType<ReturnType<typeof reportLoader>>
   >;
 
+  const actionData = useActionData();
+
   const [isFormChanged, setIsFormChanged] = useState(false);
+  const selectedFilters = useStore((state) => state.selectedFilters);
+  const [isFormValid, setIsFormValid] = useState(false);
+
+
+  useEffect(() => {
+    setIsFormValid(selectedFilters.some(filter => filter.type === 'properties'));
+  }, [selectedFilters]);
 
   const { data: report } = useQuery({
     ...reportQuery(reportId!),
@@ -117,15 +129,13 @@ const EditReport = () => {
       | React.ChangeEvent<HTMLInputElement>
       | { target: { name: string; value: string } },
   ) => {
-    if ('currentTarget' in event) {
-      const { name, value } = event.target;
-      if (name === 'reportName' && value.trim() !== report?.name.trim()) {
-        setIsFormChanged(true);
-      } else if (name === 'filters') {
-        setIsFormChanged(true);
-      } else {
-        setIsFormChanged(false);
-      }
+    const { name, value } = event.target;
+    if (name === 'reportName' && value.trim() !== report?.name.trim()) {
+      setIsFormChanged(true);
+    } else if (name === 'filters') {
+      setIsFormChanged(true);
+    } else {
+      setIsFormChanged(false);
     }
   };
 
@@ -138,7 +148,7 @@ const EditReport = () => {
       <SEO
         title={`Edit ${report?.name || 'Report'} - Equalify`}
         description={`Edit the details of ${report?.name || 'this report'} on Equalify.`}
-        url={`https://www.equalify.dev/reports/${reportId}/edit`}
+        url={`https://dashboard.equalify.app/reports/${reportId}/edit`}
       />
       <h1 id="edit-report-heading" className="text-2xl font-bold md:text-3xl">
         Edit {report?.name || 'Report'}
@@ -157,6 +167,8 @@ const EditReport = () => {
           }}
           formId="edit-report-form"
           onChange={handleFormChange}
+          onFilterChange={() => setIsFormChanged(true)}
+          error={actionData?.error}
         />
 
         <div className="space-x-6">
@@ -172,8 +184,8 @@ const EditReport = () => {
             type="submit"
             form="edit-report-form"
             className="w-fit bg-[#1D781D] text-white"
-            disabled={!isFormChanged}
-            aria-disabled={!isFormChanged}
+            disabled={!isFormChanged || !isFormValid}
+            aria-disabled={!isFormChanged || !isFormValid}
             aria-live="polite"
             aria-label="Update report"
           >
