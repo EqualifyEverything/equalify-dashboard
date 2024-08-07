@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { ActionFunctionArgs, redirect, useNavigate } from 'react-router-dom';
+import { ActionFunctionArgs, redirect, useActionData, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Button } from '~/components/buttons';
@@ -26,6 +26,10 @@ export const createReportAction =
 
         const selectedFilters = useStore.getState().selectedFilters;
 
+        if (!selectedFilters.some((filter) => filter.type === 'properties')) {
+          return { error: 'Please add at least one property filter.' };
+        }
+
         const response = await addReport(reportName.toString(), selectedFilters);
         await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
@@ -44,7 +48,13 @@ export const createReportAction =
 
 const CreateReport = () => {
   const navigate = useNavigate();
+  const actionData = useActionData();
   const [isFormValid, setIsFormValid] = useState(false);
+  const selectedFilters = useStore((state) => state.selectedFilters);
+
+  useEffect(() => {
+    setIsFormValid(selectedFilters.length > 0);
+  }, [selectedFilters]);
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     if ('currentTarget' in event) {
@@ -53,7 +63,7 @@ const CreateReport = () => {
 
       if (reportName) {
         const isFormValid = reportName.value.trim() !== '';
-        setIsFormValid(isFormValid);
+        setIsFormValid(isFormValid && selectedFilters.length > 0);
       }
     }
   };
@@ -79,7 +89,8 @@ const CreateReport = () => {
           defaultValues={{ reportName: '' }}
           formId="create-report-form"
           onChange={handleFormChange}
-          onFilterChange={() => {}}
+          onFilterChange={() => setIsFormValid(selectedFilters.some((filter) => filter.type === 'properties'))}
+          error={actionData?.error}
         />
 
         <div className="space-x-6">

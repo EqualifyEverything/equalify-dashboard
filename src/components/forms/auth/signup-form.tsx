@@ -7,6 +7,7 @@ import {
 } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { ErrorAlert } from '~/components/alerts';
@@ -22,7 +23,6 @@ import {
   FormMessage,
   OTPValidationForm,
 } from '..';
-import { toast } from 'sonner';
 
 const SignupSchema = z
   .object({
@@ -65,16 +65,15 @@ const SignupForm = () => {
   });
 
   const onSubmit = async (values: SignupFormInputs) => {
-    try {
-      await signUp({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        password: values.password,
-      });
+    const signUpSuccess = await signUp({
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      password: values.password,
+    });
+
+    if (signUpSuccess) {
       toast.success('A verification code has been sent to your email.');
-    } catch (error) {
-      toast.error('Failed to sign up. Please try again.');
     }
   };
 
@@ -92,10 +91,16 @@ const SignupForm = () => {
     };
   }, [clearErrors, cancelConfirmation]);
 
+  useEffect(() => {
+    form.watch((_, { name }) => {
+      if (name === 'email') {
+        clearErrors();
+      }
+    });
+  }, [form.watch, clearErrors]);
+
   if (needsConfirmation && pendingUsername) {
-    return (
-        <OTPValidationForm email={pendingUsername} type="signup"/>
-    );
+    return <OTPValidationForm email={pendingUsername} type="signup" />;
   }
 
   return (

@@ -20,12 +20,14 @@ interface ReportFilterProps {
   defaultFilters: FilterOption[];
   onChange: (event: { target: { name: string; value: string } }) => void;
   onFilterChange: () => void;
+  filterError?: string;
 }
 
 const ReportFilter: React.FC<ReportFilterProps> = ({
   defaultFilters = [],
   onChange,
   onFilterChange,
+  filterError,
 }) => {
   const { data: filterData } = useQuery(filtersQuery());
   const [selectedFilter, setSelectedFilter] =
@@ -66,16 +68,6 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
       const { type, label, value: id } = filterOption;
       const newFilter = { type, label, value: id };
 
-      const hasPropertyOrUrl = selectedFilters.some(
-        (filter) => filter.type === 'properties' || filter.type === 'urls',
-      );
-
-      if (type === 'types' && !hasPropertyOrUrl) {
-        setRemovalMessage('Please add at least one property or URL before filtering by types.');
-        setTimeout(() => setRemovalMessage(null), 3000);
-        return;
-      }
-
       if (
         !selectedFilters.some(
           (filter) => filter.value === value && filter.type === type,
@@ -96,16 +88,6 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
       removeFilter(filter);
       onFilterChange();  
 
-      if (filter.type === 'properties' || filter.type === 'urls') {
-        const hasRemainingPropertyOrUrl = selectedFilters.some(
-          (f) => f.type === 'properties' || f.type === 'urls',
-        );
-
-        if (!hasRemainingPropertyOrUrl) {
-          setRemovalMessage('Please add at least one property or URL before filtering by types.');
-        }
-      }
-
       setRemovalMessage(`Removed ${filter.label} filter`);
       setTimeout(() => setRemovalMessage(null), 3000);
     },
@@ -117,9 +99,13 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
       ? typeFilterValues.map((item) => item.label)
       : filterData?.[selectedFilter]?.map((item: FilterOption) => item.label) || [];
 
-  const hasPropertyOrUrl = selectedFilters.some(
-    (filter) => filter.type === 'properties' || filter.type === 'urls',
-  );
+      const hasPropertyFilter = selectedFilters.some((filter) => filter.type === 'properties');
+
+  useEffect(() => {
+    if (hasPropertyFilter) {
+      setRemovalMessage(null);
+    }
+  }, [hasPropertyFilter]);
 
   return (
     <div className="flex min-h-80 flex-col justify-between gap-6">
@@ -129,7 +115,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
           <Select
             value={selectedFilter}
             onValueChange={(value) =>
-              setSelectedFilter(value as keyof FiltersResponse | 'types')
+              setSelectedFilter(value as keyof FiltersResponse | 'properties')
             }
           >
             <SelectTrigger
@@ -149,7 +135,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                   </SelectItem>
                 ))}
-              <SelectItem key="types" value="types" disabled={!hasPropertyOrUrl}>
+              <SelectItem key="types" value="types">
                 Types
               </SelectItem>
             </SelectContent>
@@ -164,9 +150,9 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
             />
           </div>
         </div>
-        {!hasPropertyOrUrl && (
+        {filterError && !hasPropertyFilter && (
           <p className="mt-2 text-sm text-red-600">
-            Please add at least one property or URL before filtering by types.
+            {filterError}
           </p>
         )}
       </div>
@@ -211,12 +197,6 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
       <div className="sr-only" aria-live="assertive">
         {removalMessage}
       </div>
-      <input
-        type="text"
-        hidden
-        name="filters"
-        value={JSON.stringify(selectedFilters)}
-      />
     </div>
   );
 };

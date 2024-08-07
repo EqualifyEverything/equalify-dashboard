@@ -29,7 +29,7 @@ export const initSentry = () => {
     ],
     // Performance Monitoring
     tracesSampleRate: 1.0,
-    tracePropagationTargets: ['localhost', /^https:\/\/managed\.equalify\.app/],
+    tracePropagationTargets: ['localhost', /^https:\/\/dashboard\.equalify\.app/],
     // Session Replay
     replaysSessionSampleRate: 0.1, 
     replaysOnErrorSampleRate: 1.0, 

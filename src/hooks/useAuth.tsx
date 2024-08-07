@@ -126,11 +126,14 @@ export const useAuth = () => {
         if (!isSignUpComplete && nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
           setNeedsConfirmation(true);
           setPendingUsername(email);
+          return true
         } else {
           console.warn('Unexpected sign-up flow:', nextStep);
+          return false
         }
       } catch (error) {
         handleError(error, 'Error signing up:');
+        return false
       } finally {
         setLoading(false);
       }
@@ -159,12 +162,15 @@ export const useAuth = () => {
             setNeedsConfirmation(false);
             setPendingUsername(null);
           }, 1000);
+          return { isSignUpComplete: true }
           }
         } else {
           console.warn('Unexpected confirmation flow:', nextStep);
+          return { isSignUpComplete: false }
         }
       } catch (error) {
         handleError(error, 'Error confirming sign up:');
+        return { isSignUpComplete: false }
       } finally {
         setLoading(false);
       }

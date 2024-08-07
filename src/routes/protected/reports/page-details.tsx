@@ -75,6 +75,11 @@ const PageDetails = () => {
 
   const ocurranceColumns: ColumnDef<Occurrence>[] = [
     {
+      accessorKey: 'codeSnippet',
+      header: 'Code Snippet',
+      cell: ({ row }) => <code>{row.getValue('codeSnippet')}</code>,
+    },
+    {
       accessorKey: 'message',
       header: 'Message',
       cell: ({ row }) => (
@@ -85,11 +90,6 @@ const PageDetails = () => {
           {row.getValue('message')}
         </Link>
       ),
-    },
-    {
-      accessorKey: 'codeSnippet',
-      header: 'Code Snippet',
-      cell: ({ row }) => <code>{row.getValue('codeSnippet')}</code>,
     },
     { accessorKey: 'status', header: 'Status' },
   ];
