@@ -4,7 +4,7 @@ import * as Auth from 'aws-amplify/auth';
 const generateHeaders = async (apiKeyRequired: boolean) => {
   const session = await Auth.fetchAuthSession();
   const headers: Record<string, string> = {
-    Authorization: `Bearer ${session.tokens?.accessToken?.toString()}`,
+    Authorization: `Bearer ${session.tokens?.idToken?.toString()}`,
   };
 
   if (apiKeyRequired) {
