@@ -77,7 +77,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
         onChange({
           target: { name: 'filters', value: JSON.stringify(selectedFilters) },
         });
-        onFilterChange(); 
+        onFilterChange();
       }
     },
     [selectedFilter, selectedFilters, addFilter, filterData, typeFilterValues, onChange, onFilterChange],
@@ -86,7 +86,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
   const handleRemoveFilter = useCallback(
     (filter: FilterOption) => {
       removeFilter(filter);
-      onFilterChange();  
+      onFilterChange();
 
       setRemovalMessage(`Removed ${filter.label} filter`);
       setTimeout(() => setRemovalMessage(null), 3000);
@@ -99,7 +99,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
       ? typeFilterValues.map((item) => item.label)
       : filterData?.[selectedFilter]?.map((item: FilterOption) => item.label) || [];
 
-      const hasPropertyFilter = selectedFilters.some((filter) => filter.type === 'properties');
+  const hasPropertyFilter = selectedFilters.some((filter) => ['properties', 'urls'].includes(filter.type));
 
   useEffect(() => {
     if (hasPropertyFilter) {

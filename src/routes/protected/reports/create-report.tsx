@@ -26,8 +26,8 @@ export const createReportAction =
 
         const selectedFilters = useStore.getState().selectedFilters;
 
-        if (!selectedFilters.some((filter) => filter.type === 'properties')) {
-          return { error: 'Please add at least one property filter.' };
+        if (!selectedFilters.some((filter) => ['properties', 'urls'].includes(filter.type))) {
+          return { error: 'Please add at least one property and/or URL filter.' };
         }
 
         const response = await addReport(reportName.toString(), selectedFilters);
@@ -89,7 +89,7 @@ const CreateReport = () => {
           defaultValues={{ reportName: '' }}
           formId="create-report-form"
           onChange={handleFormChange}
-          onFilterChange={() => setIsFormValid(selectedFilters.some((filter) => filter.type === 'properties'))}
+          onFilterChange={() => setIsFormValid(selectedFilters.some((filter) => ['properties', 'urls'].includes(filter.type)))}
           error={actionData?.error}
         />
 
