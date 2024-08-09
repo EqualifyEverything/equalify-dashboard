@@ -61,8 +61,8 @@ export const updateReportAction =
         assertNonNull(reportName, 'reportName is required');
         const selectedFilters = useStore.getState().selectedFilters;
 
-        if (!selectedFilters.some((filter) => filter.type === 'properties')) {
-          return { error: 'Please add at least one property filter.' };
+        if (!selectedFilters.some((filter) => !['properties', 'urls'].includes(filter.type))) {
+          return { error: 'Please add at least one property and/or URL filter.' };
         }
 
         const response = await updateReport(
@@ -104,7 +104,7 @@ const EditReport = () => {
 
 
   useEffect(() => {
-    setIsFormValid(selectedFilters.some(filter => filter.type === 'properties'));
+    setIsFormValid(selectedFilters.some(filter => ['properties', 'url'].includes(filter.type)));
   }, [selectedFilters]);
 
   const { data: report } = useQuery({
