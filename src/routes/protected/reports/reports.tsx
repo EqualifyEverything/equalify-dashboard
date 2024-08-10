@@ -20,6 +20,7 @@ interface Report {
 const ReportCard: React.FC<Report> = ({
   id,
   name,
+  activeIssues,
   mostCommonIssue,
 }) => (
   <article
@@ -31,6 +32,9 @@ const ReportCard: React.FC<Report> = ({
     </h2>
     <div className="mt-2 flex flex-col justify-between gap-3">
       <div className="min-w-0">
+        <p className="mt-2 text-sm text-gray-600">
+          Active Issues: {activeIssues}
+        </p>
         <p className="text-sm mt-1 text-gray-500">
           Most Common:
           <div className="overflow-hidden overflow-ellipsis h-16">
