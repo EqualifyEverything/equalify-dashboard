@@ -104,7 +104,7 @@ const EditReport = () => {
 
 
   useEffect(() => {
-    setIsFormValid(selectedFilters.some(filter => ['properties', 'url'].includes(filter.type)));
+    setIsFormValid(selectedFilters.some(filter => ['properties', 'urls'].includes(filter.type)));
   }, [selectedFilters]);
 
   const { data: report } = useQuery({
