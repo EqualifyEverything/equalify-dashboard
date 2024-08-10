@@ -41,7 +41,7 @@ const PropertyCard: React.FC<Property> = ({ id, name, lastProcessed }) => (
     <div className="mt-2 flex flex-col justify-between gap-3 md:flex-row md:items-end">
       <div className="min-w-0">
         <p className="mt-1 text-sm text-gray-600">
-          Processed {formatDate(lastProcessed)}
+          Added {formatDate(lastProcessed)}
         </p>
       </div>
       <Link
