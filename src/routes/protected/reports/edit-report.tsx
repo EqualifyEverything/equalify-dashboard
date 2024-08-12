@@ -14,7 +14,7 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
-import { useToast } from '~/components/alerts/toast';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
@@ -52,7 +52,6 @@ export const reportLoader =
 export const updateReportAction =
   (queryClient: QueryClient) =>
     async ({ params, request }: ActionFunctionArgs) => {
-      const toast = useToast();
       try {
         assertNonNull(params.reportId, 'reportId is required');
 
@@ -98,7 +97,6 @@ const EditReport = () => {
   >;
 
   const actionData = useActionData();
-  const toast = useToast();
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const selectedFilters = useStore((state) => state.selectedFilters);

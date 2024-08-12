@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
-import { useToast } from '~/components/alerts/toast';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import Timeline from '~/components/charts/timeline';
@@ -53,7 +53,6 @@ const PageDetails = () => {
   });
 
   const [isSending, setIsSending] = useState(false);
-  const toast = useToast();
 
   if (error) return <div role="alert">Error loading page details.</div>;
 

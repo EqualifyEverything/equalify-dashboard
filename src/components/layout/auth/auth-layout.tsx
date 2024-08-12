@@ -1,4 +1,4 @@
-import { Toasts } from '~/components/alerts/toast';
+import { Toasts } from '~/components/alerts';
 import { Announcer, AuthHeader, MaxWidthWrapper } from '..';
 
 const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (

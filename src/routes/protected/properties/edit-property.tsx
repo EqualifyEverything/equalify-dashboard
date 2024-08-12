@@ -13,7 +13,7 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
-import { useToast } from '~/components/alerts/toast';
+import { toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
@@ -50,7 +50,6 @@ export const propertyLoader =
 export const updatePropertyAction =
   (queryClient: QueryClient) =>
     async ({ request, params }: ActionFunctionArgs) => {
-      const toast = useToast();
       assertNonNull(params.propertyId, 'No property ID provided');
 
       try {
@@ -87,7 +86,6 @@ export const updatePropertyAction =
 const EditProperty = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const toast = useToast();
   const { initialProperty, propertyId } = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof propertyLoader>>
   >;

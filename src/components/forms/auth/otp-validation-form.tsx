@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { ErrorAlert, useToast } from '~/components/alerts';
+import { ErrorAlert, toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '~/components/inputs';
 import { useAuth } from '~/hooks/useAuth';
@@ -36,7 +36,6 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
   email,
   type,
 }) => {
-  const toast = useToast();
   const errorAlertRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const announcerRef = useRef<HTMLDivElement>(null);

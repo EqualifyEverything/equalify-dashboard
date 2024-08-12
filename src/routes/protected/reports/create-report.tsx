@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { ActionFunctionArgs, redirect, useActionData, useNavigate } from 'react-router-dom';
-import { useToast } from '~/components/alerts/toast';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import { ReportForm } from '~/components/forms';
@@ -18,7 +18,6 @@ import { assertNonNull } from '~/utils/safety';
 export const createReportAction =
   (queryClient: QueryClient) =>
     async ({ request }: ActionFunctionArgs) => {
-      const toast = useToast();
       try {
         const formData = await request.formData();
         const reportName = formData.get('reportName');
