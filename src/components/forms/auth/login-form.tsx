@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
 
-import { ErrorAlert, useToast } from '~/components/alerts';
+import { ErrorAlert, toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { Input } from '~/components/inputs';
 import { useAuth } from '~/hooks/useAuth';
@@ -35,7 +35,6 @@ const LoginSchema = z.object({
 type LoginFormInputs = z.infer<typeof LoginSchema>;
 
 const LoginForm = () => {
-  const toast = useToast();
   const errorAlertRef = useRef<HTMLDivElement>(null);
   const {
     signIn,

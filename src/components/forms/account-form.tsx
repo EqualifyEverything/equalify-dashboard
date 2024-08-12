@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
-import { useToast } from '~/components/alerts';
+import { toast } from '~/components/alerts';
 import { z } from 'zod';
 
 import { Button } from '~/components/buttons';
@@ -31,7 +31,6 @@ type AccountFormInputs = z.infer<typeof AccountSchema>;
 
 const AccountForm = () => {
   const { user, updateUserAttributes, loading } = useAuth();
-  const toast = useToast();
   const form = useForm<AccountFormInputs>({
     resolver: zodResolver(AccountSchema),
     defaultValues: {

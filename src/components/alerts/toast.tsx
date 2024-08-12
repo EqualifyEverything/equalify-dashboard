@@ -15,10 +15,6 @@ interface ToastContextValue {
   error: (payload: ToastPayload) => void;
 }
 
-interface ToastsProps {
-  children: React.ReactNode;
-}
-
 const ToastContext = React.createContext<ToastContextValue | null>(null);
 const ToastContextImpl = React.createContext<{
   toastElementsMapRef: React.MutableRefObject<Map<string, HTMLLIElement>>;
@@ -30,13 +26,9 @@ const ANIMATION_OUT_DURATION = 350;
 const CheckmarkIcon = () => <div aria-hidden className="checkmark" />;
 const ErrorIcon = () => <div aria-hidden className="error" />;
 
-export const Toasts: React.FC<ToastsProps> = ({ children, ...props }) => {
-  const [toasts, setToasts] = React.useState<Map<string, ToastPayload>>(
-    new Map(),
-  );
-  const toastElementsMapRef = React.useRef<Map<string, HTMLLIElement>>(
-    new Map(),
-  );
+export const Toasts: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [toasts, setToasts] = React.useState<Map<string, ToastPayload>>(new Map());
+  const toastElementsMapRef = React.useRef<Map<string, HTMLLIElement>>(new Map());
   const viewportRef = React.useRef<HTMLOListElement | null>(null);
 
   const sortToasts = React.useCallback(() => {
@@ -130,6 +122,10 @@ export const Toasts: React.FC<ToastsProps> = ({ children, ...props }) => {
     }
   }, []);
 
+  React.useEffect(() => {
+    ToastManager.getInstance().setAddToastFunction(handleAddToast);
+  }, [handleAddToast]);
+
   return (
     <ToastContext.Provider
       value={React.useMemo(
@@ -150,7 +146,7 @@ export const Toasts: React.FC<ToastsProps> = ({ children, ...props }) => {
           [sortToasts],
         )}
       >
-        <ToastPrimitive.Provider {...props}>
+        <ToastPrimitive.Provider swipeDirection="right">
           {children}
           {Array.from(toasts).map(([key, toast]) => (
             <Toast
@@ -178,17 +174,43 @@ export const Toasts: React.FC<ToastsProps> = ({ children, ...props }) => {
   );
 };
 
-export const useToast = (): ToastContextValue => {
-  const context = React.useContext(ToastContext);
-  if (context) return context;
-  throw new Error('useToast must be used within Toasts');
-};
+class ToastManager {
+  private static instance: ToastManager;
+  private addToast: (toast: ToastPayload) => void = () => {};
+
+  private constructor() {}
+
+  public static getInstance(): ToastManager {
+    if (!ToastManager.instance) {
+      ToastManager.instance = new ToastManager();
+    }
+    return ToastManager.instance;
+  }
+
+  public setAddToastFunction(addToastFunction: (toast: ToastPayload) => void) {
+    this.addToast = addToastFunction;
+  }
+
+  public success(toast: ToastPayload) {
+    this.addToast({ ...toast, status: 'success' });
+  }
+
+  public error(toast: ToastPayload) {
+    this.addToast({ ...toast, status: 'error' });
+  }
+
+  public default(toast: ToastPayload) {
+    this.addToast({ ...toast, status: 'default' });
+  }
+}
+
+export const toast = ToastManager.getInstance();
 
 const Toast: React.FC<{
   toast: ToastPayload;
   id: string;
   onOpenChange: (open: boolean) => void;
-}> = ({ toast, id, onOpenChange, ...toastProps }) => {
+}> = ({ toast, id, onOpenChange }) => {
   const ref = React.useRef<HTMLLIElement | null>(null);
   const { sortToasts, toastElementsMapRef } =
     React.useContext(ToastContextImpl)!;
@@ -202,7 +224,6 @@ const Toast: React.FC<{
 
   return (
     <ToastPrimitive.Root
-      {...toastProps}
       ref={ref}
       type="foreground"
       duration={toast.duration}
@@ -212,12 +233,8 @@ const Toast: React.FC<{
       <div className="ToastInner" data-status={toast.status}>
         {toast.status === 'success' && <CheckmarkIcon />}
         {toast.status === 'error' && <ErrorIcon />}
-        <ToastPrimitive.Title className="ToastTitle">
-          {toast.title}
-        </ToastPrimitive.Title>
-        <ToastPrimitive.Description className="ToastDescription">
-          {toast.description}
-        </ToastPrimitive.Description>
+        <ToastPrimitive.Title className="ToastTitle">{toast.title}</ToastPrimitive.Title>
+        <ToastPrimitive.Description className="ToastDescription">{toast.description}</ToastPrimitive.Description>
         <ToastPrimitive.Close aria-label="Close" className="ToastClose">
           <Cross2Icon />
         </ToastPrimitive.Close>

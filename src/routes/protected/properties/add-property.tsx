@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { ActionFunctionArgs, redirect, useNavigate } from 'react-router-dom';
-import { useToast } from '~/components/alerts/toast';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import { PropertyForm } from '~/components/forms';
@@ -16,7 +16,6 @@ import { addProperty } from '~/services';
 export const addPropertyAction =
   (queryClient: QueryClient) =>
     async ({ request }: ActionFunctionArgs) => {
-      const toast = useToast();
       try {
         const formData = await request.formData();
         const propertyName = formData.get('propertyName') as string;
