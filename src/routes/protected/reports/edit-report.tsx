@@ -14,7 +14,7 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
@@ -76,15 +76,15 @@ export const updateReportAction =
         await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
         if (response.status === 'success') {
-          toast.success('Report updated successfully');
+          toast.success({ title: 'Success', description: 'Report updated successfully' });
           return redirect(`/reports/${params.reportId}`);
         } else {
-          toast.error('Failed to update report');
+          toast.error({ title: 'Error', description: 'Failed to update report' });
           throw new Error('Failed to update report');
         }
       } catch (error) {
         console.log(error);
-        toast.error('An error occurred while updating the report.');
+        toast.error({ title: 'Error', description: 'An error occurred while updating the report.' });
         throw error;
       }
     };
@@ -116,11 +116,11 @@ const EditReport = () => {
     mutationFn: () => deleteReport(reportId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
-      toast.success('Report deleted successfully!');
+      toast.success({ title: 'Success', description: 'Report deleted successfully!' });
       navigate('/reports');
     },
     onError: () => {
-      toast.error('Failed to delete report.');
+      toast.error({ title: 'Error', description: 'Failed to delete report.' });
     },
   });
 

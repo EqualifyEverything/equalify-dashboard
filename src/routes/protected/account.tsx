@@ -1,6 +1,6 @@
 import { ExclamationTriangleIcon, PinRightIcon } from '@radix-ui/react-icons';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
@@ -15,17 +15,17 @@ const Account = () => {
   const handleDeleteAccount = async () => {
     try {
       await deleteUser();
-      toast.success('Account deleted successfully.');
+      toast.success({ title: 'Success', description: 'Account deleted successfully.' });
       setTimeout(() => {
         navigate('/login');
       }, 1000);
     } catch (error) {
-      toast.error('Failed to delete account. Please try again.');
+      toast.error({ title: 'Error', description: 'Failed to delete account. Please try again.' });
     }
   };
 
   const handleSignOut = () => {
-    toast.success('You have logged out.');
+    toast.success({ title: 'Success', description: 'You have logged out.' });
     setTimeout(() => {
       signOut();
       navigate('/login');

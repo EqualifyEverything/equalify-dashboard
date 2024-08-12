@@ -7,10 +7,9 @@ import {
 } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { ErrorAlert } from '~/components/alerts';
+import { ErrorAlert, toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { Input } from '~/components/inputs';
 import { useAuth } from '~/hooks/useAuth';
@@ -63,12 +62,22 @@ const LoginForm = () => {
       });
 
       if (success) {
-        toast.success('Login successful. Redirecting to reports page.');
+        toast.success({
+          title: 'Success',
+          description: 'Login successful. Redirecting to reports page.',
+        });
       } else if (confirmationRequired) {
-        toast.success('Email not confirmed. A code has been sent to your email.');
+        toast.success({
+          title: 'Success',
+          description:
+            'Email not confirmed. A code has been sent to your email.',
+        });
       }
     } catch (error) {
-      toast.error('Login failed. Please try again.');
+      toast.error({
+        title: 'Success',
+        description: 'Login failed. Please try again.',
+      });
     }
   };
 
@@ -87,7 +96,7 @@ const LoginForm = () => {
   }, [clearErrors, cancelConfirmation]);
 
   if (needsConfirmation && pendingUsername) {
-    return <OTPValidationForm email={pendingUsername} type='login'/>;
+    return <OTPValidationForm email={pendingUsername} type="login" />;
   }
 
   return (

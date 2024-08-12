@@ -13,8 +13,7 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
-import { toast } from 'sonner';
-
+import { toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
@@ -72,14 +71,14 @@ export const updatePropertyAction =
         await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
         if (response.status === 'success') {
-          toast.success('Property updated successfully!');
+          toast.success({ title: 'Success', description: 'Property updated successfully!' });
           return redirect(`/properties`);
         } else {
-          toast.error('Failed to update property.');
+          toast.error({ title: 'Error', description: 'Failed to update property.' });
           throw new Response('Failed to update property', { status: 500 });
         }
       } catch (error) {
-        toast.error('An error occurred while updating the property.');
+        toast.error({ title: 'Error', description: 'An error occurred while updating the property.' });
         throw error;
       }
     };
@@ -107,11 +106,11 @@ const EditProperty = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] });
-      toast.success('Property deleted successfully!');
+      toast.success({ title: 'Success', description: 'Property deleted successfully!' });
       navigate('/properties');
     },
     onError: () => {
-      toast.error('Failed to delete property.');
+      toast.error({ title: 'Error', description: 'Failed to delete property.' });
     },
   });
 
@@ -140,12 +139,12 @@ const EditProperty = () => {
     try {
       const response = await sendToScan([propertyId!]);
       if (response.status === 'success') {
-        toast.success('Property sent to scan successfully!');
+        toast.success({ title: 'Success', description: 'Property sent to scan successfully!' });
       } else {
-        toast.error('Failed to send property to scan.');
+        toast.error({ title: 'Error', description: 'Failed to send property to scan.' });
       }
     } catch (error) {
-      toast.error('An error occurred while sending the property to scan.');
+      toast.error({ title: 'Error', description: 'An error occurred while sending the property to scan.' });
       console.error(error);
     } finally {
       setIsSending(false);

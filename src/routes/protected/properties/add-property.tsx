@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { ActionFunctionArgs, redirect, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '~/components/alerts';
 
 import { Button } from '~/components/buttons';
 import { PropertyForm } from '~/components/forms';
@@ -34,14 +34,14 @@ export const addPropertyAction =
         await queryClient.invalidateQueries({ queryKey: ['properties'] });
 
         if (response.status === 'success') {
-          toast.success('Property added successfully!');
+          toast.success({ title: 'Success', description: 'Property added successfully!' });
           return redirect(`/properties`);
         } else {
-          toast.error('Failed to add property.');
+          toast.error({ title: 'Error', description: 'Failed to add property.' });
           throw new Response('Failed to add property', { status: 500 });
         }
       } catch (error) {
-        toast.error('An error occurred while adding the property.');
+        toast.error({ title: 'Error', description: 'An error occurred while adding the property.' });
         throw error;
       }
     };
