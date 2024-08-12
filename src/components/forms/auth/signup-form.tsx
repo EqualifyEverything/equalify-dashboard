@@ -7,10 +7,9 @@ import {
 } from '@radix-ui/react-icons';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { ErrorAlert } from '~/components/alerts';
+import { ErrorAlert, useToast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { Input } from '~/components/inputs';
 import { useAuth } from '~/hooks/useAuth';
@@ -42,6 +41,7 @@ const SignupSchema = z
 type SignupFormInputs = z.infer<typeof SignupSchema>;
 
 const SignupForm = () => {
+  const toast = useToast();
   const errorAlertRef = useRef<HTMLDivElement>(null);
   const {
     signUp,
@@ -73,7 +73,7 @@ const SignupForm = () => {
     });
 
     if (signUpSuccess) {
-      toast.success('A verification code has been sent to your email.');
+      toast.success({title: 'Success', description:'A verification code has been sent to your email.'});
     }
   };
 

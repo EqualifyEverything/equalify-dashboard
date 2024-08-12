@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { ErrorAlert } from '~/components/alerts';
+import { ErrorAlert, useToast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '~/components/inputs';
 import { useAuth } from '~/hooks/useAuth';
@@ -37,6 +36,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
   email,
   type,
 }) => {
+  const toast = useToast();
   const errorAlertRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const announcerRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,10 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
     await resendSignUpCode(email);
     setIsCountingDown(true);
     setCountdown(RESEND_TIMEOUT);
-    toast.success('Verification code resent successfully.');
+    toast.success({
+      title: 'Success',
+      description: 'Verification code resent successfully.',
+    });
   }, [email, resendSignUpCode]);
 
   const onSubmit = async (values: OTPFormInputs) => {
@@ -102,8 +105,11 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
       confirmationCode: values.pin,
     });
     if (isSignUpComplete) {
-      toast.success('Account verified successfully.');
-    } 
+      toast.success({
+        title: 'Success',
+        description: 'Account verified successfully.',
+      });
+    }
   };
 
   const handleFocus = () => {
@@ -131,7 +137,12 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
             <FormItem>
               <FormLabel>Verification Code</FormLabel>
               <FormControl>
-                <InputOTP maxLength={6} {...field} ref={inputRef} onFocus={handleFocus}>
+                <InputOTP
+                  maxLength={6}
+                  {...field}
+                  ref={inputRef}
+                  onFocus={handleFocus}
+                >
                   <InputOTPGroup>
                     {Array.from({ length: 6 }).map((_, index) => (
                       <InputOTPSlot
