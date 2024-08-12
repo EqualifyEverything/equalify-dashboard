@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { ActionFunctionArgs, redirect, useActionData, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useToast } from '~/components/alerts/toast';
 
 import { Button } from '~/components/buttons';
 import { ReportForm } from '~/components/forms';
@@ -18,6 +18,7 @@ import { assertNonNull } from '~/utils/safety';
 export const createReportAction =
   (queryClient: QueryClient) =>
     async ({ request }: ActionFunctionArgs) => {
+      const toast = useToast();
       try {
         const formData = await request.formData();
         const reportName = formData.get('reportName');
@@ -34,14 +35,14 @@ export const createReportAction =
         await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
         if (response.status === 'success') {
-          toast.success('Report created successfully');
+          toast.success({ title: 'Success', description: 'Report created successfully' });
           return redirect('/reports');
         } else {
-          toast.error('Failed to create report');
+          toast.error({ title: 'Error', description: 'Failed to create report' });
           throw new Error('Failed to create report');
         }
       } catch (error) {
-        toast.error('An error occurred while creating the report.');
+        toast.error({ title: 'Error', description: 'An error occurred while creating the report.' });
         throw error;
       }
     };

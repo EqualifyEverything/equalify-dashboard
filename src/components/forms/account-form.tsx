@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
+import { useToast } from '~/components/alerts';
 import { z } from 'zod';
 
 import { Button } from '~/components/buttons';
@@ -31,6 +31,7 @@ type AccountFormInputs = z.infer<typeof AccountSchema>;
 
 const AccountForm = () => {
   const { user, updateUserAttributes, loading } = useAuth();
+  const toast = useToast();
   const form = useForm<AccountFormInputs>({
     resolver: zodResolver(AccountSchema),
     defaultValues: {
@@ -64,9 +65,9 @@ const AccountForm = () => {
         lastName: values.lastName,
       });
       form.reset(values);
-      toast.success('Account updated successfully.');
+      toast.success({title:'Success', description:'Account updated successfully.'});
     } catch (error) {
-      toast.error('Failed to update account');
+      toast.error({title: 'Success', description:'Failed to update account'});
     }
   };
 

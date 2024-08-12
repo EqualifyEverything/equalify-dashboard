@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useToast } from '~/components/alerts/toast';
 
 import { Button } from '~/components/buttons';
 import Timeline from '~/components/charts/timeline';
@@ -53,6 +53,7 @@ const PageDetails = () => {
   });
 
   const [isSending, setIsSending] = useState(false);
+  const toast = useToast();
 
   if (error) return <div role="alert">Error loading page details.</div>;
 
@@ -61,12 +62,12 @@ const PageDetails = () => {
     try {
       const response = await sendUrlToScan(pageId);
       if (response.status === 'success') {
-        toast.success('Property sent to scan successfully!');
+        toast.success({ title: 'Success', description: 'Property sent to scan successfully!' });
       } else {
-        toast.error('Failed to send property to scan.');
+        toast.error({ title: 'Error', description: 'Failed to send property to scan.' });
       }
     } catch (error) {
-      toast.error('An error occurred while sending the property to scan.');
+      toast.error({ title: 'Error', description: 'An error occurred while sending the property to scan.' });
       console.error(error);
     } finally {
       setIsSending(false);

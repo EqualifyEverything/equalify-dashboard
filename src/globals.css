@@ -45,3 +45,285 @@
 body {
   background-color: var(--background);
 }
+
+.ToastViewport {
+  --stack-gap: 10px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 390px;
+  max-width: 100vw;
+  margin: 0;
+  list-style: none;
+  z-index: 2147483647;
+  outline: none;
+  transition: transform 400ms ease;
+}
+
+.ToastRoot {
+  --opacity: 0;
+  --x: var(--radix-toast-swipe-move-x, 0);
+  --y: calc(1px - (var(--stack-gap) * var(--index)));
+  --scale: calc(1 - 0.05 * var(--index));
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  left: 15px;
+  transition-property: transform, opacity;
+  transition-duration: 400ms;
+  transition-timing-function: ease;
+  opacity: var(--opacity);
+  transform: translate3d(var(--x), 85px, 0);
+  outline: none;
+  border-radius: 5px;
+}
+.ToastRoot:focus-visible {
+  box-shadow: 0 0 0 2px black;
+}
+.ToastRoot:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  width: 100%;
+  height: 1000px;
+  background: transparent;
+}
+.ToastRoot[data-front="true"] {
+  transform: translate3d(var(--x), var(--y, 0), 0);
+}
+.ToastRoot[data-front="false"] {
+  transform: translate3d(var(--x), var(--y, 0), 0) scale(var(--scale));
+}
+.ToastRoot[data-state="closed"] {
+  animation: slideDown 350ms ease;
+}
+.ToastRoot[data-hidden="false"] {
+  --opacity: 1;
+}
+.ToastRoot[data-hidden="true"] {
+  --opacity: 0;
+}
+.ToastRoot[data-hovering="true"] {
+  --scale: 1;
+  --y: calc(var(--hover-offset-y) - var(--stack-gap) * var(--index));
+  transition-duration: 350ms;
+}
+.ToastRoot[data-swipe="move"] {
+  transition-duration: 0ms;
+}
+.ToastRoot[data-swipe="cancel"] {
+  --x: 0;
+}
+.ToastRoot[data-swipe-direction="right"][data-swipe="end"] {
+  animation: slideRight 150ms ease-out;
+}
+.ToastRoot[data-swipe-direction="left"][data-swipe="end"] {
+  animation: slideLeft 150ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translate3d(0, var(--y), 0);
+  }
+  to {
+    transform: translate3d(0, 85px, 0);
+  }
+}
+@keyframes slideRight {
+  from {
+    transform: translate3d(var(--radix-toast-swipe-end-x), var(--y), 0);
+  }
+  to {
+    transform: translate3d(100%, var(--y), 0);
+  }
+}
+@keyframes slideLeft {
+  from {
+    transform: translate3d(var(--radix-toast-swipe-end-x), var(--y), 0);
+  }
+  to {
+    transform: translate3d(-100%, var(--y), 0);
+  }
+}
+
+.ToastInner {
+  padding: 15px;
+  border-radius: 5px;
+  height: var(--height);
+  background-color: white;
+  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  display: grid;
+  grid-template-areas: "title action" "description action";
+  grid-template-columns: auto max-content;
+  column-gap: 10px;
+  align-items: center;
+  position: relative;
+}
+.ToastInner:not([data-status="default"]) {
+  grid-template-areas: "icon title action" "icon description action";
+  grid-template-columns: max-content auto max-content;
+}
+.ToastInner:not([data-front="true"]) {
+  height: var(--front-height);
+}
+.ToastRoot[data-hovering="true"] .ToastInner {
+  height: var(--height);
+}
+
+.ToastTitle {
+  grid-area: title;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: var(--slate12);
+  font-size: 15px;
+}
+
+.ToastDescription {
+  grid-area: description;
+  margin: 0;
+  color: var(--slate11);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.ToastAction {
+  grid-area: action;
+}
+
+.ToastClose {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  transform: translate(-35%, -35%);
+  width: 15px;
+  height: 15px;
+  padding: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--slate1);
+  color: var(--slate11);
+  transition: color 200ms ease 0s, opacity 200ms ease 0s;
+  opacity: 0;
+  box-shadow: rgb(0 0 0 / 16%) 0px 0px 8px;
+}
+.ToastClose:hover {
+  color: var(--slate12);
+}
+.ToastInner:hover .ToastClose {
+  opacity: 1;
+}
+
+.checkmark {
+  width: 20px;
+  opacity: 0;
+  height: 20px;
+  border-radius: 10px;
+  background-color: #61d345;
+  position: relative;
+  transform: rotate(45deg);
+  animation: circleAnimation 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+    forwards;
+  animation-delay: 100ms;
+}
+.checkmark::after {
+  content: "";
+  box-sizing: border-box;
+  animation: checkmarkAnimation 0.2s ease-out forwards;
+  opacity: 0;
+  animation-delay: 200ms;
+  position: absolute;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+  border-color: #fff;
+  bottom: 6px;
+  left: 6px;
+  height: 10px;
+  width: 6px;
+}
+
+.error {
+  width: 20px;
+  opacity: 0;
+  height: 20px;
+  border-radius: 10px;
+  background-color: #ff4b4b;
+  position: relative;
+  transform: rotate(45deg);
+  animation: circleAnimation 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+    forwards;
+  animation-delay: 100ms;
+}
+.error::before,
+.error::after {
+  content: "";
+  animation: firstLineAnimation 0.15s ease-out forwards;
+  animation-delay: 150ms;
+  position: absolute;
+  border-radius: 3px;
+  opacity: 0;
+  background-color: #fff;
+  bottom: 9px;
+  left: 4px;
+  height: 2px;
+  width: 12px;
+}
+.error::before {
+  animation: secondLineAnimation 0.15s ease-out forwards;
+  animation-delay: 180ms;
+  transform: rotate(90deg);
+}
+
+@keyframes circleAnimation {
+  from {
+    transform: scale(0) rotate(45deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+@keyframes checkmarkAnimation {
+  0% {
+    height: 0;
+    width: 0;
+    opacity: 0;
+  }
+  40% {
+    height: 0;
+    width: 6px;
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    height: 10px;
+  }
+}
+
+@keyframes firstLineAnimation {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes secondLineAnimation {
+  from {
+    transform: scale(0) rotate(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(90deg);
+    opacity: 1;
+  }
+}

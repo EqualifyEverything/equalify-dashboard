@@ -14,7 +14,7 @@ import {
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useToast } from '~/components/alerts/toast';
 
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
@@ -52,6 +52,7 @@ export const reportLoader =
 export const updateReportAction =
   (queryClient: QueryClient) =>
     async ({ params, request }: ActionFunctionArgs) => {
+      const toast = useToast();
       try {
         assertNonNull(params.reportId, 'reportId is required');
 
@@ -76,15 +77,15 @@ export const updateReportAction =
         await queryClient.invalidateQueries({ queryKey: ['reports'] });
 
         if (response.status === 'success') {
-          toast.success('Report updated successfully');
+          toast.success({ title: 'Success', description: 'Report updated successfully' });
           return redirect(`/reports/${params.reportId}`);
         } else {
-          toast.error('Failed to update report');
+          toast.error({ title: 'Error', description: 'Failed to update report' });
           throw new Error('Failed to update report');
         }
       } catch (error) {
         console.log(error);
-        toast.error('An error occurred while updating the report.');
+        toast.error({ title: 'Error', description: 'An error occurred while updating the report.' });
         throw error;
       }
     };
@@ -97,6 +98,7 @@ const EditReport = () => {
   >;
 
   const actionData = useActionData();
+  const toast = useToast();
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const selectedFilters = useStore((state) => state.selectedFilters);
@@ -116,11 +118,11 @@ const EditReport = () => {
     mutationFn: () => deleteReport(reportId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] });
-      toast.success('Report deleted successfully!');
+      toast.success({ title: 'Success', description: 'Report deleted successfully!' });
       navigate('/reports');
     },
     onError: () => {
-      toast.error('Failed to delete report.');
+      toast.error({ title: 'Error', description: 'Failed to delete report.' });
     },
   });
 
