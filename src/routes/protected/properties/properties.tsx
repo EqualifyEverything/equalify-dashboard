@@ -84,15 +84,33 @@ const Properties = () => {
         >
           Properties
         </h1>
-        <Link
-          to="/properties/add"
-          className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
-        >
-          Add Property
-        </Link>
+        {properties.length > 0 && (
+          <Link
+            to="/properties/add"
+            className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+          >
+            Add Property
+          </Link>
+        )}
       </div>
       {isLoading ? (
         <LoadingProperties />
+      ) : properties.length === 0 ? (
+        <div className="mt-7 text-center">
+          <h2 className="text-xl font-semibold text-gray-700">
+            No Properties Added
+          </h2>
+          <p className="mt-2 text-gray-600">
+            You haven't added any properties yet. Get started by adding your
+            first property and monitor its accessibility status.
+          </p>
+          <Link
+            to="/properties/add"
+            className="mt-4 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-[#005031] px-4 py-2 text-sm text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2"
+          >
+            Add Your First Property
+          </Link>
+        </div>
       ) : (
         <section
           aria-labelledby="properties-list-heading"
