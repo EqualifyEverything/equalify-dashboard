@@ -35,9 +35,9 @@ const ReportCard: React.FC<Report> = ({
         <p className="mt-2 text-sm text-gray-600">
           Active Issues: {activeIssues}
         </p>
-        <p className="text-sm mt-1 text-gray-500">
+        <p className="mt-1 text-sm text-gray-500">
           Most Common:
-          <div className="overflow-hidden overflow-ellipsis h-16">
+          <div className="h-16 overflow-hidden overflow-ellipsis">
             <p title={mostCommonIssue}>{mostCommonIssue}</p>
           </div>
         </p>
@@ -82,13 +82,15 @@ const Reports = () => {
         >
           Reports
         </h1>
-        <Link
-          to="/reports/create"
-          className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
-          aria-label="Create a new report"
-        >
-          Create Report
-        </Link>
+        {reports.length > 0 && (
+          <Link
+            to="/reports/create"
+            className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+            aria-label="Create a new report"
+          >
+            Create Report
+          </Link>
+        )}
       </div>
       {isLoading ? (
         <section
@@ -99,6 +101,23 @@ const Reports = () => {
             <LoadingReport key={index} />
           ))}
         </section>
+      ) : reports.length === 0 ? (
+        <div className="mt-7 text-center">
+          <h2 className="text-xl font-semibold text-gray-700">
+            No Reports Yet
+          </h2>
+          <p className="mt-2 text-gray-600">
+            It looks like you haven't created any reports yet. Start your
+            journey towards better accessibility by creating your first report
+            today.
+          </p>
+          <Link
+            to="/reports/create"
+            className="mt-4 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-[#005031] px-4 py-2 text-sm text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2"
+          >
+            Create Your First Report
+          </Link>
+        </div>
       ) : (
         <section
           aria-labelledby="reports-list-heading"
