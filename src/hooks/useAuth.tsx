@@ -206,7 +206,6 @@ export const useAuth = () => {
   const signIn = useCallback(
     async ({ username, password }: SignInInput) => {
       setLoading(true);
-      return;
       try {
         const { isSignedIn, nextStep } = await authSignIn({
           username,
