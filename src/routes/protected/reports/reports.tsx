@@ -14,14 +14,14 @@ export const reportsLoader = (queryClient: QueryClient) => async () => {
 interface Report {
   id: string;
   name: string;
-  activeIssues: number;
-  mostCommonIssue: string;
+  //activeIssues: number;
+  //mostCommonIssue: string;
 }
 const ReportCard: React.FC<Report> = ({
   id,
   name,
-  activeIssues,
-  mostCommonIssue,
+  //activeIssues,
+  //mostCommonIssue,
 }) => (
   <article
     aria-labelledby={`report-title-${id}`}
@@ -32,15 +32,17 @@ const ReportCard: React.FC<Report> = ({
     </h2>
     <div className="mt-2 flex flex-col justify-between gap-3">
       <div className="min-w-0">
-        <p className="mt-2 text-sm text-gray-600">
+        {/*  <p className="mt-2 text-sm text-gray-600">
           Active Issues: {activeIssues}
         </p>
+        
         <p className="mt-1 text-sm text-gray-500">
           Most Common:
           <div className="h-16 overflow-hidden overflow-ellipsis">
             <p title={mostCommonIssue}>{mostCommonIssue}</p>
           </div>
         </p>
+         */}
       </div>
       <Link
         to={`/reports/${id}`}

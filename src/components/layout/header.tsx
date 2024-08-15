@@ -14,7 +14,7 @@ const Header = () => {
     <header className="border-b border-gray-300 bg-white">
       <MaxWidthWrapper>
         <div className="flex flex-col items-center justify-between gap-3 py-3 md:h-16 md:flex-row">
-          <Link to="/reports" replace aria-label="Go to homepage" rel="home">
+          <Link id="header-home-link-focus" to="/reports" replace aria-label="Go to homepage" rel="home">
             <img
               src="/equalify.svg"
               className="h-auto w-28 md:w-32"
