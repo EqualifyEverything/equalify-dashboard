@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, matchPath } from 'react-router-dom';
 
 const routeNames: Record<string, string> = {
@@ -33,20 +33,21 @@ const getPageName = (pathname: string) => {
 
 const Announcer: React.FC = () => {
   const location = useLocation();
+  const announcer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const pageName = getPageName(location.pathname);
-    const announcer = document.getElementById('page-announcer');
-    if (announcer) {
-      announcer.textContent = `${pageName} page loaded`;
+    if (announcer.current) {
+      announcer.current.textContent = `${pageName} page loaded`;
+      announcer.current.focus({ preventScroll: true });
     }
   }, [location]);
 
   return (
     <div
+    ref={announcer}
+    tabIndex={-1}
       id="page-announcer"
-      aria-live="assertive"
-      aria-atomic="true"
       className="sr-only"
     />
   );
