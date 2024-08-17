@@ -128,6 +128,7 @@ const SignupForm = () => {
                       type="text"
                       className="h-12 bg-white"
                       id="firstName"
+                      aria-required={true}
                       {...field}
                     />
                   </FormControl>
@@ -147,6 +148,7 @@ const SignupForm = () => {
                       type="text"
                       className="h-12 bg-white"
                       id="lastName"
+                      aria-required={true}
                       {...field}
                     />
                   </FormControl>
@@ -167,6 +169,7 @@ const SignupForm = () => {
                     type="email"
                     className="h-12 bg-white"
                     id="email"
+                    aria-required={true}
                     {...field}
                   />
                 </FormControl>
@@ -187,6 +190,7 @@ const SignupForm = () => {
                       type={showPassword ? 'text' : 'password'}
                       className="h-12 bg-white"
                       id="password"
+                      aria-required={true}
                       {...field}
                     />
                     <Button
@@ -225,6 +229,7 @@ const SignupForm = () => {
                       type={showPassword ? 'text' : 'password'}
                       className="h-12 bg-white"
                       id="confirm-password"
+                      aria-required={true}
                       {...field}
                     />
                     <Button
@@ -257,13 +262,12 @@ const SignupForm = () => {
               className="h-12 w-full bg-[#1D781D] text-white"
               disabled={loading}
               aria-live="polite"
-              aria-label={loading ? 'Processing,please wait' : 'Continue'}
+              aria-label={loading ? 'Processing, please wait' : 'Continue'}
             >
               {loading ? (
                 <>
-                  <span className="sr-only">Processing, please wait...</span>
                   <div
-                    role="status"
+                    aria-hidden="true"
                     className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
                   ></div>
                 </>

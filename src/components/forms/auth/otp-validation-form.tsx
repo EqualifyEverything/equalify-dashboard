@@ -79,13 +79,9 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
         'Please enter the verification code sent to your email.';
     }
 
-    const timeoutId = setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
       }
-    }, 5000);
-
-    return () => clearTimeout(timeoutId);
   }, []);
 
   const handleResendCode = useCallback(async () => {
@@ -166,7 +162,6 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
             disabled={isCountingDown || loading}
             className="place-self-start bg-transparent p-0 text-gray-600 shadow-none"
             aria-live="polite"
-            aria-disabled={isCountingDown || loading}
             aria-label={
               isCountingDown ? `Resend in ${countdown}s` : 'Resend code'
             }
@@ -180,7 +175,7 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
             aria-live="polite"
             aria-label={
               loading
-                ? 'Processing,please wait'
+                ? 'Processing, please wait'
                 : type === 'signup'
                   ? 'Verify and Sign Up'
                   : 'Verify and Log In'
@@ -188,9 +183,8 @@ const OTPValidationForm: React.FC<OTPValidationFormProps> = ({
           >
             {loading ? (
               <>
-                <span className="sr-only">Processing, please wait...</span>
                 <div
-                  role="status"
+                  aria-hidden="true"
                   className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
                 ></div>
               </>

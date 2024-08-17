@@ -47,7 +47,7 @@ const Forgot = () => {
                 <form onSubmit={forgotPassword} className='flex flex-col gap-8 w-full max-w-[448px]'>
                     <div className='flex flex-col gap-2'>
                         <label htmlFor='email' className='text-sm'>Email address</label>
-                        <input id='email' name='email' className='rounded-md p-3' />
+                        <input id='email' name='email' className='rounded-md p-3' aria-required={true} />
                     </div>
                     <button className='bg-[#1D781D] text-white rounded-md p-3 text-sm' type='submit'>Reset password</button>
                 </form>
