@@ -16,11 +16,11 @@ const Header = () => {
         <div className="flex flex-col items-center justify-between gap-3 py-3 md:h-16 md:flex-row">
           <Link id="header-home-link-focus" to="/reports" replace aria-label="Go to homepage" rel="home">
             <img
-              src="/equalify.svg"
+              src="/equalify-beta.svg"
               className="h-auto w-28 md:w-32"
               width={128}
               height="auto"
-              alt="Equalify Logo"
+              alt="Equalify Beta Logo"
             />
           </Link>
           <nav>
