@@ -5,6 +5,7 @@ import { useLoaderData } from 'react-router-dom';
 import { SEO } from '~/components/layout';
 import DataTable from '~/components/tables/data-table';
 import { scansQuery } from '~/queries';
+import { getScan } from '~/services';
 
 interface Scan {
   jobId: string;
@@ -50,10 +51,12 @@ const scansColumns: ColumnDef<Scan>[] = [
   {
     accessorKey: 'report',
     header: 'Raw Data',
-    cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-blue-500 hover:opacity-50' onClick={() => {
+    cell: ({ row }) => row.original.processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-blue-500 hover:opacity-50' onClick={async () => {
       const element = document.getElementById('downloadReportLink');
       if (element) {
-        element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(row.original.results)));
+        const response = await getScan(row.original.id);
+        console.log(response);
+        element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(response.results)));
         element.setAttribute('download', 'results.json');
         element.click();
       }

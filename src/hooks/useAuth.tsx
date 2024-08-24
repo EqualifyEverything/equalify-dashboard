@@ -16,6 +16,7 @@ import {
   fetchUserAttributes,
   getCurrentUser,
 } from 'aws-amplify/auth';
+import { del } from 'aws-amplify/api';
 
 import { useStore } from '~/store';
 
@@ -157,12 +158,12 @@ export const useAuth = () => {
           const { isSignedIn } = await autoSignIn();
           if (isSignedIn) {
             setTimeout(async () => {
-            await transformAndSetUser();
-            setIsAuthenticated(true);
-            setNeedsConfirmation(false);
-            setPendingUsername(null);
-          }, 1000);
-          return { isSignUpComplete: true }
+              await transformAndSetUser();
+              setIsAuthenticated(true);
+              setNeedsConfirmation(false);
+              setPendingUsername(null);
+            }, 1000);
+            return { isSignUpComplete: true }
           }
         } else {
           console.warn('Unexpected confirmation flow:', nextStep);
@@ -284,6 +285,7 @@ export const useAuth = () => {
   const deleteUser = useCallback(async () => {
     setLoading(true);
     try {
+      await del({ apiName: 'auth', path: '/delete/user' }).response;
       await authDeleteUser();
       clearAuth();
     } catch (error) {
