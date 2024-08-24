@@ -1,9 +1,13 @@
-import { del, get, post } from 'aws-amplify/api';
+import { get, post } from 'aws-amplify/api';
 
 interface ApiResponse<T> {
   status: string;
   result: T;
   total?: number;
+}
+interface ApiResponseSingle<Scan> {
+  status: string;
+  result: Scan;
 }
 
 interface Scan {
@@ -34,6 +38,32 @@ export const getScans = async (): Promise<Scan[]> => {
 
     const { body } = response;
     const { result } = (await body.json()) as unknown as ApiResponse<Scan[]>;
+    return result;
+  } catch (error) {
+    console.error('Error fetching scans', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch single scan
+ * @returns {Promise<Scan>} Single scan
+ * @throws Will throw an error if the fetch fails
+ */
+export const getScan = async (scanId: string): Promise<Scan> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: '/get/scan',
+      options: {
+        queryParams: {
+          scanId,
+        },
+      },
+    }).response;
+
+    const { body } = response;
+    const { result } = (await body.json()) as unknown as ApiResponseSingle<Scan>;
     return result;
   } catch (error) {
     console.error('Error fetching scans', error);
