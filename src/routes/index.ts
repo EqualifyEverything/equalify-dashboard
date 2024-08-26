@@ -15,6 +15,7 @@ export { default as PageDetails } from './protected/reports/page-details';
 // Properties
 export { default as Properties } from './protected/properties/properties';
 export { default as AddProperty } from './protected/properties/add-property';
+export { default as BulkProperty } from './protected/properties/bulk-property';
 export { default as EditProperty } from './protected/properties/edit-property';
 
 // Scans

@@ -33,6 +33,7 @@ import {
   TagDetails,
   Forgot,
   Reset,
+  BulkProperty,
 } from '~/routes';
 import {
   addPropertyAction,
@@ -49,6 +50,7 @@ import {
   updatePropertyAction,
   updateReportAction,
   authenticatedLoader,
+  bulkPropertyAction,
 } from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
@@ -117,6 +119,11 @@ const router = createBrowserRouter([
         path: 'properties/add',
         element: <AddProperty />,
         action: addPropertyAction(queryClient),
+      },
+      {
+        path: 'properties/bulk',
+        element: <BulkProperty />,
+        action: bulkPropertyAction(queryClient),
       },
       {
         path: 'properties/:propertyId/edit',
