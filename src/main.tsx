@@ -50,7 +50,6 @@ import {
   updatePropertyAction,
   updateReportAction,
   authenticatedLoader,
-  bulkPropertyAction,
 } from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
@@ -123,7 +122,6 @@ const router = createBrowserRouter([
       {
         path: 'properties/bulk',
         element: <BulkProperty />,
-        action: bulkPropertyAction(queryClient),
       },
       {
         path: 'properties/:propertyId/edit',

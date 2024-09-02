@@ -2,7 +2,6 @@ import { redirect } from 'react-router-dom';
 import { useStore } from '~/store';
 
 export { addPropertyAction } from './protected/properties/add-property';
-export { bulkPropertyAction } from './protected/properties/bulk-property';
 export { propertyLoader, updatePropertyAction } from './protected/properties/edit-property';
 export { propertiesLoader } from './protected/properties/properties';
 export { createReportAction } from './protected/reports/create-report';
