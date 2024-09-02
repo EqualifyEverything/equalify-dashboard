@@ -33,6 +33,7 @@ import {
   TagDetails,
   Forgot,
   Reset,
+  BulkProperty,
 } from '~/routes';
 import {
   addPropertyAction,
@@ -117,6 +118,10 @@ const router = createBrowserRouter([
         path: 'properties/add',
         element: <AddProperty />,
         action: addPropertyAction(queryClient),
+      },
+      {
+        path: 'properties/bulk',
+        element: <BulkProperty />,
       },
       {
         path: 'properties/:propertyId/edit',
