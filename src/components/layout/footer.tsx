@@ -10,14 +10,14 @@ const Footer = () => {
             <ul className="flex justify-center gap-4">
               <li>
                 <a
-                  href="https://github.com/equalifyEverything/v1/issues"
+                  href="https://docs.equalify.app/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Report an Issue"
-                  aria-label="Report an Issue on GitHub"
+                  title="API Docs"
+                  aria-label="API Documentation"
                   className="text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
                 >
-                  Report an Issue
+                  API Docs
                   <span className="sr-only">(Opens in a new tab)</span>
                 </a>
               </li>
