@@ -23,9 +23,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://github.com/EqualifyEverything/v1/blob/main/ACCESSIBILITY.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/accessibility/"
                   title="Accessibility Statement"
                   aria-label="Read the Accessibility Statement"
                   className="text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"

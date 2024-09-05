@@ -16,6 +16,7 @@ import '~/amplify.config';
 import { initAnalytics } from '~/analytics';
 import { NotFound } from '~/components/layout';
 import {
+  AccessibilityStatement,
   Account,
   AddProperty,
   CreateReport,
@@ -108,6 +109,7 @@ const router = createBrowserRouter([
         loader: authenticatedLoader(pageDetailsLoader(queryClient)),
       },
       { path: 'account', element: <Account /> },
+      { path: 'accessibility', element: <AccessibilityStatement /> },
       { path: 'scans', element: <Scans />, loader: authenticatedLoader(scansLoader(queryClient)) },
       {
         path: 'properties',

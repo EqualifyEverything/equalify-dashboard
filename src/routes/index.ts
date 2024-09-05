@@ -26,3 +26,6 @@ export { default as Login } from './public/auth/login';
 export { default as Signup } from './public/auth/signup';
 export { default as Forgot } from './public/auth/forgot';
 export { default as Reset } from './public/auth/reset';
+
+// Other
+export {default as AccessibilityStatement} from './protected/accessibility-statement'
