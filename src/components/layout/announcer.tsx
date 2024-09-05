@@ -18,6 +18,7 @@ const routeNames: Record<string, string> = {
   '/signup': 'Signup',
   '/forgot': 'Forgot Password',
   '/reset': 'Reset Password',
+  '/accessibility': 'Equalify Accessibility Statement',
 };
 
 
