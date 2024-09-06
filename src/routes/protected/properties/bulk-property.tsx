@@ -13,13 +13,45 @@ const BulkProperty = () => {
     const { loading, setLoading } = useStore();
     const [current, setCurrent] = useState(1);
 
-    const onChange = (e) => {
-        const file = e.target.files[0];
+    const throwFileError = (event, message) => {
+        alert(message);
+        setData([]);
+        event.target.value = '';
+        return;
+    }
+
+    const onChange = (event) => {
+        const file = event.target.files[0];
+        if (file.type !== 'text/csv') {
+            return throwFileError(event, `You must select a CSV file`);
+        }
         const reader = new FileReader();
         reader.onload = (e) => {
             const text = e.target.result;
             const rows = text.split('\n');
-            const parsedData = rows.map(row => row.split(','));
+            const parsedData = rows.map(row => row.split(',').map(cell => cell.trim()));
+            const headers = parsedData[0];
+            if (headers?.[0] !== 'name' || headers?.[1] !== 'url' || headers?.[2] !== 'type') {
+                return throwFileError(event, `You must have the first row headers set to "name", "url", and "type"`);
+            }
+            const parsedRows = parsedData.slice(1, parsedData.length);
+            for (const row of parsedRows) {
+                if (!['single', 'sitemap'].includes(row?.[2])) {
+                    return throwFileError(event, `You must specify the "type" for each row (valid values are "single" or "sitemap")`);
+                }
+                try {
+                    const url = new URL(row?.[1]);
+                    if (!['http:', 'https:'].includes(url.protocol)) {
+                        return throwFileError(event, `All "urls" must use begin with either "http" or "https"`);
+                    }
+                    if (!url.host.includes('.')) {
+                        return throwFileError(event, `All "urls" must end with a valid domain extension (i.e. ".com", ".org", etc)`);
+                    }
+                }
+                catch (err) {
+                    return throwFileError(event, `You have an invalid URL in your CSV`);
+                }
+            }
             setData(parsedData);
         };
         reader.readAsText(file);
@@ -43,7 +75,7 @@ const BulkProperty = () => {
         try {
             const successes = [];
             const errors = [];
-            for (const [index, row] of data.entries()) {
+            for (const [index, row] of data.slice(1, data.length).entries()) {
                 setCurrent(index);
                 try {
                     const response = await addProperty(row[0], row[1], row[2]);
@@ -81,7 +113,7 @@ const BulkProperty = () => {
             >
                 <form onSubmit={handleSubmit} id="bulk-property-form" className='flex flex-col gap-4'>
                     <a target='_blank' className='underline' href='/template.csv'>Example Template CSV</a>
-                    <input onChange={onChange} type='file' />
+                    <input onChange={onChange} type='file' accept='.csv' />
                     {data.length > 0 && <div className='flex flex-col'>
                         <div>Showing first 10 rows</div>
                         {data.slice(0, 10).map((row, index) => <div key={index} className={`p-1 flex flex-row gap-2 ${index === 0 && 'bg-card'}`}>
