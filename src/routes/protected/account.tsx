@@ -14,11 +14,14 @@ const Account = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      toast.success({
-          title: 'Success',
-          description: 'Deleting account...',
-      });
       await deleteUser();
+        setTimeout(()=>{
+          toast.success({
+            title: 'Success',
+            description: 'Account deleted successfully!',
+        });
+      },1000)
+      
     } catch (error) {
       toast.error({
         title: 'Error',
