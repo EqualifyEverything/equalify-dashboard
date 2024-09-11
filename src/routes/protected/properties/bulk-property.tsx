@@ -115,7 +115,7 @@ const BulkProperty = () => {
                     <a target='_blank' className='underline' href='/template.csv'>Example Template CSV</a>
                     <input onChange={onChange} type='file' accept='.csv' />
                     {data.length > 0 && <div className='flex flex-col'>
-                        <div>Showing first 10 rows</div>
+                        <div>CSV successfully uploaded! Showing first 10 rows:</div>
                         {data.slice(0, 10).map((row, index) => <div key={index} className={`p-1 flex flex-row gap-2 ${index === 0 && 'bg-card'}`}>
                             {row.map((cell, index) => <div key={index} style={{ width: `${100 / data[0].length}%` }} className='truncate'>{cell}</div>)}
                         </div>)}
