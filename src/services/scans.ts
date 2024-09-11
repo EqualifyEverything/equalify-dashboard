@@ -89,8 +89,9 @@ export const sendToScan = async (
       },
     }).response;
 
-    const { statusCode } = response;
-    return { status: statusCode === 200 ? 'success' : 'error' };
+    const { statusCode, body } = response;
+    const parsedBody = await body.json();
+    return { status: statusCode === 200 ? parsedBody?.status ?? 'success' : 'error' };
   } catch (error) {
     console.error('Error sending to scan', error);
     throw error;
