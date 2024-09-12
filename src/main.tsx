@@ -16,6 +16,7 @@ import '~/amplify.config';
 import { initAnalytics } from '~/analytics';
 import { NotFound } from '~/components/layout';
 import {
+  AccessibilityStatement,
   Account,
   AddProperty,
   CreateReport,
@@ -33,6 +34,7 @@ import {
   TagDetails,
   Forgot,
   Reset,
+  BulkProperty,
 } from '~/routes';
 import {
   addPropertyAction,
@@ -107,6 +109,7 @@ const router = createBrowserRouter([
         loader: authenticatedLoader(pageDetailsLoader(queryClient)),
       },
       { path: 'account', element: <Account /> },
+      { path: 'accessibility', element: <AccessibilityStatement /> },
       { path: 'scans', element: <Scans />, loader: authenticatedLoader(scansLoader(queryClient)) },
       {
         path: 'properties',
@@ -117,6 +120,10 @@ const router = createBrowserRouter([
         path: 'properties/add',
         element: <AddProperty />,
         action: addPropertyAction(queryClient),
+      },
+      {
+        path: 'properties/bulk',
+        element: <BulkProperty />,
       },
       {
         path: 'properties/:propertyId/edit',

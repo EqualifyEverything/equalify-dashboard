@@ -140,6 +140,8 @@ const EditProperty = () => {
       const response = await sendToScan([propertyId!]);
       if (response.status === 'success') {
         toast.success({ title: 'Success', description: 'Property sent to scan successfully!' });
+      } else if (response.status === 'user_not_validated') {
+        toast.error({ title: 'Error', description: `We must validate your account before permitting sitemap scans.` });
       } else {
         toast.error({ title: 'Error', description: 'Failed to send property to scan.' });
       }
