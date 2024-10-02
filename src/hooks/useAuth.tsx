@@ -16,7 +16,7 @@ import {
   fetchUserAttributes,
   getCurrentUser,
 } from 'aws-amplify/auth';
-import { del } from 'aws-amplify/api';
+import { del, post } from 'aws-amplify/api';
 
 import { useStore } from '~/store';
 
@@ -162,6 +162,7 @@ export const useAuth = () => {
               setIsAuthenticated(true);
               setNeedsConfirmation(false);
               setPendingUsername(null);
+              await post({ apiName: 'auth', path: '/track/user' }).response;
             }, 1000);
             return { isSignUpComplete: true }
           }
