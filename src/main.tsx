@@ -35,6 +35,7 @@ import {
   Forgot,
   Reset,
   BulkProperty,
+  Pages,
 } from '~/routes';
 import {
   addPropertyAction,
@@ -51,6 +52,7 @@ import {
   updatePropertyAction,
   updateReportAction,
   authenticatedLoader,
+  pagesLoader,
 } from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
@@ -111,6 +113,11 @@ const router = createBrowserRouter([
       { path: 'account', element: <Account /> },
       { path: 'accessibility', element: <AccessibilityStatement /> },
       { path: 'scans', element: <Scans />, loader: authenticatedLoader(scansLoader(queryClient)) },
+      {
+        path: 'pages',
+        element: <Pages />,
+        loader: authenticatedLoader(pagesLoader(queryClient)),
+      },
       {
         path: 'properties',
         element: <Properties />,

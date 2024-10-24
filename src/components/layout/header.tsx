@@ -6,6 +6,7 @@ const routes = [
   { name: 'Reports', path: '/reports' },
   { name: 'Scans', path: '/scans' },
   { name: 'Properties', path: '/properties' },
+  { name: 'Pages', path: '/pages' },
   { name: 'My Account', path: '/account' },
 ];
 

@@ -12,6 +12,7 @@ export { pageDetailsLoader } from './protected/reports/page-details';
 export { tagDetailsLoader } from './protected/reports/tag-details';
 export { reportsLoader } from './protected/reports/reports';
 export { scansLoader } from './protected/scans';
+export { pagesLoader } from './protected/pages/pages';
 
 export const authenticatedLoader = (loader: any) => async (args: any) => {
   const { isAuthenticated } = useStore.getState();
