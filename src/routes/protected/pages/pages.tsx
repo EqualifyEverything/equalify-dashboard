@@ -1,71 +1,92 @@
-import React from 'react';
-import { QueryClient, useQuery } from '@tanstack/react-query';
-import { Link, useLoaderData } from 'react-router-dom';
+import React, {  useState } from 'react';
+import { keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 
 import { SEO } from '~/components/layout';
 import { pagesQuery } from '~/queries';
-import { LoadingPages } from './loading';
-import { getScan, IPage } from '~/services';
-import DataTable from '~/components/tables/data-table';
-import { ColumnDef } from '@tanstack/react-table';
+//import { LoadingPages } from './loading';
+import { getPages, IPage } from '~/services';
+//import DataTable from '~/components/tables/data-table';
+
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  PaginationState,
+  useReactTable,
+} from '@tanstack/react-table';
 
 export const pagesLoader = (queryClient: QueryClient) => async () => {
   const initialPages =
-    await queryClient.ensureQueryData(pagesQuery({ limit: 50, offset: 0 }));
+    await queryClient.ensureQueryData(pagesQuery({ limit: 10, offset: 0 }));
   return { initialPages };
 };
 
-const formatDate = (isoString: string): string => {
-  const date = new Date(isoString);
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true,
-  }).format(date);
-};
-
-
-const pagesColumns: ColumnDef<IPage>[] = [
-  {
-    accessorKey: 'url',
-    header: 'URL',
-    cell: ({ row }) => <a className='text-blue-500 hover:opacity-50' target='_blank' href={row.original.url}>{row.original.url}</a>,
-  },
-  {
-    accessorKey: 'property',
-    header: 'Property',
-    cell: ({ row }) => <span>{row.original.property?.name}</span>,
-  },
-  {
-    accessorKey: 'lastScanned',
-    header: 'Last Scanned At',
-    cell: ({ row }) => <span>{new Date(row.original.scans[0].updated_at).toLocaleString()}</span>,
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => <span className={`${row.original.scans[0].processing ? 'bg-[#663808]' : 'bg-[#005031]'} text-white px-2 py-1 rounded-full`}>{row.original.scans[0].processing ? 'Processing' : 'Complete'}</span>,
-  }
-];
-
-
 const Pages = () => {
-  const { initialPages } = useLoaderData() as Awaited<
-    ReturnType<ReturnType<typeof pagesLoader>>
-  >;
-  const {
-    data: pages,
-    isLoading,
-    error,
-  } = useQuery({
-    ...pagesQuery({ limit: 50, offset: 0 }),
-    initialData: initialPages,
-  });
 
-  if (error) return <div>Error: {error.message}</div>;
+  //const rerender = React.useReducer(() => ({}), {})[1]
+
+  // Define the columns
+  const columns = React.useMemo<ColumnDef<IPage>[]> 
+  (
+    () =>
+  [
+    {
+      accessorKey: 'url',
+      header: 'URL',
+      cell: ({ row }) => <a className='text-blue-500 hover:opacity-50' target='_blank' href={row.original.url}>{row.original.url}</a>,
+    },
+    {
+      accessorKey: 'property',
+      header: 'Property',
+      cell: ({ row }) => <span>{row.original.property?.name}</span>,
+    },
+    {
+      accessorKey: 'lastScanned',
+      header: 'Last Scanned At',
+      cell: ({ row }) => <span>{new Date(row.original.scans[0].updated_at).toLocaleString()}</span>,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <span className={`${row.original.scans[0].processing ? 'bg-[#663808]' : 'bg-[#005031]'} text-white px-2 py-1 rounded-full`}>{row.original.scans[0].processing ? 'Processing' : 'Complete'}</span>,
+    }
+  ], []);
+  
+  // pagination
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+ 
+  // data fetching
+  const dataQuery = useQuery({
+    queryKey: ['pages', pagination],
+    queryFn: async () => {
+      const theParams = { limit: pagination.pageSize, offset: pagination.pageIndex*pagination.pageSize };
+      console.log(theParams);
+      return getPages({params: theParams })
+    },
+    placeholderData: keepPreviousData
+  })
+
+  const defaultData = React.useMemo(() => [], [])
+
+  
+  const table = useReactTable({
+    data: dataQuery.data?.pages ?? defaultData,
+    columns,
+    // pageCount: dataQuery.data?.pageCount ?? -1, //you can now pass in `rowCount` instead of pageCount and `pageCount` will be calculated internally (new in v8.13.0)
+    rowCount: dataQuery.data?.total, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    manualPagination: true, //we're doing manual "server-side" pagination
+    debugTable: true,
+  })
+
 
   return (
     <>
@@ -96,10 +117,10 @@ const Pages = () => {
           </Link>
         </div>
       </div>
-      {isLoading ? (
-        <LoadingPages />
-      ) : pages.length === 0 ? (
-        <div className="mt-7 text-center">
+      
+       
+       
+       {/* <div className="mt-7 text-center">
           <h2 className="text-xl font-semibold text-gray-700">
             No Properties Added
           </h2>
@@ -113,23 +134,132 @@ const Pages = () => {
           >
             Add Your First Property
           </Link>
-        </div>
-      ) : (
+        </div>  */}
         <section
           aria-labelledby="pages-list-heading"
           className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
         >
           
           <div className="w-full overflow-x-auto">
-          {pages && (
-            <DataTable columns={pagesColumns} data={pages ?? []} type="pages" />
-          )}
+          <div className="p-2">
+      <div className="h-2" />
+      <table>
+        <thead>
+          {table.getHeaderGroups().map(headerGroup => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map(header => {
+                return (
+                  <th key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder ? null : (
+                      <div>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </div>
+                    )}
+                  </th>
+                )
+              })}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map(row => {
+            return (
+              <tr key={row.id}>
+                {row.getVisibleCells().map(cell => {
+                  return (
+                    <td key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+      <div className="h-2" />
+      <div className="flex items-center gap-2">
+        <button
+          className="border rounded p-1"
+          onClick={() => table.firstPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {'<<'}
+        </button>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {'<'}
+        </button>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          {'>'}
+        </button>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.lastPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          {'>>'}
+        </button>
+        <span className="flex items-center gap-1">
+          <div>Page</div>
+          <strong>
+            {table.getState().pagination.pageIndex + 1} of{' '}
+            {table.getPageCount().toLocaleString()}
+          </strong>
+        </span>
+        <span className="flex items-center gap-1">
+          | Go to page:
+          <input
+            type="number"
+            min="1"
+            max={table.getPageCount()}
+            defaultValue={table.getState().pagination.pageIndex + 1}
+            onChange={e => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0
+              table.setPageIndex(page)
+            }}
+            className="border p-1 rounded w-16"
+          />
+        </span>
+        <select
+          value={table.getState().pagination.pageSize}
+          onChange={e => {
+            table.setPageSize(Number(e.target.value))
+          }}
+        >
+          {[10, 20, 30, 40, 50].map(pageSize => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize}
+            </option>
+          ))}
+        </select>
+        {dataQuery.isFetching ? 'Loading...' : null}
+      </div>
+      <div>
+        Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
+        {dataQuery.data?.total.toLocaleString()}
+      </div>
+    
+    </div>
         </div>
          
         </section>
-      )}
     </>
   );
 };
 
 export default Pages;
+

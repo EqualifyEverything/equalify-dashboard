@@ -3,6 +3,7 @@ import { get } from 'aws-amplify/api';
 interface ApiResponse<T> {
   status: string;
   result: T;
+  total: number;
 }
 
 export interface IPage {
@@ -23,14 +24,19 @@ export interface IPageParams {
   limit: number;
 }
 
+export interface IPages {
+  pages: IPage[];
+  total: number;
+}
+
 const API_NAME = 'auth';
 
 /**
  * Fetch all pages
- * @returns {Promise<IPage[]>} List of pages
+ * @returns {Promise<IPages>} List of pages
  * @throws Will throw an error if the fetch fails
  */
-export const getPages = async ({ params }: { params: IPageParams }): Promise<IPage[]> => {
+export const getPages = async ({ params }: { params: IPageParams }): Promise<IPages> => {
   try {
     const response = await get({
       apiName: API_NAME,
@@ -44,10 +50,10 @@ export const getPages = async ({ params }: { params: IPageParams }): Promise<IPa
     }).response;
 
     const { body } = response;
-    const { result } = (await body.json()) as unknown as ApiResponse<
+    const { result, total } = (await body.json()) as unknown as ApiResponse<
     IPage[]
     >;
-    return result;
+    return { pages: result, total };
   } catch (error) {
     console.error('Error fetching pages', error);
     throw error;
