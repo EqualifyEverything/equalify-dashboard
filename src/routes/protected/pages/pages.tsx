@@ -40,7 +40,7 @@ const Pages = () => {
     {
       accessorKey: 'property',
       header: 'Property',
-      cell: ({ row }) => <span>{row.original.property?.name}</span>,
+      cell: ({ row }) => <span><Link to={`/properties/`+row.original.property?.id+`/edit`}> {row.original.property?.name}</Link></span>,
     },
     {
       accessorKey: 'lastScanned',
