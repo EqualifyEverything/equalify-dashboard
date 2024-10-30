@@ -146,13 +146,19 @@ export const Toasts: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           [sortToasts],
         )}
       >
-        <ToastPrimitive.Provider swipeDirection="right">
+        <ToastPrimitive.Provider duration={10000} swipeDirection="right">
           {children}
           {Array.from(toasts).map(([key, toast]) => (
             <Toast
               key={key}
               id={key}
-              toast={toast}
+              toast={{
+                ...toast,
+                duration: Math.max(
+                  toast.duration || 10000,
+                  toast.status === 'error' ? 12000 : 10000
+                ),
+              }}
               onOpenChange={(open) => {
                 if (!open) {
                   toastElementsMapRef.current.delete(key);
