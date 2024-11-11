@@ -54,6 +54,7 @@ import {
   updateReportAction,
   authenticatedLoader,
   pagesLoader,
+  addPagesLoader,
 } from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
@@ -122,7 +123,7 @@ const router = createBrowserRouter([
       {
         path: 'pages/add',
         element: <AddPages />,
-        loader: authenticatedLoader(pagesLoader(queryClient)),
+        loader: authenticatedLoader(addPagesLoader(queryClient)),
       },
       {
         path: 'properties',

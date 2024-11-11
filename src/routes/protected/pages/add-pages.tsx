@@ -1,22 +1,36 @@
 import { useState } from 'react';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
+import * as Select from '@radix-ui/react-select';
 import * as Separator from '@radix-ui/react-separator';
 import * as Tabs from '@radix-ui/react-tabs';
 import { QueryClient } from '@tanstack/react-query';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { ActionFunctionArgs, redirect, useNavigate } from 'react-router-dom';
+import {
+  ActionFunctionArgs,
+  redirect,
+  useLoaderData,
+  useNavigate,
+} from 'react-router-dom';
 
 import { toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
+import { propertiesQuery } from '~/queries/properties';
 import { addProperty } from '~/services';
 
+export const addPagesLoader = (queryClient: QueryClient) => async () => {
+  const initialProperties =
+    await queryClient.ensureQueryData(propertiesQuery());
+  return { initialProperties };
+};
+
 /**
- * Handles adding a new property.
+ * Handles adding new Pages.
  * @param queryClient - The Query Client instance.
  * @returns Action function to be used with React Router.
  */
-export const addPropertyAction =
+/* export const addPropertyAction =
   (queryClient: QueryClient) =>
   async ({ request }: ActionFunctionArgs) => {
     try {
@@ -53,10 +67,13 @@ export const addPropertyAction =
       });
       throw error;
     }
-  };
+  }; */
 
 const AddPages = () => {
   const navigate = useNavigate();
+  const { initialProperties } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof addPagesLoader>>
+  >;
 
   const { register, control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -88,16 +105,25 @@ const AddPages = () => {
       >
         <Tabs.Root className="TabsRoot" defaultValue="tab-url">
           <Tabs.List
-            className="TabsList"
+            className="TabsList flex justify-center gap-4"
             aria-label="Select how you want to add pages:"
           >
-            <Tabs.Trigger className="TabsTrigger" value="tab-url">
+            <Tabs.Trigger
+              className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+              value="tab-url"
+            >
               By URL
             </Tabs.Trigger>
-            <Tabs.Trigger className="TabsTrigger" value="tab-sitemap">
+            <Tabs.Trigger
+              className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+              value="tab-sitemap"
+            >
               By Sitemap
             </Tabs.Trigger>
-            <Tabs.Trigger className="TabsTrigger" value="tab-csv">
+            <Tabs.Trigger
+              className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+              value="tab-csv"
+            >
               By CSV
             </Tabs.Trigger>
           </Tabs.List>
@@ -107,8 +133,9 @@ const AddPages = () => {
               <ul>
                 {fields.map((item, index) => {
                   return (
-                    <li key={item.id}>
+                    <li key={item.id} className="flex">
                       <input
+                        className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-base shadow-sm transition-colors"
                         {...register(`urls.${index}.url`, {
                           required: true,
                         })}
@@ -132,8 +159,32 @@ const AddPages = () => {
                   append({ url: '' });
                 }}
               >
-                append
+                Add URL
               </button>
+              <Separator.Root />
+              <Select.Root>
+                <Select.Trigger className="SelectTrigger" aria-label="Add to Property">
+                  <Select.Value placeholder="Select a Property…" />
+                  <Select.Icon className="SelectIcon">
+                    <ChevronDownIcon />
+                  </Select.Icon>
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Content>
+                    <Select.ScrollUpButton />
+                    <Select.Viewport>
+                      {initialProperties.map((item, index) => (
+                        <Select.Item value={item.id} key={index}>
+                          <Select.ItemText>{item.name}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Viewport>
+                    <Select.ScrollDownButton />
+                    <Select.Arrow />
+                  </Select.Content>
+                </Select.Portal>
+              </Select.Root>
+              <Separator.Root />
               <button
                 type="button"
                 onClick={() =>
