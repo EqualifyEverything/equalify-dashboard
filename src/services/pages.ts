@@ -14,6 +14,7 @@ export interface IPage {
     name: string;
   }  
   scans: [{
+    id: string;
     "updated_at":string;
     processing: boolean;
   }]

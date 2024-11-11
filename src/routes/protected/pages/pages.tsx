@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { SEO } from '~/components/layout';
 import { pagesQuery } from '~/queries';
 //import { LoadingPages } from './loading';
-import { getPages, IPage } from '~/services';
+import { getPages, getScan, IPage } from '~/services';
 //import DataTable from '~/components/tables/data-table';
 
 import {
@@ -51,7 +51,22 @@ const Pages = () => {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => <span className={`${row.original.scans[0].processing ? 'bg-[#663808]' : 'bg-[#005031]'} text-white px-2 py-1 rounded-full`}>{row.original.scans[0].processing ? 'Processing' : 'Complete'}</span>,
-    }
+    },
+    {
+      accessorKey: 'report',
+      header: 'Raw Data',
+      cell: ({ row }) => row.original.scans[0].processing ? <span className='select-none text-[#666]'>Not ready</span> : <button className='text-blue-500 hover:opacity-50' onClick={async () => {
+        const element = document.getElementById('downloadReportLink');
+        if (element) {
+          const response = await getScan(row.original.scans[0].id);
+          element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(response)));
+          element.setAttribute('download', 'results.json');
+          element.click();
+        }else{
+          console.log("Error fetching scan:", row.original.scans[0].id)
+        }
+      }}>Download</button>,
+    },
   ], []);
   
   // pagination
