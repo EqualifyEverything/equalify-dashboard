@@ -36,6 +36,7 @@ import {
   Reset,
   BulkProperty,
   Pages,
+  AddPages,
 } from '~/routes';
 import {
   addPropertyAction,
@@ -116,6 +117,11 @@ const router = createBrowserRouter([
       {
         path: 'pages',
         element: <Pages />,
+        loader: authenticatedLoader(pagesLoader(queryClient)),
+      },
+      {
+        path: 'pages/add',
+        element: <AddPages />,
         loader: authenticatedLoader(pagesLoader(queryClient)),
       },
       {

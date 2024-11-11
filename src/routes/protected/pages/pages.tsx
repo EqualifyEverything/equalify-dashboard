@@ -120,7 +120,7 @@ const Pages = () => {
         </h1>
         <div className='flex flex-row items-center gap-2'>
           <Link
-            to="/properties/add"
+            to="/pages/add"
             className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
           >
             Add Pages
