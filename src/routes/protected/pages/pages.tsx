@@ -277,6 +277,7 @@ const Pages = () => {
         </div>
          
         </section>
+        <a id="downloadReportLink" style={{ display: 'none' }}></a>
     </>
   );
 };
