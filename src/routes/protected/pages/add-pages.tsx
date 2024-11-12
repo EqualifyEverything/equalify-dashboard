@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
 import * as Select from '@radix-ui/react-select';
 import * as Separator from '@radix-ui/react-separator';
 import * as Tabs from '@radix-ui/react-tabs';
@@ -78,6 +78,7 @@ const AddPages = () => {
   const { register, control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
       urls: [{ url: '' }],
+      sitemapUrl: '',
       property: '',
     },
   });
@@ -104,33 +105,37 @@ const AddPages = () => {
         className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
         aria-live="polite"
       >
-        <Tabs.Root className="TabsRoot" defaultValue="tab-url">
-          <Tabs.List
-            className="TabsList flex justify-center gap-4"
-            aria-label="Select how you want to add pages:"
-          >
-            <Tabs.Trigger
-              className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
-              value="tab-url"
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Tabs.Root className="TabsRoot" defaultValue="tab-url">
+            <Tabs.List
+              className="TabsList flex justify-center gap-4"
+              aria-label="Select how you want to add pages:"
             >
-              By URL
-            </Tabs.Trigger>
-            <Tabs.Trigger
-              className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
-              value="tab-sitemap"
-            >
-              By Sitemap
-            </Tabs.Trigger>
-            <Tabs.Trigger
-              className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
-              value="tab-csv"
-            >
-              By CSV
-            </Tabs.Trigger>
-          </Tabs.List>
-          <Tabs.Content className="TabsContent" value="tab-url">
-            <p className="Text">URL</p>
-            <form onSubmit={handleSubmit(onSubmit)}>
+              <Tabs.Trigger
+                className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+                value="tab-url"
+              >
+                By URL
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+                value="tab-sitemap"
+              >
+                By Sitemap
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+                value="tab-csv"
+              >
+                By CSV
+              </Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content className="TabsContent" value="tab-url">
+              {/******* 
+              URL Input tab Content 
+              **********/}
+              <p className="Text">URL</p>
+
               <ul>
                 {fields.map((item, index) => {
                   return (
@@ -138,7 +143,9 @@ const AddPages = () => {
                       <input
                         className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-base shadow-sm transition-colors"
                         {...register(`urls.${index}.url`, {
-                          required: true,
+                          validate: (value) => {
+                            return true;
+                          }, // TODO conditional on current tab
                         })}
                       />
 
@@ -162,68 +169,31 @@ const AddPages = () => {
               >
                 Add URL
               </button>
-              <Separator.Root />
-              <Controller
-                name="property"
-                control={control}
-                render={({ field }) => (
-                  <Select.Root
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <Select.Trigger
-                      className="SelectTrigger"
-                      aria-label="Add to Property"
-                    >
-                      <Select.Value placeholder="Select a Property…" />
-                      <Select.Icon className="SelectIcon">
-                        <ChevronDownIcon />
-                      </Select.Icon>
-                    </Select.Trigger>
-                    <Select.Portal>
-                      <Select.Content>
-                        <Select.ScrollUpButton />
-                        <Select.Viewport>
-                          <Select.Item value="none" key="null">
-                            <Select.ItemText>None</Select.ItemText>
-                          </Select.Item>
-                          {initialProperties.map((item, index) => (
-                            <Select.Item value={item.id} key={index}>
-                              <Select.ItemText>{item.name}</Select.ItemText>
-                            </Select.Item>
-                          ))}
-                        </Select.Viewport>
-                        <Select.ScrollDownButton />
-                        <Select.Arrow />
-                      </Select.Content>
-                    </Select.Portal>
-                  </Select.Root>
-                )}
+            </Tabs.Content>
+            <Tabs.Content className="TabsContent" value="tab-sitemap">
+              {/******* 
+              Sitemap Input tab Content 
+              **********/}
+              <p className="Text">Sitemap URL</p>
+              <input
+                className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-base shadow-sm transition-colors"
+                {...register(`sitemapUrl`, {
+                  validate: (value) => {
+                    return true;
+                  }, // TODO conditional on current tab
+                })}
               />
-              <Separator.Root />
-              <button
-                type="button"
-                onClick={() =>
-                  reset({
-                    urls: [{ url: '' }],
-                  })
-                }
-              >
-                reset
-              </button>
-              <input type="submit" />
-            </form>
-          </Tabs.Content>
-          <Tabs.Content className="TabsContent" value="tab-sitemap">
-            <p className="Text">Sitemap</p>
-          </Tabs.Content>
-          <Tabs.Content className="TabsContent" value="tab-csv">
-            <p className="Text">CSV</p>
-          </Tabs.Content>
-        </Tabs.Root>
-        <Separator.Root />
+            </Tabs.Content>
+            <Tabs.Content className="TabsContent" value="tab-csv">
+              {/******* 
+              CSV Input tab Content 
+              **********/}
+              <p className="Text">CSV</p>
+            </Tabs.Content>
+          </Tabs.Root>
+          <Separator.Root />
 
-        {/* <Button
+          {/* <Button
             variant={'outline'}
             className="w-fit"
             onClick={() => navigate(-1)}
@@ -231,6 +201,63 @@ const AddPages = () => {
           >
             Cancel
           </Button> */}
+          <Separator.Root />
+          <Controller
+            name="property"
+            control={control}
+            render={({ field }) => (
+              <Select.Root value={field.value} onValueChange={field.onChange}>
+                <Select.Trigger
+                  className="SelectTrigger"
+                  aria-label="Add to Property"
+                >
+                  <Select.Value placeholder="Select a Property…" />
+                  <Select.Icon className="SelectIcon">
+                    <ChevronDownIcon />
+                  </Select.Icon>
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Content className="SelectContent">
+                    <Select.ScrollUpButton className="SelectScrollButton">
+                      <ChevronUpIcon />
+                    </Select.ScrollUpButton>
+                    <Select.Viewport className="SelectViewport">
+                      <Select.Item value="none" key="null">
+                        <Select.ItemText>None</Select.ItemText>
+                      </Select.Item>
+                      {initialProperties.map((item, index) => (
+                        <Select.Item value={item.id} key={index}>
+                          <Select.ItemText>{item.name}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Viewport>
+                    <Select.ScrollDownButton className="SelectScrollButton">
+                      <ChevronDownIcon />
+                    </Select.ScrollDownButton>
+                  </Select.Content>
+                </Select.Portal>
+              </Select.Root>
+            )}
+          />
+          <Separator.Root />
+          <div className="flex flex-row items-center gap-2">
+            <input
+              type="submit"
+              value="Add Pages"
+              className="inline-flex items-center whitespace-nowrap rounded-md bg-[#005031] px-3 py-1 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+            />
+            <button
+              type="button"
+              onClick={() =>
+                reset({
+                  urls: [{ url: '' }],
+                })
+              }
+            >
+              reset
+            </button>
+          </div>
+        </form>
       </section>
     </>
   );
