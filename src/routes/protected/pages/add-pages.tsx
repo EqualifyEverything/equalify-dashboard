@@ -77,7 +77,8 @@ const AddPages = () => {
 
   const { register, control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
-      urls: [{ url: 'https://' }],
+      urls: [{ url: '' }],
+      property: '',
     },
   });
 
@@ -162,28 +163,43 @@ const AddPages = () => {
                 Add URL
               </button>
               <Separator.Root />
-              <Select.Root>
-                <Select.Trigger className="SelectTrigger" aria-label="Add to Property">
-                  <Select.Value placeholder="Select a Property…" />
-                  <Select.Icon className="SelectIcon">
-                    <ChevronDownIcon />
-                  </Select.Icon>
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Content>
-                    <Select.ScrollUpButton />
-                    <Select.Viewport>
-                      {initialProperties.map((item, index) => (
-                        <Select.Item value={item.id} key={index}>
-                          <Select.ItemText>{item.name}</Select.ItemText>
-                        </Select.Item>
-                      ))}
-                    </Select.Viewport>
-                    <Select.ScrollDownButton />
-                    <Select.Arrow />
-                  </Select.Content>
-                </Select.Portal>
-              </Select.Root>
+              <Controller
+                name="property"
+                control={control}
+                render={({ field }) => (
+                  <Select.Root
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <Select.Trigger
+                      className="SelectTrigger"
+                      aria-label="Add to Property"
+                    >
+                      <Select.Value placeholder="Select a Property…" />
+                      <Select.Icon className="SelectIcon">
+                        <ChevronDownIcon />
+                      </Select.Icon>
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Content>
+                        <Select.ScrollUpButton />
+                        <Select.Viewport>
+                          <Select.Item value="none" key="null">
+                            <Select.ItemText>None</Select.ItemText>
+                          </Select.Item>
+                          {initialProperties.map((item, index) => (
+                            <Select.Item value={item.id} key={index}>
+                              <Select.ItemText>{item.name}</Select.ItemText>
+                            </Select.Item>
+                          ))}
+                        </Select.Viewport>
+                        <Select.ScrollDownButton />
+                        <Select.Arrow />
+                      </Select.Content>
+                    </Select.Portal>
+                  </Select.Root>
+                )}
+              />
               <Separator.Root />
               <button
                 type="button"
