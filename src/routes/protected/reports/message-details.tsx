@@ -1,5 +1,6 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
+import { useState } from 'react';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
@@ -7,6 +8,9 @@ import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { messageDetailsQuery } from '~/queries';
 import { assertNonNull } from '~/utils/safety';
+import { post } from 'aws-amplify/api';
+import { InfoDialog } from '~/components/dialogs';
+import { Modal } from '~/components/modals';
 
 interface Node {
   pageUrl: string;
@@ -54,6 +58,29 @@ const MessageDetails = () => {
 
   if (error) return <div role="alert">Error loading message details.</div>;
 
+  const [suggestIssueResponse, setSuggestIssueResponse] = useState(null);
+  const [open, setOpen] = useState(false);
+  const suggestIssue = async ({ codeSnippet, pageUrl }) => {
+    setSuggestIssueResponse(null);
+    setOpen(true);
+    const response = await (await post({
+      apiName: 'auth', path: '/ai/suggest-issue', options: {
+        body: {
+          reportId: reportId,
+          reportName: data?.reportName,
+          messageId: messageId,
+          messageName: data?.messageName,
+          dequeUrl: data?.moreInfoUrl,
+          nodes: data?.nodes,
+          codeSnippet,
+          pageUrl,
+        }
+      }
+    }).response).body.json();
+    setSuggestIssueResponse(response);
+    // if (!window.open(response?.url)) { window.location.href = response?.url }
+  }
+
   const NodeColumns: ColumnDef<Node>[] = [
     {
       accessorKey: 'codeSnippet',
@@ -73,6 +100,36 @@ const MessageDetails = () => {
       ),
     },
     { accessorKey: 'status', header: 'Status' },
+    {
+      accessorKey: 'suggestIssue',
+      header: 'Action',
+      cell: ({ row }) => (
+        <button
+          className={`inline-flex h-9 items-center justify-end gap-2 place-self-end whitespace-nowrap rounded-md px-2 py-3 text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d6efd] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-1 ml-2 bg-[#0d6efd] hover:opacity-50 text-xs`}
+          onClick={() => suggestIssue({ codeSnippet: row.getValue('codeSnippet'), pageUrl: row.getValue('pageUrl') })}
+        >
+          Suggest Issue
+          <svg
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            className="bi bi-box-arrow-up-right"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"
+            ></path>
+            <path
+              fill-rule="evenodd"
+              d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"
+            ></path>
+          </svg>
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -140,6 +197,18 @@ const MessageDetails = () => {
           type="messages"
         />
       </div>
+      <Modal
+        open={open}
+        setOpen={setOpen}
+      >
+        <h1 className='text-2xl'>Suggest Issue</h1>
+        {!suggestIssueResponse && <div>
+          <h2>Generating issue... (ETA: 1 min)</h2>
+        </div>}
+        {suggestIssueResponse && <div className='overflow-y-scroll max-h-[500px]'>
+          {JSON.stringify({ suggestIssueResponse: suggestIssueResponse?.how_to_implement })}
+        </div>}
+      </Modal>
     </div>
   );
 };
