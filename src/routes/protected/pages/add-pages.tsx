@@ -75,11 +75,12 @@ const AddPages = () => {
     ReturnType<ReturnType<typeof addPagesLoader>>
   >;
 
-  const { register, control, handleSubmit, reset, watch } = useForm({
+  const { register, control, handleSubmit, reset, watch, setValue } = useForm({
     defaultValues: {
       urls: [{ url: '' }],
       sitemapUrl: '',
       property: '',
+      mode: 'url',
     },
   });
 
@@ -87,6 +88,7 @@ const AddPages = () => {
     control,
     name: 'urls',
   });
+  const activeTab = watch('mode');
   const onSubmit = (data: any) => console.log('data', data);
 
   return (
@@ -106,31 +108,32 @@ const AddPages = () => {
         aria-live="polite"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Tabs.Root className="TabsRoot" defaultValue="tab-url">
+        
+          <Tabs.Root className="TabsRoot" defaultValue="url" value={activeTab} onValueChange={(value) => setValue('mode', value)} >
             <Tabs.List
               className="TabsList flex justify-center gap-4"
               aria-label="Select how you want to add pages:"
             >
               <Tabs.Trigger
                 className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
-                value="tab-url"
+                value="url"
               >
                 By URL
               </Tabs.Trigger>
               <Tabs.Trigger
                 className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
-                value="tab-sitemap"
+                value="sitemap"
               >
                 By Sitemap
               </Tabs.Trigger>
               <Tabs.Trigger
                 className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
-                value="tab-csv"
+                value="csv"
               >
                 By CSV
               </Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content className="TabsContent" value="tab-url">
+            <Tabs.Content className="TabsContent" value="url">
               {/******* 
               URL Input tab Content 
               **********/}
@@ -170,7 +173,7 @@ const AddPages = () => {
                 Add URL
               </button>
             </Tabs.Content>
-            <Tabs.Content className="TabsContent" value="tab-sitemap">
+            <Tabs.Content className="TabsContent" value="sitemap">
               {/******* 
               Sitemap Input tab Content 
               **********/}
@@ -184,7 +187,7 @@ const AddPages = () => {
                 })}
               />
             </Tabs.Content>
-            <Tabs.Content className="TabsContent" value="tab-csv">
+            <Tabs.Content className="TabsContent" value="csv">
               {/******* 
               CSV Input tab Content 
               **********/}
