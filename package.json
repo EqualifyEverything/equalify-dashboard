@@ -16,6 +16,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@date-fns/utc": "^2.1.0",
     "@hookform/resolvers": "^3.3.4",
     "@hotjar/browser": "^1.0.9",
     "@radix-ui/react-alert-dialog": "^1.1.1",

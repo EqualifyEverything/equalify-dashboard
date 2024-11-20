@@ -23,6 +23,7 @@ import {
   parseISO,
   toDate,
 } from 'date-fns';
+import { UTCDate } from "@date-fns/utc";
 import { Link } from 'react-router-dom';
 
 import { SEO } from '~/components/layout';
@@ -89,8 +90,9 @@ const Pages = () => {
             
           >
             {row.original.scans[0].processing ? (
-              <ReloadIcon aria-label="Processing" />
+              <ReloadIcon aria-label="Processing" className='animate-spin'/>
             ) : (
+              <div className='inline-flex items-center'>
               <Tooltip.Provider>
                 <Tooltip.Root>
                   <Tooltip.Trigger>
@@ -98,16 +100,17 @@ const Pages = () => {
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content className="TooltipContent" sideOffset={5}>
-                      Last scanned{' '}
-                      {formatRelative(
-                        parseISO(row.original.scans[0].updated_at),
-                        new Date(),
-                      )}
+                      <div className='text-center text-sm'>
+                      Last scanned{' '}<br/>
+                      {new Date(row.original.scans[0].updated_at).toLocaleString()}
+                      </div>
                       <Tooltip.Arrow className="TooltipArrow" />
                     </Tooltip.Content>
                   </Tooltip.Portal>
                 </Tooltip.Root>
               </Tooltip.Provider>
+              {/* new Date(row.original.scans[0].updated_at).toLocaleString() */}
+              </div>
             )}
           </div>
         ),
