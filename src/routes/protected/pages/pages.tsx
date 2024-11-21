@@ -50,6 +50,7 @@ const Pages = () => {
   //const rerender = React.useReducer(() => ({}), {})[1]
 
   // Define the columns
+
   const columns = React.useMemo<ColumnDef<IPage>[]>(
     () => [
       {
@@ -89,7 +90,10 @@ const Pages = () => {
           <div
             
           >
-            {row.original.scans[0].processing ? (
+            {
+            row.original?.scans.length > 0 ?
+            (
+            row.original.scans[0].processing ? (
               <ReloadIcon aria-label="Processing" className='animate-spin'/>
             ) : (
               <div className='inline-flex items-center'>
@@ -111,7 +115,9 @@ const Pages = () => {
               </Tooltip.Provider>
               {/* new Date(row.original.scans[0].updated_at).toLocaleString() */}
               </div>
-            )}
+            )
+          ) : <></>
+          }
           </div>
         ),
       },
@@ -119,6 +125,7 @@ const Pages = () => {
         accessorKey: 'report',
         header: 'Raw Data',
         cell: ({ row }) =>
+          row.original?.scans.length > 0 ? (
           row.original.scans[0].processing ? (
             <span className="select-none text-[#666]">Not ready</span>
           ) : (
@@ -142,7 +149,7 @@ const Pages = () => {
             >
               Download <FileTextIcon className="ml-1" aria-label="Download" />
             </button>
-          ),
+          ) ) : <></>,
       },
     ],
     [],
