@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { HTMLProps, useState } from 'react';
 import {
   CheckCircledIcon,
+  DownloadIcon,
   FileTextIcon,
   ReloadIcon,
 } from '@radix-ui/react-icons';
@@ -49,10 +50,36 @@ export const pagesLoader = (queryClient: QueryClient) => async () => {
 const Pages = () => {
   //const rerender = React.useReducer(() => ({}), {})[1]
 
-  // Define the columns
+  const [rowSelection, setRowSelection] = useState({});
+  function sendSelectedPagesToScan(): void {
+    console.log(table.getSelectedRowModel().flatRows.map((row)=>row.original.id))
+  }
 
+  // Define the columns
   const columns = React.useMemo<ColumnDef<IPage>[]>(
     () => [
+      {
+        accessorKey: 'select',
+        header: ({ table }) => (
+          <IndeterminateCheckbox
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+            <IndeterminateCheckbox
+              {...{
+                checked: row.getIsSelected(),
+                disabled: !row.getCanSelect(),
+                indeterminate: row.getIsSomeSelected(),
+                onChange: row.getToggleSelectedHandler(),
+              }}
+            />
+        ),
+      },
       {
         accessorKey: 'url',
         header: 'URL',
@@ -78,11 +105,6 @@ const Pages = () => {
           </span>
         ),
       },
-      /* {
-        accessorKey: 'lastScanned',
-        header: 'Last Scanned At',
-        cell: ({ row }) => <span>{row.original.scans[0].updated_at}</span>,
-      }, */
       {
         accessorKey: 'status',
         header: 'Status',
@@ -123,7 +145,7 @@ const Pages = () => {
       },
       {
         accessorKey: 'report',
-        header: 'Raw Data',
+        header: 'Results JSON',
         cell: ({ row }) =>
           row.original?.scans.length > 0 ? (
           row.original.scans[0].processing ? (
@@ -147,10 +169,10 @@ const Pages = () => {
                 }
               }}
             >
-              Download <FileTextIcon className="ml-1" aria-label="Download" />
+              <DownloadIcon className="ml-1" aria-label="Download" />
             </button>
           ) ) : <></>,
-      },
+      }
     ],
     [],
   );
@@ -184,12 +206,17 @@ const Pages = () => {
     rowCount: dataQuery.data?.total, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
     state: {
       pagination,
+      rowSelection
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true, //we're doing manual "server-side" pagination
     debugTable: true,
   });
+
+  
 
   return (
     <>
@@ -255,6 +282,20 @@ const Pages = () => {
                   </TableRow>
                 ))}
               </TableHeader>
+              {table.getIsAllRowsSelected() || table.getIsSomeRowsSelected() ? (
+                <tbody>
+                <tr>
+                  <td>
+                    <button
+                    className="rounded border p-1"
+                    onClick={() => sendSelectedPagesToScan()}
+                    >
+                      {'Scan Pages'}
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              ):<></>}
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
@@ -370,3 +411,26 @@ const Pages = () => {
 };
 
 export default Pages;
+
+function IndeterminateCheckbox({
+  indeterminate,
+  className = '',
+  ...rest
+}: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+  const ref = React.useRef<HTMLInputElement>(null!)
+
+  React.useEffect(() => {
+    if (typeof indeterminate === 'boolean') {
+      ref.current.indeterminate = !rest.checked && indeterminate
+    }
+  }, [ref, indeterminate])
+
+  return (
+    <input
+      type="checkbox"
+      ref={ref}
+      className={className + ' cursor-pointer'}
+      {...rest}
+    />
+  )
+}
