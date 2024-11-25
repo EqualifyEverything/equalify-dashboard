@@ -1,9 +1,7 @@
 import React, { HTMLProps, useState } from 'react';
-import { UTCDate } from '@date-fns/utc';
 import {
   CheckCircledIcon,
   DownloadIcon,
-  FileTextIcon,
   ReloadIcon,
 } from '@radix-ui/react-icons';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -15,17 +13,7 @@ import {
   PaginationState,
   useReactTable,
 } from '@tanstack/react-table';
-//import DataTable from '~/components/tables/data-table';
-
-import {
-  format,
-  formatISO,
-  formatRelative,
-  parse,
-  parseISO,
-  toDate,
-} from 'date-fns';
-import { ActionFunctionArgs, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { toast } from '~/components/alerts';
 import { SEO } from '~/components/layout';
@@ -39,8 +27,15 @@ import {
 } from '~/components/tables/table';
 import { pagesQuery } from '~/queries';
 //import { LoadingPages } from './loading';
-import { getPages, getScan, IPage, IPageScan, IUrl, sendUrlsToScan } from '~/services';
+import {
+  getPages,
+  getScan,
+  IPage,
+  IPageScan,
+  sendUrlsToScan,
+} from '~/services';
 
+// Initial data on pageload
 export const pagesLoader = (queryClient: QueryClient) => async () => {
   const initialPages = await queryClient.ensureQueryData(
     pagesQuery({ limit: 10, offset: 0 }),
@@ -52,48 +47,42 @@ const Pages = () => {
   //const rerender = React.useReducer(() => ({}), {})[1]
   const [rowSelection, setRowSelection] = useState({});
 
-  const sendSelectedPagesToScan = async () => {
-    const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
-      return { url: row.original.url, urlId: row.original.id };
-    });
+  // pagination
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-    try {
-      const out = {urls:urlsToSend};
-      const response = await sendUrlsToScan(out);
-
-      if (response.status === 'success') {
-        toast.success({
-          title: 'Success',
-          description: 'Pages sent to scan!',
-        });
-      } else {
-        toast.error({
-          title: 'Error',
-          description: 'There was a problem sending to scan.',
-        });
-        console.log(urlsToSend);
-        console.log(response);
-        throw new Response('There was a problem sending to scan', {
-          status: 500,
-        });
-
-      }
-    } catch (error) {
-      toast.error({
-        title: 'Error',
-        description: 'There was a problem sending to scan.',
-      });
-      console.log(urlsToSend);
-      throw error;
-    }
-    table.resetRowSelection();
-    dataQuery.refetch();
+  // returns the index of the newest scan
+  const getIndexOfNewestScan = (scansArray: IPageScan[]) => {
+    return scansArray.reduce(
+      (highestIndex, scan, index, arr) =>
+        new Date(scan.updated_at).getTime() >
+        new Date(arr[highestIndex].updated_at).getTime()
+          ? index
+          : highestIndex,
+      0,
+    );
   };
+
+  // data fetching
+  const dataQuery = useQuery({
+    queryKey: ['pages', pagination],
+    queryFn: async () => {
+      const theParams = {
+        limit: pagination.pageSize,
+        offset: pagination.pageIndex * pagination.pageSize,
+      };
+      console.log(theParams);
+      return getPages({ params: theParams });
+    },
+    placeholderData: keepPreviousData,
+  });
+  const defaultData = React.useMemo(() => [], []);
 
   // Define the columns
   const columns = React.useMemo<ColumnDef<IPage>[]>(
-    () => 
-    [
+    () => [
       {
         accessorKey: 'select',
         header: ({ table }) => (
@@ -147,7 +136,8 @@ const Pages = () => {
         cell: ({ row }) => (
           <div>
             {row.original?.scans.length > 0 ? (
-              row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
+              row.original.scans[getIndexOfNewestScan(row.original.scans)]
+                .processing ? (
                 <ReloadIcon aria-label="Processing" className="animate-spin" />
               ) : (
                 <div className="inline-flex items-center">
@@ -164,7 +154,9 @@ const Pages = () => {
                           <div className="text-center text-sm">
                             Last scanned <br />
                             {new Date(
-                              row.original.scans[getIndexOfNewestScan(row.original.scans)].updated_at,
+                              row.original.scans[
+                                getIndexOfNewestScan(row.original.scans)
+                              ].updated_at,
                             ).toLocaleString()}
                           </div>
                           <Tooltip.Arrow className="TooltipArrow" />
@@ -184,9 +176,9 @@ const Pages = () => {
         accessorKey: 'report',
         header: 'Results JSON',
         cell: ({ row }) =>
-          
           row.original?.scans.length > 0 ? (
-            row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
+            row.original.scans[getIndexOfNewestScan(row.original.scans)]
+              .processing ? (
               <span className="select-none text-[#666]">Not ready</span>
             ) : (
               <button
@@ -194,7 +186,11 @@ const Pages = () => {
                 onClick={async () => {
                   const element = document.getElementById('downloadReportLink');
                   if (element) {
-                    const response = await getScan(row.original.scans[getIndexOfNewestScan(row.original.scans)].id);
+                    const response = await getScan(
+                      row.original.scans[
+                        getIndexOfNewestScan(row.original.scans)
+                      ].id,
+                    );
                     element.setAttribute(
                       'href',
                       'data:text/json;charset=utf-8,' +
@@ -205,7 +201,9 @@ const Pages = () => {
                   } else {
                     console.log(
                       'Error fetching scan:',
-                      row.original.scans[getIndexOfNewestScan(row.original.scans)].id,
+                      row.original.scans[
+                        getIndexOfNewestScan(row.original.scans)
+                      ].id,
                     );
                   }
                 }}
@@ -217,39 +215,9 @@ const Pages = () => {
             <></>
           ),
       },
-    ]
-    ,
+    ],
     [],
   );
-
-  // pagination
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  // returns the index of the newest scan 
-  const getIndexOfNewestScan = (scansArray:IPageScan[]) => {
-    return scansArray.reduce((highestIndex, scan, index, arr) => 
-      new Date(scan.updated_at).getTime() > 
-      new Date(arr[highestIndex].updated_at).getTime() ? index : highestIndex, 0);
-  }
-
-  // data fetching
-  const dataQuery = useQuery({
-    queryKey: ['pages', pagination],
-    queryFn: async () => {
-      const theParams = {
-        limit: pagination.pageSize,
-        offset: pagination.pageIndex * pagination.pageSize,
-      };
-      console.log(theParams);
-      return getPages({ params: theParams });
-    },
-    placeholderData: keepPreviousData,
-  });
-
-  const defaultData = React.useMemo(() => [], []);
 
   const table = useReactTable({
     data: dataQuery.data?.pages ?? defaultData,
@@ -265,8 +233,45 @@ const Pages = () => {
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true, //we're doing manual "server-side" pagination
-    debugTable: true,
+    //debugTable: true,
   });
+
+  const sendSelectedPagesToScan = async () => {
+    const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
+      return { url: row.original.url, urlId: row.original.id };
+    });
+
+    try {
+      const out = { urls: urlsToSend };
+      const response = await sendUrlsToScan(out);
+
+      if (response.status === 'success') {
+        toast.success({
+          title: 'Success',
+          description: 'Pages sent to scan!',
+        });
+      } else {
+        toast.error({
+          title: 'Error',
+          description: 'There was a problem sending to scan.',
+        });
+        console.log(urlsToSend);
+        console.log(response);
+        throw new Response('There was a problem sending to scan', {
+          status: 500,
+        });
+      }
+    } catch (error) {
+      toast.error({
+        title: 'Error',
+        description: 'There was a problem sending to scan.',
+      });
+      console.log(urlsToSend);
+      throw error;
+    }
+    table.resetRowSelection();
+    dataQuery.refetch();
+  };
 
   return (
     <>
@@ -292,172 +297,176 @@ const Pages = () => {
         </div>
       </div>
 
-      {/* <div className="mt-7 text-center">
+      {table.getRowCount() === 0 ? (
+        <div className="mt-7 text-center">
           <h2 className="text-xl font-semibold text-gray-700">
-            No Properties Added
+            No Pages Added
           </h2>
           <p className="mt-2 text-gray-600">
-            You haven't added any properties yet. Get started by adding your
-            first property and monitor its accessibility status.
+            You haven't added any pages yet. Get started by adding your first
+            page and monitor its accessibility status.
           </p>
           <Link
-            to="/properties/add"
+            to="/pages/add"
             className="mt-4 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-[#005031] px-4 py-2 text-sm text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2"
           >
-            Add Your First Property
+            Add Your First Page
           </Link>
-        </div>  */}
-      <section
-        aria-labelledby="pages-list-heading"
-        className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
-      >
-        <div className="w-full overflow-x-auto">
-          <div className="p-2">
-            <Table role="table" aria-label="Pages List">
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id} role="columnheader">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              {table.getIsAllRowsSelected() || table.getIsSomeRowsSelected() ? (
-                <tbody>
-                  <tr>
-                    <td colSpan={5} className="bg-green-100 p-2 px-4">
-                      <button
-                        className="rounded p-2 rounded-md border-1 border-slate-900 px-4 py-1 shadow bg-white"
-                        onClick={() => sendSelectedPagesToScan()}
-                      >
-                        {`Scan ${table.getSelectedRowModel().flatRows.length} Pages`}
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              ) : (
-                <></>
-              )}
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      role="row"
-                      data-state={row.getIsSelected() && 'selected'}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} role="cell">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      ))}
+        </div>
+      ) : (
+        <section
+          aria-labelledby="pages-list-heading"
+          className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
+        >
+          <div className="w-full overflow-x-auto">
+            <div className="p-2">
+              <Table role="table" aria-label="Pages List">
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead key={header.id} role="columnheader">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                          </TableHead>
+                        );
+                      })}
                     </TableRow>
-                  ))
+                  ))}
+                </TableHeader>
+                {table.getIsAllRowsSelected() ||
+                table.getIsSomeRowsSelected() ? (
+                  <tbody>
+                    <tr>
+                      <td colSpan={5} className="bg-green-100 p-2 px-4">
+                        <button
+                          className="border-1 rounded rounded-md border-slate-900 bg-white p-2 px-4 py-1 shadow"
+                          onClick={() => sendSelectedPagesToScan()}
+                        >
+                          {`Scan ${table.getSelectedRowModel().flatRows.length} Pages`}
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
                 ) : (
-                  <TableRow role="row">
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                      role="cell"
-                    >
-                      No results.
-                    </TableCell>
-                  </TableRow>
+                  <></>
                 )}
-              </TableBody>
-            </Table>
-            <nav
-              role="navigation"
-              aria-label="Pagination Navigation"
-              className="flex items-center gap-2"
-            >
-              <button
-                className="rounded border p-1"
-                onClick={() => table.firstPage()}
-                disabled={!table.getCanPreviousPage()}
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        role="row"
+                        data-state={row.getIsSelected() && 'selected'}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id} role="cell">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow role="row">
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                        role="cell"
+                      >
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              <nav
+                role="navigation"
+                aria-label="Pagination Navigation"
+                className="flex items-center gap-2"
               >
-                {'<<'}
-              </button>
-              <button
-                className="rounded border p-1"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                {'<'}
-              </button>
-              <button
-                className="rounded border p-1"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                {'>'}
-              </button>
-              <button
-                className="rounded border p-1"
-                onClick={() => table.lastPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                {'>>'}
-              </button>
-              <span className="flex items-center gap-1">
-                <div>Page</div>
-                <strong>
-                  {table.getState().pagination.pageIndex + 1} of{' '}
-                  {table.getPageCount().toLocaleString()}
-                </strong>
-              </span>
-              <span className="flex items-center gap-1">
-                | Go to page:
-                <input
-                  type="number"
-                  min="1"
-                  max={table.getPageCount()}
-                  defaultValue={table.getState().pagination.pageIndex + 1}
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.firstPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {'<<'}
+                </button>
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {'<'}
+                </button>
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  {'>'}
+                </button>
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.lastPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  {'>>'}
+                </button>
+                <span className="flex items-center gap-1">
+                  <div>Page</div>
+                  <strong>
+                    {table.getState().pagination.pageIndex + 1} of{' '}
+                    {table.getPageCount().toLocaleString()}
+                  </strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  | Go to page:
+                  <input
+                    type="number"
+                    min="1"
+                    max={table.getPageCount()}
+                    defaultValue={table.getState().pagination.pageIndex + 1}
+                    onChange={(e) => {
+                      const page = e.target.value
+                        ? Number(e.target.value) - 1
+                        : 0;
+                      table.setPageIndex(page);
+                    }}
+                    className="w-16 rounded border p-1"
+                  />
+                </span>
+                <select
+                  value={table.getState().pagination.pageSize}
                   onChange={(e) => {
-                    const page = e.target.value
-                      ? Number(e.target.value) - 1
-                      : 0;
-                    table.setPageIndex(page);
+                    table.setPageSize(Number(e.target.value));
                   }}
-                  className="w-16 rounded border p-1"
-                />
-              </span>
-              <select
-                value={table.getState().pagination.pageSize}
-                onChange={(e) => {
-                  table.setPageSize(Number(e.target.value));
-                }}
-              >
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
-                  </option>
-                ))}
-              </select>
-              {dataQuery.isFetching ? 'Loading...' : null}
-            </nav>
+                >
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+                {dataQuery.isFetching ? 'Loading...' : null}
+              </nav>
 
-            <div>
-              Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
-              {dataQuery.data?.total.toLocaleString()}
+              <div>
+                Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
+                {dataQuery.data?.total.toLocaleString()}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-      <a id="downloadReportLink" style={{ display: 'none' }}></a>
+          <a id="downloadReportLink" style={{ display: 'none' }}></a>
+        </section>
+      )}
     </>
   );
 };
