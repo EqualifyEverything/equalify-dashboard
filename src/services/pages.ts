@@ -1,4 +1,4 @@
-import { get } from 'aws-amplify/api';
+import { post, get } from 'aws-amplify/api';
 
 interface ApiResponse<T> {
   status: string;
@@ -30,6 +30,11 @@ export interface IPages {
   total: number;
 }
 
+export interface IUrl {
+  url: string;
+  urlId: string;
+}
+
 const API_NAME = 'auth';
 
 /**
@@ -57,6 +62,33 @@ export const getPages = async ({ params }: { params: IPageParams }): Promise<IPa
     return { pages: result, total };
   } catch (error) {
     console.error('Error fetching pages', error);
+    throw error;
+  }
+};
+
+/**
+ * Send pages to scan
+ * @param urls - Array of <IUrl>s to sent to scan
+ * @throws Will throw an error if the send fails
+ */
+export const sendUrlsToScan = async (
+  urls:any
+): Promise<{ result: any; status: string }> => {
+  try {
+
+    const response = await post({
+      apiName: API_NAME,
+      path: '/add/scansByPage',
+      options: {
+        body:  urls
+      },
+    }).response;
+
+    const { body, statusCode } = response;
+    const result = await body.json();
+    return { result, status: statusCode === 200 ? 'success' : 'error' };
+  } catch (error) {
+    console.error('Error sending URLs to scan', error);
     throw error;
   }
 };

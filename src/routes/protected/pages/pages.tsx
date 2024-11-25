@@ -1,4 +1,5 @@
 import React, { HTMLProps, useState } from 'react';
+import { UTCDate } from '@date-fns/utc';
 import {
   CheckCircledIcon,
   DownloadIcon,
@@ -24,9 +25,9 @@ import {
   parseISO,
   toDate,
 } from 'date-fns';
-import { UTCDate } from "@date-fns/utc";
-import { Link } from 'react-router-dom';
+import { ActionFunctionArgs, Link } from 'react-router-dom';
 
+import { toast } from '~/components/alerts';
 import { SEO } from '~/components/layout';
 import {
   Table,
@@ -38,7 +39,7 @@ import {
 } from '~/components/tables/table';
 import { pagesQuery } from '~/queries';
 //import { LoadingPages } from './loading';
-import { getPages, getScan, IPage } from '~/services';
+import { getPages, getScan, IPage, IUrl, sendUrlsToScan } from '~/services';
 
 export const pagesLoader = (queryClient: QueryClient) => async () => {
   const initialPages = await queryClient.ensureQueryData(
@@ -49,11 +50,41 @@ export const pagesLoader = (queryClient: QueryClient) => async () => {
 
 const Pages = () => {
   //const rerender = React.useReducer(() => ({}), {})[1]
-
   const [rowSelection, setRowSelection] = useState({});
-  function sendSelectedPagesToScan(): void {
-    console.log(table.getSelectedRowModel().flatRows.map((row)=>row.original.id))
-  }
+
+  const sendSelectedPagesToScan = async () => {
+    const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
+      return { url: row.original.url, urlId: row.original.id };
+    });
+
+    try {
+      const out = {"urls":urlsToSend};
+      const response = await sendUrlsToScan(out);
+
+      if (response.status === 'success') {
+        toast.success({
+          title: 'Success',
+          description: 'Pages sent to scan!',
+        });
+      } else {
+        toast.error({
+          title: 'Error',
+          description: 'There was a problem sending to scan.',
+        });
+        throw new Response('There was a problem sending to scan', {
+          status: 500,
+        });
+      }
+    } catch (error) {
+      toast.error({
+        title: 'Error',
+        description: 'There was a problem sending to scan.',
+      });
+      throw error;
+    }
+    table.resetRowSelection();
+    dataQuery.refetch();
+  };
 
   // Define the columns
   const columns = React.useMemo<ColumnDef<IPage>[]>(
@@ -70,14 +101,14 @@ const Pages = () => {
           />
         ),
         cell: ({ row }) => (
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
+          <IndeterminateCheckbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler(),
+            }}
+          />
         ),
       },
       {
@@ -109,37 +140,38 @@ const Pages = () => {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => (
-          <div
-            
-          >
-            {
-            row.original?.scans.length > 0 ?
-            (
-            row.original.scans[0].processing ? (
-              <ReloadIcon aria-label="Processing" className='animate-spin'/>
+          <div>
+            {row.original?.scans.length > 0 ? (
+              row.original.scans[row.original.scans.length-1].processing ? (
+                <ReloadIcon aria-label="Processing" className="animate-spin" />
+              ) : (
+                <div className="inline-flex items-center">
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger>
+                        <CheckCircledIcon aria-label="Complete" />
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          className="TooltipContent"
+                          sideOffset={5}
+                        >
+                          <div className="text-center text-sm">
+                            Last scanned <br />
+                            {new Date(
+                              row.original.scans[row.original.scans.length-1].updated_at,
+                            ).toLocaleString()}
+                          </div>
+                          <Tooltip.Arrow className="TooltipArrow" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </div>
+              )
             ) : (
-              <div className='inline-flex items-center'>
-              <Tooltip.Provider>
-                <Tooltip.Root>
-                  <Tooltip.Trigger>
-                    <CheckCircledIcon aria-label="Complete" />
-                  </Tooltip.Trigger>
-                  <Tooltip.Portal>
-                    <Tooltip.Content className="TooltipContent" sideOffset={5}>
-                      <div className='text-center text-sm'>
-                      Last scanned{' '}<br/>
-                      {new Date(row.original.scans[0].updated_at).toLocaleString()}
-                      </div>
-                      <Tooltip.Arrow className="TooltipArrow" />
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
-              </Tooltip.Provider>
-              {/* new Date(row.original.scans[0].updated_at).toLocaleString() */}
-              </div>
-            )
-          ) : <></>
-          }
+              <></>
+            )}
           </div>
         ),
       },
@@ -148,31 +180,37 @@ const Pages = () => {
         header: 'Results JSON',
         cell: ({ row }) =>
           row.original?.scans.length > 0 ? (
-          row.original.scans[0].processing ? (
-            <span className="select-none text-[#666]">Not ready</span>
+            row.original.scans[row.original.scans.length-1].processing ? (
+              <span className="select-none text-[#666]">Not ready</span>
+            ) : (
+              <button
+                className="inline-flex items-center text-blue-500 hover:opacity-50"
+                onClick={async () => {
+                  const element = document.getElementById('downloadReportLink');
+                  if (element) {
+                    const response = await getScan(row.original.scans[row.original.scans.length-1].id);
+                    element.setAttribute(
+                      'href',
+                      'data:text/json;charset=utf-8,' +
+                        encodeURIComponent(JSON.stringify(response)),
+                    );
+                    element.setAttribute('download', 'results.json');
+                    element.click();
+                  } else {
+                    console.log(
+                      'Error fetching scan:',
+                      row.original.scans[row.original.scans.length-1].id,
+                    );
+                  }
+                }}
+              >
+                <DownloadIcon className="ml-1" aria-label="Download" />
+              </button>
+            )
           ) : (
-            <button
-              className="text-blue-500 hover:opacity-50 inline-flex items-center"
-              onClick={async () => {
-                const element = document.getElementById('downloadReportLink');
-                if (element) {
-                  const response = await getScan(row.original.scans[0].id);
-                  element.setAttribute(
-                    'href',
-                    'data:text/json;charset=utf-8,' +
-                      encodeURIComponent(JSON.stringify(response)),
-                  );
-                  element.setAttribute('download', 'results.json');
-                  element.click();
-                } else {
-                  console.log('Error fetching scan:', row.original.scans[0].id);
-                }
-              }}
-            >
-              <DownloadIcon className="ml-1" aria-label="Download" />
-            </button>
-          ) ) : <></>,
-      }
+            <></>
+          ),
+      },
     ],
     [],
   );
@@ -206,7 +244,7 @@ const Pages = () => {
     rowCount: dataQuery.data?.total, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
     state: {
       pagination,
-      rowSelection
+      rowSelection,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -215,8 +253,6 @@ const Pages = () => {
     manualPagination: true, //we're doing manual "server-side" pagination
     debugTable: true,
   });
-
-  
 
   return (
     <>
@@ -284,18 +320,20 @@ const Pages = () => {
               </TableHeader>
               {table.getIsAllRowsSelected() || table.getIsSomeRowsSelected() ? (
                 <tbody>
-                <tr>
-                  <td>
-                    <button
-                    className="rounded border p-1"
-                    onClick={() => sendSelectedPagesToScan()}
-                    >
-                      {'Scan Pages'}
-                    </button>
-                  </td>
-                </tr>
+                  <tr>
+                    <td colSpan={5} className="bg-green-100 p-2 px-4">
+                      <button
+                        className="rounded p-2 rounded-md border-1 border-slate-900 px-4 py-1 shadow bg-white"
+                        onClick={() => sendSelectedPagesToScan()}
+                      >
+                        {`Scan ${table.getSelectedRowModel().flatRows.length} Pages`}
+                      </button>
+                    </td>
+                  </tr>
                 </tbody>
-              ):<></>}
+              ) : (
+                <></>
+              )}
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
@@ -417,13 +455,13 @@ function IndeterminateCheckbox({
   className = '',
   ...rest
 }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
-  const ref = React.useRef<HTMLInputElement>(null!)
+  const ref = React.useRef<HTMLInputElement>(null!);
 
   React.useEffect(() => {
     if (typeof indeterminate === 'boolean') {
-      ref.current.indeterminate = !rest.checked && indeterminate
+      ref.current.indeterminate = !rest.checked && indeterminate;
     }
-  }, [ref, indeterminate])
+  }, [ref, indeterminate]);
 
   return (
     <input
@@ -432,5 +470,5 @@ function IndeterminateCheckbox({
       className={className + ' cursor-pointer'}
       {...rest}
     />
-  )
+  );
 }
