@@ -78,7 +78,6 @@ export const sendUrlsToScan = async (
   urls:any
 ): Promise<{ result: any; status: string }> => {
   try {
-
     const response = await post({
       apiName: API_NAME,
       path: '/add/scansByPage',
@@ -91,7 +90,6 @@ export const sendUrlsToScan = async (
     const result = await body.json();
     return { result, status: statusCode === 200 ? 'success' : 'error' };
   } catch (error) {
-    console.error('Error sending URLs to scan', error);
     throw error;
   }
 };

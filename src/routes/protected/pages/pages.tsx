@@ -58,7 +58,7 @@ const Pages = () => {
     });
 
     try {
-      const out = {"urls":urlsToSend};
+      const out = {urls:urlsToSend};
       const response = await sendUrlsToScan(out);
 
       if (response.status === 'success') {
