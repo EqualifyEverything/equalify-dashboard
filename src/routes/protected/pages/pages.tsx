@@ -39,7 +39,7 @@ import {
 } from '~/components/tables/table';
 import { pagesQuery } from '~/queries';
 //import { LoadingPages } from './loading';
-import { getPages, getScan, IPage, IUrl, sendUrlsToScan } from '~/services';
+import { getPages, getScan, IPage, IPageScan, IUrl, sendUrlsToScan } from '~/services';
 
 export const pagesLoader = (queryClient: QueryClient) => async () => {
   const initialPages = await queryClient.ensureQueryData(
@@ -71,15 +71,19 @@ const Pages = () => {
           title: 'Error',
           description: 'There was a problem sending to scan.',
         });
+        console.log(urlsToSend);
+        console.log(response);
         throw new Response('There was a problem sending to scan', {
           status: 500,
         });
+
       }
     } catch (error) {
       toast.error({
         title: 'Error',
         description: 'There was a problem sending to scan.',
       });
+      console.log(urlsToSend);
       throw error;
     }
     table.resetRowSelection();
@@ -88,7 +92,8 @@ const Pages = () => {
 
   // Define the columns
   const columns = React.useMemo<ColumnDef<IPage>[]>(
-    () => [
+    () => 
+    [
       {
         accessorKey: 'select',
         header: ({ table }) => (
@@ -142,7 +147,7 @@ const Pages = () => {
         cell: ({ row }) => (
           <div>
             {row.original?.scans.length > 0 ? (
-              row.original.scans[row.original.scans.length-1].processing ? (
+              row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
                 <ReloadIcon aria-label="Processing" className="animate-spin" />
               ) : (
                 <div className="inline-flex items-center">
@@ -159,7 +164,7 @@ const Pages = () => {
                           <div className="text-center text-sm">
                             Last scanned <br />
                             {new Date(
-                              row.original.scans[row.original.scans.length-1].updated_at,
+                              row.original.scans[getIndexOfNewestScan(row.original.scans)].updated_at,
                             ).toLocaleString()}
                           </div>
                           <Tooltip.Arrow className="TooltipArrow" />
@@ -179,8 +184,9 @@ const Pages = () => {
         accessorKey: 'report',
         header: 'Results JSON',
         cell: ({ row }) =>
+          
           row.original?.scans.length > 0 ? (
-            row.original.scans[row.original.scans.length-1].processing ? (
+            row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
               <span className="select-none text-[#666]">Not ready</span>
             ) : (
               <button
@@ -188,7 +194,7 @@ const Pages = () => {
                 onClick={async () => {
                   const element = document.getElementById('downloadReportLink');
                   if (element) {
-                    const response = await getScan(row.original.scans[row.original.scans.length-1].id);
+                    const response = await getScan(row.original.scans[getIndexOfNewestScan(row.original.scans)].id);
                     element.setAttribute(
                       'href',
                       'data:text/json;charset=utf-8,' +
@@ -199,7 +205,7 @@ const Pages = () => {
                   } else {
                     console.log(
                       'Error fetching scan:',
-                      row.original.scans[row.original.scans.length-1].id,
+                      row.original.scans[getIndexOfNewestScan(row.original.scans)].id,
                     );
                   }
                 }}
@@ -211,7 +217,8 @@ const Pages = () => {
             <></>
           ),
       },
-    ],
+    ]
+    ,
     [],
   );
 
@@ -220,6 +227,13 @@ const Pages = () => {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  // returns the index of the newest scan 
+  const getIndexOfNewestScan = (scansArray:IPageScan[]) => {
+    return scansArray.reduce((highestIndex, scan, index, arr) => 
+      new Date(scan.updated_at).getTime() > 
+      new Date(arr[highestIndex].updated_at).getTime() ? index : highestIndex, 0);
+  }
 
   // data fetching
   const dataQuery = useQuery({

@@ -13,11 +13,14 @@ export interface IPage {
     id: string;
     name: string;
   }  
-  scans: [{
+  scans: IPageScan[]
+}
+
+export interface IPageScan {
     id: string;
     "updated_at":string;
     processing: boolean;
-  }]
+  
 }
 
 export interface IPageParams {
