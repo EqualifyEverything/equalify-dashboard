@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
+import {
+  ArchiveIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  CrossCircledIcon,
+  FileTextIcon,
+  LaptopIcon,
+} from '@radix-ui/react-icons';
 import * as Select from '@radix-ui/react-select';
 import * as Separator from '@radix-ui/react-separator';
 import * as Tabs from '@radix-ui/react-tabs';
@@ -13,11 +20,8 @@ import {
 } from 'react-router-dom';
 
 import { toast } from '~/components/alerts';
-import { Button } from '~/components/buttons';
-import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertiesQuery } from '~/queries/properties';
-import { addProperty } from '~/services';
 
 export const addPagesLoader = (queryClient: QueryClient) => async () => {
   const initialProperties =
@@ -108,28 +112,35 @@ const AddPages = () => {
         aria-live="polite"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-        
-          <Tabs.Root className="TabsRoot" defaultValue="url" value={activeTab} onValueChange={(value) => setValue('mode', value)} >
+          <Tabs.Root
+            className="TabsRoot"
+            defaultValue="url"
+            value={activeTab}
+            onValueChange={(value) => setValue('mode', value)}
+          >
             <Tabs.List
-              className="TabsList inline-flex justify-center gap-4 w-full"
+              className="TabsList inline-flex w-full justify-center gap-4"
               aria-label="Select how you want to add pages:"
             >
               <Tabs.Trigger
-                className="TabsTrigger text-left grow font-medium text-[#186121] p-2 border-green-800 hover:bg-slate-100 aria-selected:border-b-2"
+                className="TabsTrigger inline-flex grow items-center border-green-800 p-2 text-left font-medium text-[#186121] hover:bg-slate-100 aria-selected:border-b-2"
                 value="url"
               >
+                <LaptopIcon className="mr-2" />
                 By URL
               </Tabs.Trigger>
               <Tabs.Trigger
-                className="TabsTrigger text-left grow font-medium text-[#186121] p-2 border-green-800 hover:bg-slate-100 aria-selected:border-b-2"
+                className="TabsTrigger inline-flex grow items-center border-green-800 p-2 text-left font-medium text-[#186121] hover:bg-slate-100 aria-selected:border-b-2"
                 value="sitemap"
               >
+                <ArchiveIcon className="mr-2" />
                 By Sitemap
               </Tabs.Trigger>
               <Tabs.Trigger
-                className="TabsTrigger text-left grow font-medium text-[#186121] p-2 border-green-800 hover:bg-slate-100 aria-selected:border-b-2"
+                className="TabsTrigger inline-flex grow items-center border-green-800 p-2 text-left font-medium text-[#186121] hover:bg-slate-100 aria-selected:border-b-2"
                 value="csv"
               >
+                <FileTextIcon className="mr-2" />
                 By CSV
               </Tabs.Trigger>
             </Tabs.List>
@@ -137,12 +148,10 @@ const AddPages = () => {
               {/******* 
               URL Input tab Content 
               **********/}
-              <p className="Text">URL</p>
-
               <ul>
                 {fields.map((item, index) => {
                   return (
-                    <li key={item.id} className="flex">
+                    <li key={item.id} className="flex py-1">
                       <input
                         className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-base shadow-sm transition-colors"
                         {...register(`urls.${index}.url`, {
@@ -158,7 +167,7 @@ const AddPages = () => {
                           control={control}
                         /> */}
                       <button type="button" onClick={() => remove(index)}>
-                        Delete
+                        <CrossCircledIcon className="ml-2 opacity-50" />
                       </button>
                     </li>
                   );
@@ -177,7 +186,6 @@ const AddPages = () => {
               {/******* 
               Sitemap Input tab Content 
               **********/}
-              <p className="Text">Sitemap URL</p>
               <input
                 className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-base shadow-sm transition-colors"
                 {...register(`sitemapUrl`, {
@@ -205,60 +213,66 @@ const AddPages = () => {
             Cancel
           </Button> */}
           <Separator.Root />
-          <Controller
-            name="property"
-            control={control}
-            render={({ field }) => (
-              <Select.Root value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger
-                  className="SelectTrigger"
-                  aria-label="Add to Property"
-                >
-                  <Select.Value placeholder="Select a Property…" />
-                  <Select.Icon className="SelectIcon">
-                    <ChevronDownIcon />
-                  </Select.Icon>
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Content className="SelectContent">
-                    <Select.ScrollUpButton className="SelectScrollButton">
-                      <ChevronUpIcon />
-                    </Select.ScrollUpButton>
-                    <Select.Viewport className="SelectViewport">
-                      <Select.Item value="none" key="null">
-                        <Select.ItemText>None</Select.ItemText>
-                      </Select.Item>
-                      {initialProperties.map((item, index) => (
-                        <Select.Item value={item.id} key={index}>
-                          <Select.ItemText>{item.name}</Select.ItemText>
-                        </Select.Item>
-                      ))}
-                    </Select.Viewport>
-                    <Select.ScrollDownButton className="SelectScrollButton">
+          <div className="p-2">
+            <Controller
+              name="property"
+              control={control}
+              render={({ field }) => (
+                <Select.Root value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger
+                    className="SelectTrigger border border-slate-200"
+                    aria-label="Add to Property"
+                  >
+                    <Select.Value placeholder="Select a Property…" />
+                    <Select.Icon className="SelectIcon">
                       <ChevronDownIcon />
-                    </Select.ScrollDownButton>
-                  </Select.Content>
-                </Select.Portal>
-              </Select.Root>
-            )}
-          />
-          <Separator.Root />
-          <div className="flex flex-row items-center gap-2">
-            <input
-              type="submit"
-              value="Add Pages"
-              className="inline-flex items-center whitespace-nowrap rounded-md bg-[#005031] px-3 py-1 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+                    </Select.Icon>
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Content className="SelectContent">
+                      <Select.ScrollUpButton className="SelectScrollButton">
+                        <ChevronUpIcon />
+                      </Select.ScrollUpButton>
+                      <Select.Viewport className="SelectViewport">
+                        <Select.Item value="none" key="null" className="p-2">
+                          <Select.ItemText>None</Select.ItemText>
+                        </Select.Item>
+                        {initialProperties.map((item, index) => (
+                          <Select.Item
+                            value={item.id}
+                            key={index}
+                            className="p-2"
+                          >
+                            <Select.ItemText>{item.name}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.Viewport>
+                      <Select.ScrollDownButton className="SelectScrollButton">
+                        <ChevronDownIcon />
+                      </Select.ScrollDownButton>
+                    </Select.Content>
+                  </Select.Portal>
+                </Select.Root>
+              )}
             />
-            <button
-              type="button"
-              onClick={() =>
-                reset({
-                  urls: [{ url: '' }],
-                })
-              }
-            >
-              reset
-            </button>
+            <Separator.Root />
+            <div className="flex flex-row items-center gap-2 mt-4">
+              <input
+                type="submit"
+                value="Add Pages"
+                className="inline-flex items-center whitespace-nowrap rounded-md bg-[#005031] px-3 py-1 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  reset({
+                    urls: [{ url: '' }],
+                  })
+                }
+              >
+                reset
+              </button>
+            </div>
           </div>
         </form>
       </section>
