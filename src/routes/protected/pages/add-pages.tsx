@@ -6,6 +6,7 @@ import {
   CrossCircledIcon,
   FileTextIcon,
   LaptopIcon,
+  PlusCircledIcon,
 } from '@radix-ui/react-icons';
 import * as Select from '@radix-ui/react-select';
 import * as Separator from '@radix-ui/react-separator';
@@ -178,8 +179,9 @@ const AddPages = () => {
                 onClick={() => {
                   append({ url: '' });
                 }}
+                className='inline-flex justify-center text-center items-center w-full mr-8 bg-slate-100 py-2 rounded-md border border-gray-200 hover:bg-green-200'
               >
-                Add URL
+                <PlusCircledIcon className='mr-2'/> Add URL
               </button>
             </Tabs.Content>
             <Tabs.Content className="TabsContent p-2" value="sitemap">

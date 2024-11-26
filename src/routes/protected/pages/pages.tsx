@@ -2,6 +2,7 @@ import React, { HTMLProps, useState } from 'react';
 import {
   CheckCircledIcon,
   DownloadIcon,
+  ExclamationTriangleIcon,
   ReloadIcon,
 } from '@radix-ui/react-icons';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -136,10 +137,10 @@ const Pages = () => {
         cell: ({ row }) => (
           <div>
             {row.original?.scans.length > 0 ? (
-              row.original.scans[getIndexOfNewestScan(row.original.scans)]
-                .processing ? (
-                <ReloadIcon aria-label="Processing" className="animate-spin" />
-              ) : (
+              row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
+              <ReloadIcon aria-label="Processing" className="animate-spin" />
+              ):(
+              
                 <div className="inline-flex items-center">
                   <Tooltip.Provider>
                     <Tooltip.Root>
@@ -166,8 +167,9 @@ const Pages = () => {
                   </Tooltip.Provider>
                 </div>
               )
+              
             ) : (
-              <></>
+              <ExclamationTriangleIcon aria-label="No Scans Found!"/>
             )}
           </div>
         ),
