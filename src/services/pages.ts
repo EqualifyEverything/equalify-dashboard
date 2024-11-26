@@ -1,4 +1,5 @@
 import { post, get } from 'aws-amplify/api';
+import { stringify } from 'postcss';
 
 interface ApiResponse<T> {
   status: string;
@@ -90,6 +91,28 @@ export const sendUrlsToScan = async (
     const result = await body.json();
     return { result, status: statusCode === 200 ? 'success' : 'error' };
   } catch (error) {
+    throw error;
+  }
+};
+
+export const addPagesFromForm = async (
+  formData:any
+): Promise<{result:any}> => {
+  console.log(JSON.stringify(formData))
+  try {
+    const response = await post({
+      apiName: API_NAME,
+      path: '/add/pages',
+      options: {
+        body: formData
+      },
+    }).response;
+
+    const { body, statusCode } = response;
+    const result = await body.json();
+    return { result };
+  } catch (error) {
+    console.log("Server error adding pages!");
     throw error;
   }
 };

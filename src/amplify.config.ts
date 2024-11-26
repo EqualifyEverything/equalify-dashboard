@@ -5,6 +5,7 @@ const generateHeaders = async (apiKeyRequired: boolean) => {
   const session = await Auth.fetchAuthSession();
   const headers: Record<string, string> = {
     Authorization: `Bearer ${session.tokens?.idToken?.toString()}`,
+    ContentType: 'application/json; charset=utf-8',
   };
 
   if (apiKeyRequired) {
