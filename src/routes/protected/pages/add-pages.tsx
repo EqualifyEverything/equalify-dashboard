@@ -111,29 +111,29 @@ const AddPages = () => {
         
           <Tabs.Root className="TabsRoot" defaultValue="url" value={activeTab} onValueChange={(value) => setValue('mode', value)} >
             <Tabs.List
-              className="TabsList flex justify-center gap-4"
+              className="TabsList inline-flex justify-center gap-4 w-full"
               aria-label="Select how you want to add pages:"
             >
               <Tabs.Trigger
-                className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+                className="TabsTrigger text-left grow font-medium text-[#186121] p-2 border-green-800 hover:bg-slate-100 aria-selected:border-b-2"
                 value="url"
               >
                 By URL
               </Tabs.Trigger>
               <Tabs.Trigger
-                className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+                className="TabsTrigger text-left grow font-medium text-[#186121] p-2 border-green-800 hover:bg-slate-100 aria-selected:border-b-2"
                 value="sitemap"
               >
                 By Sitemap
               </Tabs.Trigger>
               <Tabs.Trigger
-                className="TabsTrigger text-sm font-medium text-[#186121] underline underline-offset-8 hover:text-[#186121CC]"
+                className="TabsTrigger text-left grow font-medium text-[#186121] p-2 border-green-800 hover:bg-slate-100 aria-selected:border-b-2"
                 value="csv"
               >
                 By CSV
               </Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content className="TabsContent" value="url">
+            <Tabs.Content className="TabsContent p-2" value="url">
               {/******* 
               URL Input tab Content 
               **********/}
@@ -173,7 +173,7 @@ const AddPages = () => {
                 Add URL
               </button>
             </Tabs.Content>
-            <Tabs.Content className="TabsContent" value="sitemap">
+            <Tabs.Content className="TabsContent p-2" value="sitemap">
               {/******* 
               Sitemap Input tab Content 
               **********/}
@@ -187,7 +187,7 @@ const AddPages = () => {
                 })}
               />
             </Tabs.Content>
-            <Tabs.Content className="TabsContent" value="csv">
+            <Tabs.Content className="TabsContent p-2" value="csv">
               {/******* 
               CSV Input tab Content 
               **********/}
