@@ -1,13 +1,43 @@
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { ActionFunctionArgs, Link, useLoaderData, useNavigate } from 'react-router-dom';
+import React from 'react';
+import {
+  CheckCircledIcon,
+  DownloadIcon,
+  ExclamationTriangleIcon,
+  ReloadIcon,
+} from '@radix-ui/react-icons';
+import { QueryClient } from '@tanstack/react-query';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { format, formatDistance } from 'date-fns';
+import {
+  ActionFunctionArgs,
+  Link,
+  useLoaderData,
+  useNavigate,
+} from 'react-router-dom';
+
+import { Button } from '~/components/buttons';
 import { SEO } from '~/components/layout';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '~/components/tables';
 import { pageDetailQuery } from '~/queries/pages';
+import { getScan, IPageScan } from '~/services';
 
 // Initial data on pageload
 export const pageDetailLoader =
-  (queryClient: QueryClient) => async ({ params }: ActionFunctionArgs) => {
-    console.log(params);
-    if(!params.pageId) return;
+  (queryClient: QueryClient) =>
+  async ({ params }: ActionFunctionArgs) => {
+    if (!params.pageId) return;
     const initialPage = await queryClient.ensureQueryData(
       pageDetailQuery({ pageId: params.pageId }),
     );
@@ -16,10 +46,87 @@ export const pageDetailLoader =
 
 const pageDetail = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { initialPage } = useLoaderData() as Awaited<
+
+  // fetch the single page data
+  const initialPage = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof pageDetailLoader>>
-  >; 
+  >;
+  const data = initialPage?.initialPage;
+  console.log(data);
+
+  // Define the columns
+  const columns = React.useMemo<ColumnDef<IPageScan>[]>(
+    () => [
+      {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: ({ row }) => (
+          <div>{format(new Date(row.original.updated_at), 'MM/dd/yy p')}</div>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => (
+          <div>
+            {row.original?.processing == true ? (
+              <ReloadIcon aria-label="Processing" className="animate-spin" />
+            ) : null}
+            {row.original?.processing == false ? (
+              <CheckCircledIcon aria-label="Complete" />
+            ) : (
+              <ExclamationTriangleIcon aria-label="No Scans Found!" />
+            )}
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'report',
+        header: 'Results JSON',
+        cell: ({ row }) =>
+          row.original.processing ? (
+            <span className="select-none text-[#666]">Not ready</span>
+          ) : (
+            <button
+              className="inline-flex items-center text-blue-500 hover:opacity-50"
+              onClick={async () => {
+                const element = document.getElementById('downloadReportLink');
+                if (element) {
+                  const response = await getScan(row.original.id);
+                  element.setAttribute(
+                    'href',
+                    'data:text/json;charset=utf-8,' +
+                      encodeURIComponent(JSON.stringify(response)),
+                  );
+                  element.setAttribute('download', 'results.json');
+                  element.click();
+                } else {
+                  console.log('Error fetching scan:', row.original.id);
+                }
+              }}
+            >
+              <DownloadIcon className="ml-1" aria-label="Download" />
+            </button>
+          ),
+      },
+    ],
+    [],
+  );
+
+  const scansSortedByDate = data?.scans
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    );
+
+  const table = useReactTable({
+    data: scansSortedByDate ?? [],
+    columns,
+    rowCount: scansSortedByDate?.length, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
+    getCoreRowModel: getCoreRowModel(),
+    //debugTable: true,
+  });
 
   return (
     <>
@@ -29,25 +136,116 @@ const pageDetail = () => {
         url="https://dashboard.equalify.app/properties"
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
-        <h1
-          className="text-2xl font-bold md:text-3xl"
-          id="properties-list-heading"
-        >
-          Page Detail
-        </h1>
         <div className="flex flex-row items-center gap-2">
           <Link
-            to=""
-            onClick={() => navigate(-1)}
-            aria-label='Back to Pages'
-            className="text-[#186121]">
-            &#60; Back to Pages
+            to="/pages"
+            aria-label="Back to All Pages"
+            className="text-[#186121]"
+          >
+            &#60; Back to All Pages
           </Link>
-        </div> 
+        </div>
       </div>
-      <section>
-        </section> 
-      </>
-    )
+      <section
+        aria-labelledby="page-detail-heading"
+        className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
+      >
+        <dl className="">
+          <>
+            <dt className="text-sm font-bold">URL</dt>
+            <dd id="page-detail-heading">{data?.url}</dd>
+          </>
+          <>
+            <dt className="text-sm font-bold">Added</dt>
+            <dd>
+              {data?.created_at &&
+                formatDistance(new Date(data?.created_at), new Date(), {
+                  addSuffix: true,
+                })}
+            </dd>
+          </>
+          <>
+            <dt className="text-sm font-bold">Equalify ID</dt>
+            <dd className="text-sm">{data?.id}</dd>
+          </>
+          <>
+            <dt className="text-sm font-bold">Property</dt>
+            <dd className="text-sm">{data?.property?.name}</dd>
+          </>
+        </dl>
+      </section>
+      <section
+        aria-labelledby="page-detail-scans-heading"
+        className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
+      >
+        <h3 id="page-detail-scans-heading" className="text-md">
+          Scans
+        </h3>
+        {table.getRowCount() === 0 ? (
+          <div className="mt-7 text-center">
+            <h2 className="text-xl font-semibold text-gray-700">
+              No Scans Found
+            </h2>
+            <p className="mt-2 text-gray-600">
+              You haven't scanned this page yet.
+            </p>
+          </div>
+        ) : (
+          <Table role="table" aria-label="Pages List">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} role="columnheader">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    role="row"
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} role="cell">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow role="row">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                    role="cell"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
+      </section>
+      <a id="downloadReportLink" style={{ display: 'none' }}></a>
+    </>
+  );
 };
 export default pageDetail;

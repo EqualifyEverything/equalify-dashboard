@@ -17,6 +17,11 @@ export interface IPage {
   scans: IPageScan[]
 }
 
+export interface IPageDetails extends IPage {
+  "created_at"  : string;
+  "updated_at"  : string;
+}
+
 export interface IPageScan {
     id: string;
     "updated_at":string;
@@ -76,10 +81,10 @@ export const getPages = async ({ params }: { params: IPageParams }): Promise<IPa
 
 /**
  * Fetch single page detail
- * @returns {Promise<IPage>} Single IPage record
+ * @returns {Promise<IPageDetails>} Single IPage record
  * @throws Will throw an error if the fetch fails
  */
-export const getPageDetail = async ( params :IPageDetailParams): Promise<IPage> => {
+export const getPageDetail = async ( params :IPageDetailParams): Promise<IPageDetails> => {
   try {
     const response = await get({
       apiName: API_NAME,
@@ -90,13 +95,10 @@ export const getPageDetail = async ( params :IPageDetailParams): Promise<IPage> 
         },
       },
     }).response;
-    console.log(response);
-
     const { body } = response;
     const { result } = (await body.json()) as unknown as ApiResponse<
-    IPage
+    IPageDetails
     >;
-    console.log('Fetched', result);
     return result ;
   } catch (error) {
     console.error('Error fetching pages', error);
