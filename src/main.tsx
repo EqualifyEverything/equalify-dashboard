@@ -37,6 +37,7 @@ import {
   BulkProperty,
   Pages,
   AddPages,
+  PageDetail,
 } from '~/routes';
 import {
   addPropertyAction,
@@ -55,6 +56,7 @@ import {
   authenticatedLoader,
   pagesLoader,
   addPagesLoader,
+  pageDetailLoader,
 } from '~/routes/route-handlers';
 
 const queryClient = new QueryClient({
@@ -107,7 +109,7 @@ const router = createBrowserRouter([
         element: <TagDetails />,
         loader: authenticatedLoader(tagDetailsLoader(queryClient)),
       },
-      {
+      { // report page detail
         path: 'reports/:reportId/pages/:pageId',
         element: <PageDetails />,
         loader: authenticatedLoader(pageDetailsLoader(queryClient)),
@@ -124,6 +126,11 @@ const router = createBrowserRouter([
         path: 'pages/add',
         element: <AddPages />,
         loader: authenticatedLoader(addPagesLoader(queryClient)),
+      },
+      { // url detail
+        path: 'pages/:pageId',
+        element: <PageDetail />,
+        loader: authenticatedLoader(pageDetailLoader(queryClient)),
       },
       {
         path: 'properties',

@@ -39,6 +39,10 @@ export interface IUrl {
   urlId: string;
 }
 
+export interface IPageDetailParams {
+  pageId: string;
+}
+
 const API_NAME = 'auth';
 
 /**
@@ -71,6 +75,36 @@ export const getPages = async ({ params }: { params: IPageParams }): Promise<IPa
 };
 
 /**
+ * Fetch single page detail
+ * @returns {Promise<IPage>} Single IPage record
+ * @throws Will throw an error if the fetch fails
+ */
+export const getPageDetail = async ( params :IPageDetailParams): Promise<IPage> => {
+  try {
+    const response = await get({
+      apiName: API_NAME,
+      path: `/get/page`,
+      options: {
+        queryParams: {
+          pageId: params.pageId,
+        },
+      },
+    }).response;
+    console.log(response);
+
+    const { body } = response;
+    const { result } = (await body.json()) as unknown as ApiResponse<
+    IPage
+    >;
+    console.log('Fetched', result);
+    return result ;
+  } catch (error) {
+    console.error('Error fetching pages', error);
+    throw error;
+  }
+};
+
+/**
  * Send pages to scan
  * @param urls - Array of <IUrl>s to sent to scan
  * @throws Will throw an error if the send fails
@@ -95,6 +129,7 @@ export const sendUrlsToScan = async (
   }
 };
 
+/* Add pages */
 export const addPagesFromForm = async (
   formData:any
 ): Promise<{result:any}> => {

@@ -110,13 +110,12 @@ const Pages = () => {
         accessorKey: 'url',
         header: 'URL',
         cell: ({ row }) => (
-          <a
+          <Link
             className="text-blue-500 hover:opacity-50"
-            target="_blank"
-            href={row.original.url}
+            to={'./'+row.original.id}
           >
             {row.original.url}
-          </a>
+          </Link>
         ),
       },
       {

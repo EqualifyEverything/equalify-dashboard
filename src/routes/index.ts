@@ -21,6 +21,7 @@ export { default as EditProperty } from './protected/properties/edit-property';
 // Pages
 export { default as Pages } from './protected/pages/pages';
 export { default as AddPages } from './protected/pages/add-pages';
+export { default as PageDetail } from './protected/pages/page-detail';
 
 // Scans
 export { default as Scans } from './protected/scans';
