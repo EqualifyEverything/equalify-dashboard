@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CheckCircledIcon,
   DownloadIcon,
@@ -13,13 +13,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { format, formatDistance } from 'date-fns';
-import {
-  ActionFunctionArgs,
-  Link,
-  useLoaderData,
-  useNavigate,
-} from 'react-router-dom';
+import { ActionFunctionArgs, Link, useLoaderData } from 'react-router-dom';
 
+import { toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { SEO } from '~/components/layout';
 import {
@@ -31,13 +27,13 @@ import {
   TableRow,
 } from '~/components/tables';
 import { pageDetailQuery } from '~/queries/pages';
-import { getScan, IPageScan } from '~/services';
+import { getScan, IPageScan, sendUrlsToScan } from '~/services';
 
 // Initial data on pageload
 export const pageDetailLoader =
   (queryClient: QueryClient) =>
   async ({ params }: ActionFunctionArgs) => {
-    if (!params.pageId) return;
+    if (!params.pageId) { throw("Error loading page"); return};
     const initialPage = await queryClient.ensureQueryData(
       pageDetailQuery({ pageId: params.pageId }),
     );
@@ -45,14 +41,12 @@ export const pageDetailLoader =
   };
 
 const pageDetail = () => {
-  const navigate = useNavigate();
-
   // fetch the single page data
   const initialPage = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof pageDetailLoader>>
   >;
   const data = initialPage?.initialPage;
-  console.log(data);
+  const [isSendingToScan, setIsSendingToScan] = useState(false);
 
   // Define the columns
   const columns = React.useMemo<ColumnDef<IPageScan>[]>(
@@ -128,6 +122,52 @@ const pageDetail = () => {
     //debugTable: true,
   });
 
+  const sendPageToScan = async () => {
+    //setIsSendingToScan(true);
+    const urlsToSend = [];
+    if(data?.id ?? data?.url){
+    urlsToSend.push(
+      {
+        url: data?.url,
+        urlId: data?.id,
+      });
+    }else{
+        console.log("Data error!");
+        return;
+    }
+
+    try {
+      const out = { urls: urlsToSend };
+      const response = await sendUrlsToScan(out);
+
+      if (response.status === 'success') {
+        toast.success({
+          title: 'Success',
+          description: 'Pages sent to scan!',
+        });
+      } else {
+        toast.error({
+          title: 'Error',
+          description: 'There was a problem sending to scan.',
+        });
+        console.log(out);
+        console.log(response);
+        throw new Response('There was a problem sending to scan', {
+          status: 500,
+        });
+      }
+      //setIsSendingToScan(false);
+    } catch (error) {
+      toast.error({
+        title: 'Error',
+        description: 'There was a problem sending to scan.',
+      });
+      //setIsSendingToScan(false);
+      throw error;
+    }
+    return;
+  };
+
   return (
     <>
       <SEO
@@ -146,34 +186,57 @@ const pageDetail = () => {
           </Link>
         </div>
       </div>
-      <section
-        aria-labelledby="page-detail-heading"
-        className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
-      >
-        <dl className="">
-          <>
-            <dt className="text-sm font-bold">URL</dt>
-            <dd id="page-detail-heading">{data?.url}</dd>
-          </>
-          <>
-            <dt className="text-sm font-bold">Added</dt>
-            <dd>
-              {data?.created_at &&
-                formatDistance(new Date(data?.created_at), new Date(), {
-                  addSuffix: true,
-                })}
-            </dd>
-          </>
-          <>
-            <dt className="text-sm font-bold">Equalify ID</dt>
-            <dd className="text-sm">{data?.id}</dd>
-          </>
-          <>
-            <dt className="text-sm font-bold">Property</dt>
-            <dd className="text-sm">{data?.property?.name}</dd>
-          </>
-        </dl>
-      </section>
+      <div className="inline-flex w-full justify-between">
+        <section
+          aria-labelledby="page-detail-heading"
+          className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
+        >
+          <dl className="">
+            <>
+              <dt className="text-sm font-bold">URL</dt>
+              <dd id="page-detail-heading">{data?.url}</dd>
+            </>
+            <>
+              <dt className="text-sm font-bold">Added</dt>
+              <dd>
+                {data?.created_at &&
+                  formatDistance(new Date(data?.created_at), new Date(), {
+                    addSuffix: true,
+                  })}
+              </dd>
+            </>
+            <>
+              <dt className="text-sm font-bold">Equalify ID</dt>
+              <dd className="text-sm">{data?.id}</dd>
+            </>
+            <>
+              <dt className="text-sm font-bold">Property</dt>
+              <dd className="text-sm">{data?.property?.name}</dd>
+            </>
+          </dl>
+        </section>
+        <section aria-label="Actions" className="space-y-6 p-6">
+          <Button
+            className="w-fit bg-[#1D781D] text-white"
+            disabled={isSendingToScan}
+            aria-disabled={isSendingToScan}
+            aria-live="polite"
+            onClick={sendPageToScan}
+          >
+            {isSendingToScan ? (
+              <>
+                <span className="sr-only">Processing, please wait...</span>
+                <div
+                  role="status"
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"
+                ></div>
+              </>
+            ) : (
+              'Scan Page'
+            )}
+          </Button>
+        </section>
+      </div>
       <section
         aria-labelledby="page-detail-scans-heading"
         className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
