@@ -5,7 +5,7 @@ import {
   ExclamationTriangleIcon,
   ReloadIcon,
 } from '@radix-ui/react-icons';
-import { QueryClient } from '@tanstack/react-query';
+import { keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
 import {
   ColumnDef,
   flexRender,
@@ -27,13 +27,13 @@ import {
   TableRow,
 } from '~/components/tables';
 import { pageDetailQuery } from '~/queries/pages';
-import { getScan, IPageScan, sendUrlsToScan } from '~/services';
+import { getPageDetail, getScan, IPageScan, sendUrlsToScan } from '~/services';
 
 // Initial data on pageload
 export const pageDetailLoader =
   (queryClient: QueryClient) =>
   async ({ params }: ActionFunctionArgs) => {
-    if (!params.pageId) { throw("Error loading page"); return};
+    if (!params.pageId) { throw("Error loading page")};
     const initialPage = await queryClient.ensureQueryData(
       pageDetailQuery({ pageId: params.pageId }),
     );
@@ -45,7 +45,7 @@ const pageDetail = () => {
   const initialPage = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof pageDetailLoader>>
   >;
-  const data = initialPage?.initialPage;
+  const [data, setData] = useState(initialPage?.initialPage);
   const [isSendingToScan, setIsSendingToScan] = useState(false);
 
   // Define the columns
@@ -63,14 +63,15 @@ const pageDetail = () => {
         header: 'Status',
         cell: ({ row }) => (
           <div>
-            {row.original?.processing == true ? (
+            {row.original?.processing === true ? (
               <ReloadIcon aria-label="Processing" className="animate-spin" />
             ) : null}
-            {row.original?.processing == false ? (
+            {row.original?.processing === false ? (
               <CheckCircledIcon aria-label="Complete" />
-            ) : (
+            ) : null}
+            {row.original?.processing !== true && row.original?.processing !== false ? (
               <ExclamationTriangleIcon aria-label="No Scans Found!" />
-            )}
+            ) : null}
           </div>
         ),
       },
@@ -145,6 +146,7 @@ const pageDetail = () => {
           title: 'Success',
           description: 'Pages sent to scan!',
         });
+        setData(await getPageDetail({ pageId: data.id})); // refresh the page
       } else {
         toast.error({
           title: 'Error',
