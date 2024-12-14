@@ -210,9 +210,7 @@ const MessageDetails = () => {
         setOpen={setOpen}
       >
         <h1 className='text-2xl'>Suggest Issue</h1>
-        {!suggestIssueResponse && <div>
-          <h2>Generating issue... (ETA: 1 min)</h2>
-        </div>}
+        <div role='status'>{!suggestIssueResponse ? `Generating issue... (1 min)` : `Issue generated`}</div>
         {suggestIssueResponse && <div className='overflow-y-scroll max-h-[500px]'>
           {JSON.stringify({ suggestIssueResponse: suggestIssueResponse?.how_to_implement })}
         </div>}
