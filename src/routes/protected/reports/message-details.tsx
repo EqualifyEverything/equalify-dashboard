@@ -87,7 +87,7 @@ const MessageDetails = () => {
       document.querySelector(`#suggest-${suggestIndex}`)?.focus();
     }
     else {
-      document.querySelector(`#suggest-title`)?.focus();
+      document.querySelector(`#modal-title`)?.focus();
     }
   }, [open])
 
@@ -211,8 +211,8 @@ const MessageDetails = () => {
       <Modal
         open={open}
         setOpen={setOpen}
+        title={`Suggest Issue`}
       >
-        <h1 id='suggest-title' className='text-2xl'>Suggest Issue</h1>
         <div role='status'>{!suggestIssueResponse ? `Generating issue... (1 min)` : `Issue generated`}</div>
         {suggestIssueResponse && <div className='overflow-y-scroll max-h-[500px]'>
           {JSON.stringify({ suggestIssueResponse: suggestIssueResponse?.how_to_implement })}
