@@ -5,7 +5,7 @@ import {
   ExclamationTriangleIcon,
   ReloadIcon,
 } from '@radix-ui/react-icons';
-import { keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ColumnDef,
   flexRender,
@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { format, formatDistance } from 'date-fns';
-import { ActionFunctionArgs, Link, useLoaderData } from 'react-router-dom';
+import { ActionFunctionArgs, Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import { toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
@@ -28,25 +28,36 @@ import {
 } from '~/components/tables';
 import { pageDetailQuery } from '~/queries/pages';
 import { getPageDetail, getScan, IPageScan, sendUrlsToScan } from '~/services';
+import { assertNonNull } from '~/utils/safety';
 
 // Initial data on pageload
 export const pageDetailLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: ActionFunctionArgs) => {
-    if (!params.pageId) { throw("Error loading page")};
+  async ({ params }: LoaderFunctionArgs) => {
+    assertNonNull(
+      params.pageId,
+      'Page ID is missing in the route parameters',
+    );
     const initialPage = await queryClient.ensureQueryData(
       pageDetailQuery({ pageId: params.pageId }),
     );
-    return { initialPage };
+    return { initialPage, pageId: params.pageId };
   };
 
 const pageDetail = () => {
   // fetch the single page data
-  const initialPage = useLoaderData() as Awaited<
+  const queryClient = useQueryClient();
+  const { initialPage, pageId } = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof pageDetailLoader>>
   >;
-  const [data, setData] = useState(initialPage?.initialPage);
+  //const [data, setData] = useState(initialPage?.initialPage);
   const [isSendingToScan, setIsSendingToScan] = useState(false);
+
+  const { data } = useQuery({
+    ...pageDetailQuery({pageId: pageId!}),
+    initialData: initialPage,
+  });
+  
 
   // Define the columns
   const columns = React.useMemo<ColumnDef<IPageScan>[]>(
@@ -146,7 +157,8 @@ const pageDetail = () => {
           title: 'Success',
           description: 'Pages sent to scan!',
         });
-        setData(await getPageDetail({ pageId: data.id})); // refresh the page
+        queryClient.refetchQueries({ queryKey: ['page-detail']});
+        //setData(await getPageDetail({ pageId: data.id})); // refresh the page
       } else {
         toast.error({
           title: 'Error',

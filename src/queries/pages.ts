@@ -10,7 +10,17 @@ export const pagesQuery = (params:IPageParams) => queryOptions({
 // Query for page detail
 export const pageDetailQuery = (params:IPageDetailParams) => queryOptions({
     queryKey: ['page-detail'],
-    queryFn: async () => getPageDetail(params),
+    queryFn: async () => {
+        const detail = getPageDetail(params);
+        if (!detail) {
+            throw new Response('', {
+              status: 404,
+              statusText: 'Page Details Not Found',
+            });
+          }
+    
+        return detail;
+    }
 });
 
 
