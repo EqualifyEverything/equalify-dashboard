@@ -1,6 +1,6 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import Timeline from '~/components/charts/timeline';
@@ -9,7 +9,6 @@ import { DataTable } from '~/components/tables';
 import { messageDetailsQuery } from '~/queries';
 import { assertNonNull } from '~/utils/safety';
 import { post } from 'aws-amplify/api';
-import { InfoDialog } from '~/components/dialogs';
 import { Modal } from '~/components/modals';
 
 interface Node {
@@ -24,6 +23,7 @@ interface Node {
  * @param queryClient - The Query Client instance.
  * @returns Loader function to be used with React Router.
  */
+let suggestIndex = 0;
 export const messageDetailsLoader =
   (queryClient: QueryClient) =>
     async ({ params }: LoaderFunctionArgs) => {
@@ -60,7 +60,8 @@ const MessageDetails = () => {
 
   const [suggestIssueResponse, setSuggestIssueResponse] = useState(null);
   const [open, setOpen] = useState(false);
-  const suggestIssue = async ({ codeSnippet, pageUrl }) => {
+  const suggestIssue = async ({ codeSnippet, pageUrl, index }) => {
+    suggestIndex = index;
     setSuggestIssueResponse(null);
     setOpen(true);
     const response = await (await post({
@@ -80,6 +81,15 @@ const MessageDetails = () => {
     setSuggestIssueResponse(response);
     // if (!window.open(response?.url)) { window.location.href = response?.url }
   }
+
+  useEffect(() => {
+    if (!open) {
+      document.querySelector(`#suggest-${suggestIndex}`)?.focus();
+    }
+    else {
+      document.querySelector(`#modal-title`)?.focus();
+    }
+  }, [open])
 
   const NodeColumns: ColumnDef<Node>[] = [
     {
@@ -105,8 +115,9 @@ const MessageDetails = () => {
       header: 'Action',
       cell: ({ row }) => (
         <button
+          id={`suggest-${row.index}`}
           className={`inline-flex h-9 items-center justify-end gap-2 place-self-end whitespace-nowrap rounded-md px-2 py-3 text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d6efd] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-1 ml-2 bg-[#0d6efd] hover:opacity-50 text-xs`}
-          onClick={() => suggestIssue({ codeSnippet: row.getValue('codeSnippet'), pageUrl: row.getValue('pageUrl') })}
+          onClick={() => suggestIssue({ codeSnippet: row.getValue('codeSnippet'), pageUrl: row.getValue('pageUrl'), index: row.index })}
         >
           Suggest Issue
           <svg
@@ -200,11 +211,9 @@ const MessageDetails = () => {
       <Modal
         open={open}
         setOpen={setOpen}
+        title={`Suggest Issue`}
       >
-        <h1 className='text-2xl'>Suggest Issue</h1>
-        {!suggestIssueResponse && <div>
-          <h2>Generating issue... (ETA: 1 min)</h2>
-        </div>}
+        <div role='status'>{!suggestIssueResponse ? `Generating issue... (1 min)` : `Issue generated`}</div>
         {suggestIssueResponse && <div className='overflow-y-scroll max-h-[500px]'>
           {JSON.stringify({ suggestIssueResponse: suggestIssueResponse?.how_to_implement })}
         </div>}

@@ -1,13 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 
-export const Modal = ({ open, setOpen, children, className = '' }) => (
+export const Modal = ({ open, setOpen, title, children, className = '' }) => (
     <Dialog.Root open={open} onOpenChange={(value) => { setOpen(value) }}>
         <Dialog.Portal>
             <Dialog.Overlay className="bg-[#0009] data-[state=open]:animate-overlayShow fixed inset-0" />
             <Dialog.Content className={`data-[state=open]:animate-contentShow fixed top-[30%] left-[50%] max-h-[85vh] w-[90vw] max-w-[770px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-background p-[10px] sm:p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none ${className} z-40`}>
-                <Dialog.Description className="text-text mt-1">
-                    {children}
-                </Dialog.Description>
+                <Dialog.Title id='modal-title' className='text-2xl'>{title}</Dialog.Title>
                 <Dialog.Close asChild>
                     <button
                         className="text-text absolute top-4 right-4 inline-flex h-6 w-6 items-center justify-center hover:opacity-50"
@@ -16,6 +14,9 @@ export const Modal = ({ open, setOpen, children, className = '' }) => (
                         {`×`}
                     </button>
                 </Dialog.Close>
+                <Dialog.Description className="text-text mt-1">
+                    {children}
+                </Dialog.Description>
             </Dialog.Content>
         </Dialog.Portal>
     </Dialog.Root>
