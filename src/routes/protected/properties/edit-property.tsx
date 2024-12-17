@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { CheckCircledIcon, DownloadIcon, ExclamationTriangleIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
   QueryClient,
   useMutation,
@@ -8,20 +8,32 @@ import {
 } from '@tanstack/react-query';
 import {
   ActionFunctionArgs,
+  Link,
   LoaderFunctionArgs,
   redirect,
   useLoaderData,
   useNavigate,
 } from 'react-router-dom';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '~/components/tables';
 import { toast } from '~/components/alerts';
 import { Button } from '~/components/buttons';
 import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
-import { deleteProperty, sendToScan, updateProperty } from '~/services';
+import { deleteProperty, getScan, IPage, IPageScan, sendToScan, updateProperty } from '~/services';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
+import { ColumnDef, flexRender, getCoreRowModel, PaginationState, useReactTable } from '@tanstack/react-table';
+import React from 'react';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 /**
  * Loader function to fetch property data
@@ -98,6 +110,12 @@ const EditProperty = () => {
     initialData: initialProperty,
   });
 
+  // pagination
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
   const { mutate: deleteMutate } = useMutation({
     mutationFn: () => {
       const response = deleteProperty(propertyId!);
@@ -152,6 +170,155 @@ const EditProperty = () => {
       setIsSending(false);
     }
   };
+
+  // returns the index of the newest scan
+  const getIndexOfNewestScan = (scansArray: IPageScan[]) => {
+    return scansArray.reduce(
+      (highestIndex, scan, index, arr) =>
+        new Date(scan.updated_at).getTime() >
+        new Date(arr[highestIndex].updated_at).getTime()
+          ? index
+          : highestIndex,
+      0,
+    );
+  };
+  
+   // Define the columns
+   const columns = React.useMemo<ColumnDef<IPage>[]>(
+    () => [
+      {
+        accessorKey: 'url',
+        header: 'URL',
+        cell: ({ row }) => (
+          <Link
+            className="text-blue-500 hover:opacity-50"
+            to={'./'+row.original.id}
+          >
+            {row.original.url}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => (
+          <div>
+            {row.original?.scans.length > 0 ? (
+              row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
+              <ReloadIcon aria-label="Processing" className="animate-spin" />
+              ):(
+              
+                <div className="inline-flex items-center">
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger>
+                        <CheckCircledIcon aria-label="Complete" />
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          className="TooltipContent"
+                          sideOffset={5}
+                        >
+                          <div className="text-center text-sm">
+                            Last scanned <br />
+                            {new Date(
+                              row.original.scans[
+                                getIndexOfNewestScan(row.original.scans)
+                              ].updated_at,
+                            ).toLocaleString()}
+                          </div>
+                          <Tooltip.Arrow className="TooltipArrow" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </div>
+              )
+              
+            ) : (
+              <ExclamationTriangleIcon aria-label="No Scans Found!"/>
+            )}
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'report',
+        header: 'Results JSON',
+        cell: ({ row }) =>
+          row.original?.scans.length > 0 ? (
+            row.original.scans[getIndexOfNewestScan(row.original.scans)]
+              .processing ? (
+              <span className="select-none text-[#666]">Not ready</span>
+            ) : (
+              <button
+                className="inline-flex items-center text-blue-500 hover:opacity-50"
+                onClick={async () => {
+                  const element = document.getElementById('downloadReportLink');
+                  if (element) {
+                    const response = await getScan(
+                      row.original.scans[
+                        getIndexOfNewestScan(row.original.scans)
+                      ].id,
+                    );
+                    element.setAttribute(
+                      'href',
+                      'data:text/json;charset=utf-8,' +
+                        encodeURIComponent(JSON.stringify(response)),
+                    );
+                    element.setAttribute('download', 'results.json');
+                    element.click();
+                  } else {
+                    console.log(
+                      'Error fetching scan:',
+                      row.original.scans[
+                        getIndexOfNewestScan(row.original.scans)
+                      ].id,
+                    );
+                  }
+                }}
+              >
+                <DownloadIcon className="ml-1" aria-label="Download" />
+              </button>
+            )
+          ) : (
+            <></>
+          ),
+      },
+    ],
+    [],
+  );
+
+  //const defaultData = React.useMemo(() => [], []);
+   // data fetching
+  /*  const dataQuery = useQuery({
+    queryKey: ['property', pagination],
+    queryFn: async () => {
+      const theParams = {
+        property_id: 
+        limit: pagination.pageSize,
+        offset: pagination.pageIndex * pagination.pageSize,
+      };
+      console.log(theParams);
+      return getPages({ params: theParams });
+    },
+    placeholderData: keepPreviousData,
+  }); */
+  const table = useReactTable({
+    data: property.urls as IPage[] ?? initialProperty.urls,
+    columns,
+    // pageCount: dataQuery.data?.pageCount ?? -1, //you can now pass in `rowCount` instead of pageCount and `pageCount` will be calculated internally (new in v8.13.0)
+    //rowCount: dataQuery.data?.total, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
+    state: {
+      pagination,
+    },
+    enableRowSelection: false,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    manualPagination: true, //we're doing manual "server-side" pagination
+    //debugTable: true,
+  });
+
+  
   return (
     <>
       <SEO
@@ -219,6 +386,156 @@ const EditProperty = () => {
           </Button>
         </div>
       </section>
+
+      {table.getRowCount() === 0 ? (
+        <div className="mt-7 text-center">
+          <h2 className="text-xl font-semibold text-gray-700">
+            No Pages Added
+          </h2>
+          <p className="mt-2 text-gray-600">
+            You haven't added any pages yet. Get started by adding your first
+            page and monitor its accessibility status.
+          </p>
+          <Link
+            to="/pages/add"
+            className="mt-4 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-[#005031] px-4 py-2 text-sm text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2"
+          >
+            Add Your First Page
+          </Link>
+        </div>
+      ) : (
+        <section
+          aria-labelledby="pages-list-heading"
+          className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"
+        >
+          <div className="w-full overflow-x-auto">
+            <div className="p-2">
+              <Table role="table" aria-label="Pages List">
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead key={header.id} role="columnheader">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        role="row"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id} role="cell">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow role="row">
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                        role="cell"
+                      >
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              <nav
+                role="navigation"
+                aria-label="Pagination Navigation"
+                className="flex items-center gap-2"
+              >
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.firstPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {'<<'}
+                </button>
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {'<'}
+                </button>
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  {'>'}
+                </button>
+                <button
+                  className="rounded border p-1"
+                  onClick={() => table.lastPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  {'>>'}
+                </button>
+                <span className="flex items-center gap-1">
+                  <div>Page</div>
+                  <strong>
+                    {table.getState().pagination.pageIndex + 1} of{' '}
+                    {table.getPageCount().toLocaleString()}
+                  </strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  | Go to page:
+                  <input
+                    type="number"
+                    min="1"
+                    max={table.getPageCount()}
+                    defaultValue={table.getState().pagination.pageIndex + 1}
+                    onChange={(e) => {
+                      const page = e.target.value
+                        ? Number(e.target.value) - 1
+                        : 0;
+                      table.setPageIndex(page);
+                    }}
+                    className="w-16 rounded border p-1"
+                  />
+                </span>
+                <select
+                  value={table.getState().pagination.pageSize}
+                  onChange={(e) => {
+                    table.setPageSize(Number(e.target.value));
+                  }}
+                >
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+                
+              </nav>
+
+             
+            </div>
+          </div>
+          <a id="downloadReportLink" style={{ display: 'none' }}></a>
+        </section>
+      )}
 
       <section
         aria-labelledby="danger-zone-heading"

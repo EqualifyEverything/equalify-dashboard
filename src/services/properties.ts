@@ -1,4 +1,5 @@
 import { del, get, post, put } from 'aws-amplify/api';
+import { IPageScan } from './pages';
 
 interface ApiResponse<T> {
   status: string;
@@ -24,6 +25,16 @@ interface Property {
   processed: null | string;
   updatedAt: string;
   createdAt: string;
+}
+
+interface IPropertyWithPagesPage {
+  url: string;
+  id: string;
+  scans: IPageScan[];
+}
+
+interface IPropertyWithPages extends Property {
+  urls: IPropertyWithPagesPage[]
 }
 
 const API_NAME = 'auth';
@@ -58,22 +69,22 @@ export const getProperties = async (): Promise<Property[]> => {
  * @throws Will throw an error if the fetch fails
  */
 export const getPropertyById = async (
-  propertyId: string,
-): Promise<Property> => {
+  propertyId: string, limit: string, offset:string
+): Promise<IPropertyWithPages> => {
   try {
     const response = await get({
       apiName: API_NAME,
-      path: `/get/properties`,
+      path: `/get/pages/property`,
       options: {
-        queryParams: { propertyIds: propertyId },
+        queryParams: { property_id: propertyId, limit:limit, offset:offset },
       },
     }).response;
 
     const { body } = response;
     const { result } = (await body.json()) as unknown as ApiResponse<
-      Property[]
+    IPropertyWithPages
     >;
-    return result[0];
+    return result;
   } catch (error) {
     console.error('Error fetching property by ID', error);
     throw error;

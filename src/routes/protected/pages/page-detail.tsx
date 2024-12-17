@@ -186,8 +186,8 @@ const pageDetail = () => {
     <>
       <SEO
         title="Pages - Equalify"
-        description="Manage and monitor your properties on Equalify to improve their accessibility."
-        url="https://dashboard.equalify.app/properties"
+        description="Manage and monitor your pages on Equalify to improve their accessibility."
+        url={`https://dashboard.equalify.app/pages/${pageId}`}
       />
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
         <div className="flex flex-row items-center gap-2">
