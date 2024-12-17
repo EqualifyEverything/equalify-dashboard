@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CheckCircledIcon, DownloadIcon, ExclamationTriangleIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
+  keepPreviousData,
   QueryClient,
   useMutation,
   useQuery,
@@ -28,7 +29,7 @@ import { DangerDialog } from '~/components/dialogs';
 import { PropertyForm } from '~/components/forms';
 import { SEO } from '~/components/layout';
 import { propertyQuery } from '~/queries/properties';
-import { deleteProperty, getScan, IPage, IPageScan, sendToScan, updateProperty } from '~/services';
+import { deleteProperty, getProperties, getPropertyById, getScan, IPage, IPageScan, sendToScan, updateProperty } from '~/services';
 import { assertNonNull } from '~/utils/safety';
 import { LoadingProperty } from './loading';
 import { ColumnDef, flexRender, getCoreRowModel, PaginationState, useReactTable } from '@tanstack/react-table';
@@ -49,7 +50,7 @@ export const propertyLoader =
       );
 
       const initialProperty = await queryClient.ensureQueryData(
-        propertyQuery(params.propertyId),
+        propertyQuery({property_id:params.propertyId, offset:0, limit:0}),
       );
       return { initialProperty, propertyId: params.propertyId };
     };
@@ -106,7 +107,7 @@ const EditProperty = () => {
   const [isSending, setIsSending] = useState(false);
 
   const { data: property, isLoading } = useQuery({
-    ...propertyQuery(propertyId!),
+    ...propertyQuery({ property_id: propertyId!, offset:0, limit:10}),
     initialData: initialProperty,
   });
 
@@ -288,26 +289,26 @@ const EditProperty = () => {
     [],
   );
 
-  //const defaultData = React.useMemo(() => [], []);
-   // data fetching
-  /*  const dataQuery = useQuery({
+  // data fetching
+    const defaultData = React.useMemo(() => [], []);
+    const dataQuery = useQuery({
     queryKey: ['property', pagination],
     queryFn: async () => {
-      const theParams = {
-        property_id: 
+      /* const theParams = {
+        property_id: propertyId,
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
       };
-      console.log(theParams);
-      return getPages({ params: theParams });
+      console.log(theParams); */
+      return getPropertyById(propertyId, pagination.pageSize,pagination.pageIndex * pagination.pageSize  );
     },
     placeholderData: keepPreviousData,
-  }); */
+  });  
   const table = useReactTable({
-    data: property.urls as IPage[] ?? initialProperty.urls,
+    data: dataQuery.data?.urls as IPage[] ?? defaultData,
     columns,
     // pageCount: dataQuery.data?.pageCount ?? -1, //you can now pass in `rowCount` instead of pageCount and `pageCount` will be calculated internally (new in v8.13.0)
-    //rowCount: dataQuery.data?.total, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
+    rowCount: dataQuery.data?.urls_aggregate.aggregate.count, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
     state: {
       pagination,
     },

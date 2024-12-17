@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getProperties, getPropertyById } from '~/services';
+import { getProperties, getPropertyById, IPropertyParams } from '~/services';
 
 // Query for all properties
 export const propertiesQuery = () => queryOptions({
@@ -8,10 +8,10 @@ export const propertiesQuery = () => queryOptions({
 });
 
 // Query for a specific property
-export const propertyQuery = (propertyId: string) => queryOptions({
-    queryKey: ['property', propertyId],
+export const propertyQuery = (params:IPropertyParams) => queryOptions({
+    queryKey: ['property', params.property_id], 
     queryFn: async () => {
-        const property = await getPropertyById(propertyId, "10", "10");
+        const property = await getPropertyById(params.property_id, params.limit, params.offset);
         if (!property) {
           throw new Response('', {
             status: 404,

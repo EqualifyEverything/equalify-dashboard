@@ -35,6 +35,17 @@ interface IPropertyWithPagesPage {
 
 interface IPropertyWithPages extends Property {
   urls: IPropertyWithPagesPage[]
+  urls_aggregate: {
+    aggregate: {
+      count: number
+    }
+  }
+}
+
+export interface IPropertyParams {
+  property_id: string,
+  offset: number,
+  limit: number
 }
 
 const API_NAME = 'auth';
@@ -69,14 +80,14 @@ export const getProperties = async (): Promise<Property[]> => {
  * @throws Will throw an error if the fetch fails
  */
 export const getPropertyById = async (
-  propertyId: string, limit: string, offset:string
+  propertyId: string, limit:number, offset:number
 ): Promise<IPropertyWithPages> => {
   try {
     const response = await get({
       apiName: API_NAME,
       path: `/get/pages/property`,
       options: {
-        queryParams: { property_id: propertyId, limit:limit, offset:offset },
+        queryParams: { property_id: propertyId, limit:limit.toString(), offset:offset.toString() },
       },
     }).response;
 
