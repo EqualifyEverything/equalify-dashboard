@@ -298,7 +298,10 @@ const Pages = () => {
     const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
       return row.original.id;
     });
+    if(urlsToSend.length === 0) return;
+    console.log("Updating property...");
     console.log(urlsToSend, selectedProperty);
+
 
     try {
       const out = { urls: urlsToSend, property: selectedProperty };
@@ -328,6 +331,7 @@ const Pages = () => {
       console.log(urlsToSend, selectedProperty);
       throw error;
     } 
+    setSelectedProperty("null");
     table.resetRowSelection();
     dataQuery.refetch();
   };
