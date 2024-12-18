@@ -1,4 +1,4 @@
-import { post, get } from 'aws-amplify/api';
+import { post, get, patch, put } from 'aws-amplify/api';
 import { stringify } from 'postcss';
 
 interface ApiResponse<T> {
@@ -47,6 +47,7 @@ export interface IUrl {
 export interface IPageDetailParams {
   pageId: string;
 }
+
 
 const API_NAME = 'auth';
 
@@ -120,6 +121,30 @@ export const sendUrlsToScan = async (
       path: '/add/scansByPage',
       options: {
         body:  urls
+      },
+    }).response;
+
+    const { body, statusCode } = response;
+    const result = await body.json();
+    return { result, status: statusCode === 200 ? 'success' : 'error' };
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Update the property for an array of pages
+ * @throws Will throw an error if the send fails
+ */
+export const updateUrlsProperty = async (
+  params:any
+): Promise<{ result: any; status: string }> => {
+  try {
+    const response = await put({
+      apiName: API_NAME,
+      path: '/update/pages/property',
+      options: {
+        body:  params
       },
     }).response;
 

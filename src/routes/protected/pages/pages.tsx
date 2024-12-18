@@ -1,10 +1,15 @@
-import React, { HTMLProps, useState } from 'react';
+import React, { HTMLProps, useEffect, useState } from 'react';
 import {
   CheckCircledIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   DownloadIcon,
   ExclamationTriangleIcon,
   ReloadIcon,
 } from '@radix-ui/react-icons';
+import * as Label from '@radix-ui/react-label';
+import * as Select from '@radix-ui/react-select';
+import * as Separator from '@radix-ui/react-separator';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { keepPreviousData, QueryClient, useQuery } from '@tanstack/react-query';
 import {
@@ -14,7 +19,7 @@ import {
   PaginationState,
   useReactTable,
 } from '@tanstack/react-table';
-import { Link } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router-dom';
 
 import { toast } from '~/components/alerts';
 import { SEO } from '~/components/layout';
@@ -26,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/tables/table';
-import { pagesQuery } from '~/queries';
+import { pagesQuery, propertiesQuery } from '~/queries';
 //import { LoadingPages } from './loading';
 import {
   getPages,
@@ -34,19 +39,26 @@ import {
   IPage,
   IPageScan,
   sendUrlsToScan,
+  updateUrlsProperty,
 } from '~/services';
+import { propertiesLoader } from '../properties/properties';
 
 // Initial data on pageload
 export const pagesLoader = (queryClient: QueryClient) => async () => {
   const initialPages = await queryClient.ensureQueryData(
     pagesQuery({ limit: 10, offset: 0 }),
   );
-  return { initialPages };
+  const initialProperties =
+    await queryClient.ensureQueryData(propertiesQuery());
+  return { initialPages, initialProperties };
 };
 
 const Pages = () => {
   //const rerender = React.useReducer(() => ({}), {})[1]
   const [rowSelection, setRowSelection] = useState({});
+  const { initialProperties } = useLoaderData() as Awaited<
+    ReturnType<ReturnType<typeof propertiesLoader>>
+  >;
 
   // pagination
   const [pagination, setPagination] = useState<PaginationState>({
@@ -112,7 +124,7 @@ const Pages = () => {
         cell: ({ row }) => (
           <Link
             className="text-blue-500 hover:opacity-50"
-            to={'./'+row.original.id}
+            to={'./' + row.original.id}
           >
             {row.original.url}
           </Link>
@@ -136,10 +148,10 @@ const Pages = () => {
         cell: ({ row }) => (
           <div>
             {row.original?.scans.length > 0 ? (
-              row.original.scans[getIndexOfNewestScan(row.original.scans)].processing ? (
-              <ReloadIcon aria-label="Processing" className="animate-spin" />
-              ):(
-              
+              row.original.scans[getIndexOfNewestScan(row.original.scans)]
+                .processing ? (
+                <ReloadIcon aria-label="Processing" className="animate-spin" />
+              ) : (
                 <div className="inline-flex items-center">
                   <Tooltip.Provider>
                     <Tooltip.Root>
@@ -166,9 +178,8 @@ const Pages = () => {
                   </Tooltip.Provider>
                 </div>
               )
-              
             ) : (
-              <ExclamationTriangleIcon aria-label="No Scans Found!"/>
+              <ExclamationTriangleIcon aria-label="No Scans Found!" />
             )}
           </div>
         ),
@@ -220,6 +231,7 @@ const Pages = () => {
     [],
   );
 
+  // setup the table
   const table = useReactTable({
     data: dataQuery.data?.pages ?? defaultData,
     columns,
@@ -237,6 +249,7 @@ const Pages = () => {
     //debugTable: true,
   });
 
+  // handler for sending pages to scan
   const sendSelectedPagesToScan = async () => {
     const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
       return { url: row.original.url, urlId: row.original.id };
@@ -270,6 +283,51 @@ const Pages = () => {
       console.log(urlsToSend);
       throw error;
     }
+    table.resetRowSelection();
+    dataQuery.refetch();
+  };
+
+  const [selectedProperty, setSelectedProperty] = useState("null");
+  useEffect(() => {
+    updateSelectedPagesProperty();
+    return;
+  }, [selectedProperty]);
+
+  // handler for updating property on pages
+  const updateSelectedPagesProperty = async () => {
+    const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
+      return row.original.id;
+    });
+    console.log(urlsToSend, selectedProperty);
+
+    try {
+      const out = { urls: urlsToSend, property: selectedProperty };
+      const response = await updateUrlsProperty(out);
+
+      if (response.status === 'success') {
+        toast.success({
+          title: 'Success',
+          description: 'Property updated!',
+        });
+      } else {
+        toast.error({
+          title: 'Error',
+          description: 'There was a problem setting the property.',
+        });
+        console.log(urlsToSend);
+        console.log(response);
+        throw new Response('There was a problem setting the property.', {
+          status: 500,
+        });
+      }
+    } catch (error) {
+      toast.error({
+        title: 'Error',
+        description: 'There was a problem setting the property.',
+      });
+      console.log(urlsToSend, selectedProperty);
+      throw error;
+    } 
     table.resetRowSelection();
     dataQuery.refetch();
   };
@@ -343,8 +401,61 @@ const Pages = () => {
                 {table.getIsAllRowsSelected() ||
                 table.getIsSomeRowsSelected() ? (
                   <tbody>
-                    <tr>
-                      <td colSpan={5} className="bg-green-100 p-2 px-4">
+                    <tr className="bg-green-100 p-2 px-4">
+                      <td className="p-2 px-4">
+                        <Label.Root htmlFor="property" className="pr-2 text-xs">
+                          Move to Property
+                        </Label.Root>
+
+                        <Select.Root
+                          value={selectedProperty}
+                          onValueChange={setSelectedProperty}
+                        >
+                          <Select.Trigger
+                            className="SelectTrigger border border-slate-200"
+                            aria-label="Add to Property"
+                          >
+                            <Select.Value placeholder="Select a Property…" />
+                            <Select.Icon className="SelectIcon">
+                              <ChevronDownIcon />
+                            </Select.Icon>
+                          </Select.Trigger>
+                          <Select.Portal>
+                            <Select.Content className="SelectContent">
+                              <Select.ScrollUpButton className="SelectScrollButton">
+                                <ChevronUpIcon />
+                              </Select.ScrollUpButton>
+                              <Select.Viewport className="SelectViewport">
+                                <Select.Item
+                                  value="null"
+                                  key="null"
+                                  className="cursor-pointer p-2 hover:bg-green-100"
+                                >
+                                  <Select.ItemText>None</Select.ItemText>
+                                </Select.Item>
+                                {initialProperties.map((item, index) => (
+                                  <Select.Item
+                                    value={item.id}
+                                    key={index}
+                                    className="cursor-pointer p-2 hover:bg-green-100"
+                                  >
+                                    <Select.ItemText>
+                                      {item.name}
+                                    </Select.ItemText>
+                                  </Select.Item>
+                                ))}
+                              </Select.Viewport>
+                              <Select.ScrollDownButton className="SelectScrollButton">
+                                <ChevronDownIcon />
+                              </Select.ScrollDownButton>
+                            </Select.Content>
+                          </Select.Portal>
+                        </Select.Root>
+                      </td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td className="p-2 px-4">
                         <button
                           className="border-1 rounded rounded-md border-slate-900 bg-white p-2 px-4 py-1 shadow"
                           onClick={() => sendSelectedPagesToScan()}
