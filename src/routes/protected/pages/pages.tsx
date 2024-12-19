@@ -288,18 +288,19 @@ const Pages = () => {
   };
 
   // handlers for updating property on pages
-  const [selectedProperty, setSelectedProperty] = useState("Select a Property");
+  const [selectedProperty, setSelectedProperty] = useState('Select a Property');
   useEffect(() => {
     updateSelectedPagesProperty();
     return;
   }, [selectedProperty]);
-  
+
   const updateSelectedPagesProperty = async () => {
     const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
       return row.original.id;
     });
-    if(urlsToSend.length === 0 || selectedProperty == "Select a Property") return; 
-    console.log("Updating property...");
+    if (urlsToSend.length === 0 || selectedProperty == 'Select a Property')
+      return;
+    console.log('Updating property...');
     console.log(urlsToSend, selectedProperty);
 
     try {
@@ -329,8 +330,8 @@ const Pages = () => {
       });
       console.log(urlsToSend, selectedProperty);
       throw error;
-    } 
-    setSelectedProperty("Select a Property");
+    }
+    setSelectedProperty('Select a Property');
     table.resetRowSelection();
     dataQuery.refetch();
   };
@@ -429,12 +430,14 @@ const Pages = () => {
                                 <ChevronUpIcon />
                               </Select.ScrollUpButton>
                               <Select.Viewport className="SelectViewport">
-                              <Select.Item
+                                <Select.Item
                                   value="Select a Property"
                                   key="Select a Property"
                                   className="cursor-pointer p-2 hover:bg-green-100"
                                 >
-                                  <Select.ItemText>Select a Property...</Select.ItemText>
+                                  <Select.ItemText>
+                                    Select a Property...
+                                  </Select.ItemText>
                                 </Select.Item>
                                 <Select.Item
                                   value="null"
@@ -512,45 +515,42 @@ const Pages = () => {
               <nav
                 role="navigation"
                 aria-label="Pagination Navigation"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 pt-2"
               >
                 <button
-                  className="rounded border p-1"
+                  className="hover:bg-accent hover:text-accent-foreground hidden h-8 w-8 items-center justify-center whitespace-nowrap rounded-md border border-gray-300 bg-transparent p-0 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 lg:flex"
                   onClick={() => table.firstPage()}
                   disabled={!table.getCanPreviousPage()}
                 >
                   {'<<'}
                 </button>
                 <button
-                  className="rounded border p-1"
+                  className="hover:bg-accent hover:text-accent-foreground hidden h-8 w-8 items-center justify-center whitespace-nowrap rounded-md border border-gray-300 bg-transparent p-0 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 lg:flex"
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
                 >
                   {'<'}
                 </button>
                 <button
-                  className="rounded border p-1"
+                  className="hover:bg-accent hover:text-accent-foreground hidden h-8 w-8 items-center justify-center whitespace-nowrap rounded-md border border-gray-300 bg-transparent p-0 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 lg:flex"
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
                 >
                   {'>'}
                 </button>
                 <button
-                  className="rounded border p-1"
+                  className="hover:bg-accent hover:text-accent-foreground hidden h-8 w-8 items-center justify-center whitespace-nowrap rounded-md border border-gray-300 bg-transparent p-0 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 lg:flex"
                   onClick={() => table.lastPage()}
                   disabled={!table.getCanNextPage()}
                 >
                   {'>>'}
                 </button>
-                <span className="flex items-center gap-1">
-                  <div>Page</div>
-                  <strong>
-                    {table.getState().pagination.pageIndex + 1} of{' '}
-                    {table.getPageCount().toLocaleString()}
-                  </strong>
+                <span className="flex w-[100px] items-center justify-center text-sm font-medium">
+                  Page {table.getState().pagination.pageIndex + 1} of{' '}
+                  {table.getPageCount().toLocaleString()}
                 </span>
-                <span className="flex items-center gap-1">
-                  | Go to page:
+                {/* <span className="flex w-[100px] items-center justify-center text-sm font-medium">
+                  <span>| Go to page:</span>
                   <input
                     type="number"
                     min="1"
@@ -564,26 +564,52 @@ const Pages = () => {
                     }}
                     className="w-16 rounded border p-1"
                   />
-                </span>
-                <select
-                  value={table.getState().pagination.pageSize}
-                  onChange={(e) => {
-                    table.setPageSize(Number(e.target.value));
+                </span> */}
+                <Select.Root
+                  value={table.getState().pagination.pageSize.toString()}
+                  onValueChange={(val) => {
+                    table.setPageSize(Number(val));
                   }}
                 >
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <option key={pageSize} value={pageSize}>
-                      Show {pageSize}
-                    </option>
-                  ))}
-                </select>
-                {dataQuery.isFetching ? 'Loading...' : null}
-              </nav>
-
-              <div>
+                  <Select.Trigger
+                    className="SelectTrigger border border-slate-200"
+                    aria-label="Pagination Page Size"
+                  >
+                    <Select.Value placeholder="Select Pages to Show…" />
+                    <Select.Icon className="SelectIcon">
+                      <ChevronDownIcon />
+                    </Select.Icon>
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Content className="SelectContent">
+                      <Select.ScrollUpButton className="SelectScrollButton">
+                        <ChevronUpIcon />
+                      </Select.ScrollUpButton>
+                      <Select.Viewport className="SelectViewport">
+                        {[10, 20, 30, 40, 50].map((pageSize) => (
+                          <Select.Item
+                            value={pageSize.toString()}
+                            key={pageSize}
+                            className="cursor-pointer p-2 hover:bg-green-100"
+                          >
+                            <Select.ItemText>Show {pageSize}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.Viewport>
+                      <Select.ScrollDownButton className="SelectScrollButton">
+                        <ChevronDownIcon />
+                      </Select.ScrollDownButton>
+                    </Select.Content>
+                  </Select.Portal>
+                </Select.Root>
+                {dataQuery.isFetching ? <ReloadIcon aria-label="Loading..." className="animate-spin" /> : null}
+                <div className="w-[200px] items-center justify-center text-sm font-medium">
                 Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
                 {dataQuery.data?.total.toLocaleString()}
               </div>
+              </nav>
+
+              
             </div>
           </div>
           <a id="downloadReportLink" style={{ display: 'none' }}></a>
