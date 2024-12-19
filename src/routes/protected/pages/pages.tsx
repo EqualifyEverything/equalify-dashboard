@@ -6,6 +6,7 @@ import {
   DownloadIcon,
   ExclamationTriangleIcon,
   ReloadIcon,
+  TrashIcon,
 } from '@radix-ui/react-icons';
 import * as Label from '@radix-ui/react-label';
 import * as Select from '@radix-ui/react-select';
@@ -42,6 +43,8 @@ import {
   updateUrlsProperty,
 } from '~/services';
 import { propertiesLoader } from '../properties/properties';
+import DangerDialog from '~/components/dialogs/danger-dialog';
+import { Button } from '~/components/buttons';
 
 // Initial data on pageload
 export const pagesLoader = (queryClient: QueryClient) => async () => {
@@ -186,7 +189,7 @@ const Pages = () => {
       },
       {
         accessorKey: 'report',
-        header: 'Results JSON',
+        header: 'Results',
         cell: ({ row }) =>
           row.original?.scans.length > 0 ? (
             row.original.scans[getIndexOfNewestScan(row.original.scans)]
@@ -227,6 +230,27 @@ const Pages = () => {
             <></>
           ),
       },
+      {
+        accessorKey: 'delete',
+        header: '',
+        cell: ({ row }) =>
+          <DangerDialog
+          title="Confirm Page Deletion"
+          description="Are you sure you want to delete this page? This action cannot be undone."
+          onConfirm={()=>{deletePages([row.original.id])}}
+          triggerButton={
+            <button
+              className="inline-flex items-center hover:opacity-50"
+              aria-describedby="delete-property-description"
+              aria-label="Delete Page"
+            >
+              <TrashIcon aria-hidden />
+            </button>
+          }
+        />
+        
+          
+      }
     ],
     [],
   );
@@ -335,6 +359,13 @@ const Pages = () => {
     table.resetRowSelection();
     dataQuery.refetch();
   };
+
+  // Delete pages
+  const deletePages = async (pageIds:Array<string>) => {
+    console.log(pageIds);
+    table.resetRowSelection();
+    dataQuery.refetch();
+  }
 
   return (
     <>
@@ -465,10 +496,30 @@ const Pages = () => {
                           </Select.Portal>
                         </Select.Root>
                       </td>
+                     
+                      <td>
+                        <DangerDialog
+                          title="Confirm Page Deletion"
+                          description={`Are you sure you want to delete ${table.getSelectedRowModel().flatRows.length} page(s)? This action cannot be undone.`}
+                          onConfirm={()=>{
+                            const urls = table.getSelectedRowModel().flatRows.map((val)=>{return val.original.id});
+                            deletePages(urls)
+                          }}
+                          triggerButton={
+                            <button
+                              className="border-1 rounded rounded-md border-slate-900 bg-white p-2 px-4 py-1 shadow flex items-center"
+                              aria-describedby="delete-property-description"
+                              aria-label="Delete Page"
+                            >
+                             <TrashIcon aria-hidden className='mr-1' />{` `}Delete Selected
+                            </button>
+                          }
+                          />
+                      </td> 
                       <td></td>
                       <td></td>
-                      <td></td>
-                      <td className="p-2 px-4">
+                      
+                      <td colSpan={2} className="p-2 px-4">
                         <button
                           className="border-1 rounded rounded-md border-slate-900 bg-white p-2 px-4 py-1 shadow"
                           onClick={() => sendSelectedPagesToScan()}
@@ -476,6 +527,7 @@ const Pages = () => {
                           {`Scan ${table.getSelectedRowModel().flatRows.length} Pages`}
                         </button>
                       </td>
+                      <td></td>
                     </tr>
                   </tbody>
                 ) : (
