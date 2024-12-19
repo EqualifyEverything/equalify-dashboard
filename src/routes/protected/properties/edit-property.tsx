@@ -156,7 +156,7 @@ const EditProperty = () => {
   const handleSendToScan = async () => {
     setIsSending(true);
     try {
-      const response = await sendToScan([propertyId!]);
+      const response = await sendToScan(propertyId);
       if (response.status === 'success') {
         toast.success({ title: 'Success', description: 'Property sent to scan successfully!' });
       } else if (response.status === 'user_not_validated') {

@@ -78,14 +78,14 @@ export const getScan = async (scanId: string): Promise<Scan> => {
  * @throws Will throw an error if the scan initiation fails
  */
 export const sendToScan = async (
-  propertyIds: string[],
+  propertyId: string,
 ): Promise<{ status: string }> => {
   try {
     const response = await post({
       apiName: API_NAME,
-      path: '/add/scans',
+      path: '/add/scansByProperty',
       options: {
-        body: { propertyIds },
+        body: { propertyId },
       },
     }).response;
 

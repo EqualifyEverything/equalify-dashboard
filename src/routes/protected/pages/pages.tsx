@@ -287,21 +287,20 @@ const Pages = () => {
     dataQuery.refetch();
   };
 
-  const [selectedProperty, setSelectedProperty] = useState("null");
+  // handlers for updating property on pages
+  const [selectedProperty, setSelectedProperty] = useState("Select a Property");
   useEffect(() => {
     updateSelectedPagesProperty();
     return;
   }, [selectedProperty]);
-
-  // handler for updating property on pages
+  
   const updateSelectedPagesProperty = async () => {
     const urlsToSend = table.getSelectedRowModel().flatRows.map((row) => {
       return row.original.id;
     });
-    if(urlsToSend.length === 0) return;
+    if(urlsToSend.length === 0 || selectedProperty == "Select a Property") return; 
     console.log("Updating property...");
     console.log(urlsToSend, selectedProperty);
-
 
     try {
       const out = { urls: urlsToSend, property: selectedProperty };
@@ -310,7 +309,7 @@ const Pages = () => {
       if (response.status === 'success') {
         toast.success({
           title: 'Success',
-          description: 'Property updated!',
+          description: 'Property for page(s) updated!',
         });
       } else {
         toast.error({
@@ -331,7 +330,7 @@ const Pages = () => {
       console.log(urlsToSend, selectedProperty);
       throw error;
     } 
-    setSelectedProperty("null");
+    setSelectedProperty("Select a Property");
     table.resetRowSelection();
     dataQuery.refetch();
   };
@@ -430,6 +429,13 @@ const Pages = () => {
                                 <ChevronUpIcon />
                               </Select.ScrollUpButton>
                               <Select.Viewport className="SelectViewport">
+                              <Select.Item
+                                  value="Select a Property"
+                                  key="Select a Property"
+                                  className="cursor-pointer p-2 hover:bg-green-100"
+                                >
+                                  <Select.ItemText>Select a Property...</Select.ItemText>
+                                </Select.Item>
                                 <Select.Item
                                   value="null"
                                   key="null"
