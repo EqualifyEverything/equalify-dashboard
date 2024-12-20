@@ -1,4 +1,4 @@
-import { post, get, patch, put } from 'aws-amplify/api';
+import { post, get, patch, put, del } from 'aws-amplify/api';
 import { stringify } from 'postcss';
 
 interface ApiResponse<T> {
@@ -127,6 +127,33 @@ export const sendUrlsToScan = async (
     const { body, statusCode } = response;
     const result = await body.json();
     return { result, status: statusCode === 200 ? 'success' : 'error' };
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Send pages to scan
+ * @param urls - Array of URL IDs to sent to scan
+ * @throws Will throw an error if the send fails
+ */
+export const deleteUrls = async (
+  pageIds:Array<string>
+): Promise<{ status: string }> => {
+  try {
+    const response = await del({
+      apiName: API_NAME,
+      path: '/delete/pages',
+      options: {
+        queryParams: {
+          pageIds: JSON.stringify(pageIds)
+        }
+      }
+      
+    }).response;
+
+    const { statusCode } = response;
+    return { status: statusCode === 200 ? 'success' : 'error' };
   } catch (error) {
     throw error;
   }

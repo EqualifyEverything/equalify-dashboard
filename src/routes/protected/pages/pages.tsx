@@ -35,6 +35,7 @@ import {
 import { pagesQuery, propertiesQuery } from '~/queries';
 //import { LoadingPages } from './loading';
 import {
+  deleteUrls,
   getPages,
   getScan,
   IPage,
@@ -362,7 +363,35 @@ const Pages = () => {
 
   // Delete pages
   const deletePages = async (pageIds:Array<string>) => {
-    console.log(pageIds);
+    console.log("Deleting...", pageIds);
+    try {
+
+      const response = await deleteUrls(pageIds);
+
+      if (response.status === 'success') {
+        toast.success({
+          title: 'Success',
+          description: 'Pages deleted!',
+        });
+      } else {
+        toast.error({
+          title: 'Error',
+          description: 'There was a problem deleting the pages.',
+        });
+        console.log(pageIds);
+        console.log(response);
+        throw new Response('There was a problem deleting the pages', {
+          status: 500,
+        });
+      }
+    } catch (error) {
+      toast.error({
+        title: 'Error',
+        description: 'There was a problem deleting the pages.',
+      });
+      console.log(pageIds);
+      throw error;
+    }
     table.resetRowSelection();
     dataQuery.refetch();
   }
