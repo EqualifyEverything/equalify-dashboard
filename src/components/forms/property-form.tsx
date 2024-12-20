@@ -16,8 +16,8 @@ import { useSubmit } from 'react-router-dom';
 
 const PropertySchema = z.object({
   propertyName: z.string().min(1, 'Please enter a Property name.'),
-  propertyUrl: z.string().url('Please enter a valid URL.'),
-  propertyDiscovery: z.enum(['single', 'sitemap', 'discovery_process']),
+  //propertyUrl: z.string().url('Please enter a valid URL.'),
+  //propertyDiscovery: z.enum(['single', 'sitemap', 'discovery_process']),
 });
 
 type PropertyFormInputs = z.infer<typeof PropertySchema>;
@@ -78,7 +78,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
             </FormItem>
           )}
         />
-        <FormField
+       {/*  <FormField
           control={form.control}
           name="propertyUrl"
           render={({ field }) => (
@@ -99,8 +99,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               <FormMessage />
             </FormItem>
           )}
-        />
-        <FormField
+        /> */}
+        {/* <FormField
           control={form.control}
           name="propertyDiscovery"
           render={({ field }) => (
@@ -123,8 +123,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({
               </FormControl>
               <FormMessage />
             </FormItem>
-          )}
-        />
+          )} 
+        />*/}
       </form>
     </HookFormProvider>
   );

@@ -55,13 +55,10 @@ const AddProperty = () => {
     const propertyName = form?.elements.namedItem(
       'propertyName',
     ) as HTMLInputElement;
-    const propertyUrl = form?.elements.namedItem(
-      'propertyUrl',
-    ) as HTMLInputElement;
 
-    if (propertyName && propertyUrl) {
+    if (propertyName) {
       const isFormValid =
-        propertyName.value.trim() !== '' && propertyUrl.value.trim() !== '';
+        propertyName.value.trim() !== '';
       setIsFormValid(isFormValid);
     }
   };
@@ -86,8 +83,8 @@ const AddProperty = () => {
           actionUrl="/properties/add"
           defaultValues={{
             propertyName: '',
-            propertyUrl: '',
-            propertyDiscovery: 'single',
+            //propertyUrl: '',
+            //propertyDiscovery: 'single',
           }}
           formId="add-property-form"
           onChange={handleFormChange}

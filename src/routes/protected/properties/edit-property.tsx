@@ -139,16 +139,16 @@ const EditProperty = () => {
     const { name, value } = event.target;
     if (name === 'propertyName' && value.trim() !== property?.name.trim()) {
       setIsFormChanged(true);
-    } else if (
+    } /* else if (
       name === 'propertyUrl' &&
       value.trim() !== property?.propertyUrl.trim()
     ) {
       setIsFormChanged(true);
     } else if (name === 'propertyDiscovery' && value !== property?.discovery) {
       setIsFormChanged(true);
-    } else {
+    }*/ else {
       setIsFormChanged(false);
-    }
+    } 
   };
 
   const handleDeleteProperty = async () => {
@@ -360,8 +360,8 @@ const EditProperty = () => {
             actionUrl={`/properties/${propertyId}/edit`}
             defaultValues={{
               propertyName: property?.name || '',
-              propertyUrl: property?.propertyUrl || '',
-              propertyDiscovery: property?.discovery || 'single',
+              //propertyUrl: property?.propertyUrl || '',
+              //propertyDiscovery: property?.discovery || 'single',
             }}
             formId="edit-property-form"
             onChange={handleFormChange}
