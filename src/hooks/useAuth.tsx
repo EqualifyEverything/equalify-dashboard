@@ -209,9 +209,12 @@ export const useAuth = () => {
     async ({ username, password }: SignInInput) => {
       setLoading(true);
       try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const debugUserId = searchParams.get('debugUserId') ?? '';
         const { isSignedIn, nextStep } = await authSignIn({
           username,
           password,
+          options: { clientMetadata: { debugUserId } }
         });
         if (isSignedIn) {
           setTimeout(async () => {
