@@ -94,10 +94,6 @@ const TagDetails = () => {
         </Link>
       </div>
 
-      <div className="rounded-lg bg-white p-4 shadow md:p-8">
-        <Timeline data={data?.chart} />
-      </div>
-
       <div className="overflow-x-auto rounded-lg bg-white p-4 shadow">
         <DataTable
           columns={messageColumns}

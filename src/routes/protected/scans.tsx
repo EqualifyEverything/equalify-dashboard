@@ -5,7 +5,7 @@ import { useLoaderData } from 'react-router-dom';
 import { SEO } from '~/components/layout';
 import DataTable from '~/components/tables/data-table';
 import { scansQuery } from '~/queries';
-import { getScan } from '~/services';
+import { getApikey, getScan } from '~/services';
 
 interface Scan {
   jobId: string;
@@ -79,6 +79,12 @@ const Scans = () => {
     refetchInterval: 1000,
   });
 
+  const { data: apikey } = useQuery({
+    queryKey: ['apikey'],
+    queryFn: () => getApikey(),
+  })
+
+
   return (
     <>
       <SEO
@@ -87,10 +93,17 @@ const Scans = () => {
         url="https://dashboard.equalify.app/scans"
       />
 
-      <h1 id="scans-heading" className="text-2xl font-bold md:text-3xl">
-        Scans
-      </h1>
-
+      <div className='flex flex-row items-center justify-between'>
+        <h1 id="scans-heading" className="text-2xl font-bold md:text-3xl">
+          Scans
+        </h1>
+        {apikey?.isAdmin ? <a target='_blank'
+          href={`https://api.equalify.app/admin/process-scans?apikey=${apikey?.apikey}`}
+          className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+        >
+          <span aria-hidden="true">Process Scans Manually</span>
+        </a> : <div />}
+      </div>
       <section
         aria-labelledby="queue-heading"
         className="mt-7 space-y-6 rounded-lg bg-white p-6 shadow"

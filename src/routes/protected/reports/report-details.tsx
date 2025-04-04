@@ -6,6 +6,7 @@ import Timeline from '~/components/charts/timeline';
 import { SEO } from '~/components/layout';
 import { DataTable } from '~/components/tables';
 import { reportDetailsQuery } from '~/queries';
+import { getApikey } from '~/services';
 import { assertNonNull } from '~/utils/safety';
 
 interface Message {
@@ -116,6 +117,11 @@ const ReportDetails = () => {
     },
     // { accessorKey: 'occurrencesActive', header: 'Active' },
   ];
+  const { data: apikey } = useQuery({
+    queryKey: ['apikey'],
+    queryFn: () => getApikey(),
+  })
+
 
   return (
     <div className="space-y-4">
@@ -131,13 +137,28 @@ const ReportDetails = () => {
         >
           {reportName}
         </h1>
-        <Link
-          to={`/reports/${reportId}/edit`}
-          className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
-        >
-          <span className="sr-only">{`Edit ${reportName} Report`}</span>
-          <span aria-hidden="true">Edit Report</span>
-        </Link>
+        <div className='flex flex-row items-center gap-2'>
+          {apikey?.isAdmin && <a target='_blank'
+            href={`https://api.equalify.app/admin/clear-cache?apikey=${apikey?.apikey}`}
+            className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+          >
+            <span aria-hidden="true">Manually Clear Cache</span>
+          </a>}
+          <a target='_blank'
+            href={`https://api.equalify.app/get/results/csv?reportId=${reportId}&apikey=${apikey?.apikey}`}
+            className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+          >
+            <span className="sr-only">{`Download ${reportName} Report`}</span>
+            <span aria-hidden="true">Download CSV</span>
+          </a>
+          <Link
+            to={`/reports/${reportId}/edit`}
+            className="inline-flex h-9 items-center justify-end place-self-end whitespace-nowrap  rounded-md bg-[#005031] px-4 py-3 text-base text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#1D781D] focus-visible:ring-offset-2 max-sm:w-fit max-sm:px-3 max-sm:py-2.5"
+          >
+            <span className="sr-only">{`Edit ${reportName} Report`}</span>
+            <span aria-hidden="true">Edit Report</span>
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-lg bg-white p-4 shadow md:p-8">

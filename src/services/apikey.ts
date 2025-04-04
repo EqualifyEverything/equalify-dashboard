@@ -2,6 +2,7 @@ import { get } from 'aws-amplify/api';
 
 interface ApiResponse {
     apikey: string;
+    isAdmin: boolean;
 }
 const API_NAME = 'auth';
 
@@ -18,8 +19,8 @@ export const getApikey = async (): Promise<ApiResponse> => {
         }).response;
 
         const { body } = response;
-        const { apikey } = (await body.json()) as unknown as ApiResponse;
-        return { apikey };
+        const { apikey, isAdmin } = (await body.json()) as unknown as ApiResponse;
+        return { apikey, isAdmin };
     } catch (error) {
         console.error('Error fetching API Key', error);
         throw error;
